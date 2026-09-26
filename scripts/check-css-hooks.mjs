@@ -28,7 +28,7 @@ const ALLOWED_PSEUDO_ELEMENTS = new Set([
 const ALLOWED_COMBINATORS = new Set(['', '>', '+', '~']);
 
 /**
- * @returns {Promise<{contract: any, allowedAtoms: Set<string>, rootCompounds: Set<string>}>}
+ * @returns {Promise<{contract: any, allowedAtoms: Set<string>, rootCompounds: Set<string>, atomToHookId: Map<string, string>}>}
  */
 async function loadContract() {
   // `contracts/theme-styling-contract.jcs` is read directly off disk from
@@ -45,12 +45,18 @@ async function loadContract() {
   const allowedAtoms = new Set(
     contract.publicThemeSlotHooks.map((hook) => hook.selectorAtom),
   );
+  const atomToHookId = new Map(
+    contract.publicThemeSlotHooks.map((hook) => [
+      hook.selectorAtom,
+      hook.hookId,
+    ]),
+  );
   const rootCompounds = new Set([
     contract.publicationRootSelector,
     contract.resolvedPaletteSelectors.light,
     contract.resolvedPaletteSelectors.dark,
   ]);
-  return { contract, allowedAtoms, rootCompounds };
+  return { contract, allowedAtoms, rootCompounds, atomToHookId };
 }
 
 /**
@@ -97,9 +103,13 @@ function splitTrailingPseudoElements(compound, allowedAtoms) {
 }
 
 async function main() {
-  const { allowedAtoms, rootCompounds } = await loadContract();
+  const { allowedAtoms, rootCompounds, atomToHookId } = await loadContract();
   const { stylesheets } = await loadPackedFileSet();
   const themeRoot = resolveThemeRoot();
+  const theme = JSON.parse(
+    await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
+  );
+  const usedHookIds = new Set();
   let failed = false;
 
   for (const stylesheet of stylesheets) {
@@ -154,6 +164,7 @@ async function main() {
               failed = true;
               continue;
             }
+            usedHookIds.add(atomToHookId.get(split.atom));
             for (const pseudoElement of split.pseudoElements) {
               if (!ALLOWED_PSEUDO_ELEMENTS.has(pseudoElement)) {
                 console.error(
@@ -166,6 +177,34 @@ async function main() {
         });
       }
     });
+  }
+
+  // THM-M3: `theme.json.slotHooks` is documented as "the exact sorted set
+  // of hook IDs this CSS actually uses" — a claim only checked in one
+  // direction above (every used hook is in the closed catalog). Assert
+  // set-equality in both directions between what the CSS actually matched
+  // and what `theme.json` declares, so `slotHooks` can no longer drift
+  // from the CSS silently in either direction.
+  const declaredHookIds = new Set(
+    Array.isArray(theme.slotHooks) ? theme.slotHooks : [],
+  );
+  const missingFromCss = [...declaredHookIds]
+    .filter((hookId) => !usedHookIds.has(hookId))
+    .sort();
+  const extraInCss = [...usedHookIds]
+    .filter((hookId) => !declaredHookIds.has(hookId))
+    .sort();
+  if (missingFromCss.length > 0) {
+    console.error(
+      `theme.json.slotHooks declares hook(s) the CSS never uses: ${missingFromCss.join(', ')}`,
+    );
+    failed = true;
+  }
+  if (extraInCss.length > 0) {
+    console.error(
+      `the CSS uses hook(s) theme.json.slotHooks does not declare: ${extraInCss.join(', ')}`,
+    );
+    failed = true;
   }
 
   if (failed) {
