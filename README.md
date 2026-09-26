@@ -118,6 +118,29 @@ its own `digest:check` will fail; this is the responsibility of that
 theme's own maintenance pass, not something this repository does on the
 themes' behalf.
 
+`theme.json`'s digest chain is a function of the exact bytes of every
+member of the theme's own packed file set (`packed-files.mjs`), and that
+set is not only the `.css` files declared in `package.json.files` — it is
+always `package.json`, `README.md` and `LICENSE` _plus_ those declared
+files, because npm always includes the first three in a published
+tarball regardless of `files`. This means editing a theme's own
+`README.md` (a changelog entry, a badge, a typo fix) changes
+`evidenceDigest`/`integrity` exactly as editing a stylesheet would, and
+`digest:generate` must be re-run and its output re-committed afterward.
+Two checkouts that look "identical" but were not diffed byte-for-byte
+(for example, two worktrees of the same theme where one has an
+uncommitted or stale `README.md`) will legitimately regenerate different
+digests — this is the digest chain working as designed (binding the
+theme's real content, not just its stylesheets), not a path-dependence
+bug in the generator itself: `generate-theme-digests.mjs` reads every
+packed file strictly by content (`readFile` on the theme's own packed
+paths, entries sorted by path — see `packed-files.mjs`/`buildEntries`)
+and embeds no absolute path, `cwd`, timestamp, or process-order-dependent
+value anywhere in the chain, so byte-identical packed file sets at two
+different absolute paths regenerate byte-identical `theme.json` output
+(`test/digest-cycle.test.mjs`'s "path independence" case; also verified
+locally by running that case in a 30-iteration loop with zero failures).
+
 ## Property/at-rule/volume conformance (`grammar:check`, THD-M4)
 
 `css:check` validates selectors only (the closed hook catalog). `grammar:check`

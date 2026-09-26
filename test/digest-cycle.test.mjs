@@ -135,6 +135,64 @@ test('generate-theme-digests.mjs produces byte-identical theme.json for the same
   }
 });
 
+test('generate-theme-digests.mjs binds README.md content: editing it changes evidenceDigest/integrity (THD-M5)', async () => {
+  // THD-M5's "path independence" finding was initially reported as
+  // digest drift "~1 in 3 runs" at two different absolute paths for
+  // "identical content". Investigation (30 consecutive iterations of the
+  // path-independence test above, zero failures; a full byte-for-byte
+  // read of generate-theme-digests.mjs/packed-files.mjs/buildEntries)
+  // found no path-, timestamp-, or process-order-dependent input anywhere
+  // in the digest chain. What the report actually observed was content
+  // drift, not path drift: `README.md` is part of every theme's packed
+  // file set (`packed-files.mjs`; npm always includes it in a published
+  // tarball), so it participates in the digest chain exactly like a
+  // stylesheet does, and two checkouts that were not diffed byte-for-byte
+  // (e.g. two worktrees with different README.md content) legitimately
+  // regenerate different digests. This test locks in that this is real,
+  // intended behavior — not something a future change should "fix" by
+  // excluding README.md from the chain.
+  const themeRoot = resolveThemeRoot();
+  const scratchRootA = await buildScratchThemeCopy(themeRoot);
+  const scratchRootB = await buildScratchThemeCopy(themeRoot);
+  try {
+    const readmePath = path.join(scratchRootB, 'README.md');
+    await writeFile(
+      readmePath,
+      `${await readFile(readmePath, 'utf8')}\n<!-- THD-M5 regression fixture edit -->\n`,
+      'utf8',
+    );
+
+    const generateA = await runCheckScript('generate-theme-digests.mjs', {
+      env: { THEME_ROOT: scratchRootA },
+    });
+    const generateB = await runCheckScript('generate-theme-digests.mjs', {
+      env: { THEME_ROOT: scratchRootB },
+    });
+    assert.ok(generateA.passed, generateA.output);
+    assert.ok(generateB.passed, generateB.output);
+
+    const themeA = JSON.parse(
+      await readFile(path.join(scratchRootA, 'theme.json'), 'utf8'),
+    );
+    const themeB = JSON.parse(
+      await readFile(path.join(scratchRootB, 'theme.json'), 'utf8'),
+    );
+    assert.notEqual(
+      themeA.evidenceDigest,
+      themeB.evidenceDigest,
+      'a README.md edit must change evidenceDigest',
+    );
+    assert.notEqual(
+      themeA.integrity,
+      themeB.integrity,
+      'a README.md edit must change integrity',
+    );
+  } finally {
+    await rm(scratchRootA, { recursive: true, force: true });
+    await rm(scratchRootB, { recursive: true, force: true });
+  }
+});
+
 test('digest:check passes against the real committed theme.json without mutating it (THD-H2)', async () => {
   const themeRoot = resolveThemeRoot();
   const themePath = path.join(themeRoot, 'theme.json');
