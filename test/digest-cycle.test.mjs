@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { strict as assert } from 'node:assert';
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { test } from 'node:test';
@@ -61,6 +61,77 @@ test('the theme.json digest cycle (fixtureDigest, evidenceDigest, integrity) is 
     assert.notEqual(theme.fixtureDigest, theme.integrity);
   } finally {
     await rm(scratchRoot, { recursive: true, force: true });
+  }
+});
+
+test('generate-theme-digests.mjs produces byte-identical theme.json for the same theme copied to two different absolute paths (path independence)', async () => {
+  // Every digest in the cycle must be a function of the packed file
+  // *bytes*, never of the absolute path they happen to be read from — a
+  // path-dependent digest would make theme.json non-reproducible across
+  // machines/CI runners/worktrees. Copy the same packed file set into two
+  // scratch roots of deliberately different absolute-path shape (one
+  // nested under an extra, longer-named subdirectory) and assert the two
+  // regenerated theme.json files are byte-for-byte identical.
+  const themeRoot = resolveThemeRoot();
+  const scratchRootA = await buildScratchThemeCopy(themeRoot);
+  const scratchRootBParent = await buildScratchThemeCopy(themeRoot);
+  const scratchRootB = path.join(
+    path.dirname(scratchRootBParent),
+    'a-differently-shaped-and-much-longer-absolute-path-segment',
+    'nested',
+  );
+  try {
+    await mkdir(scratchRootB, { recursive: true });
+    await execFileAsync('cp', ['-R', `${scratchRootBParent}/.`, scratchRootB]);
+    assert.notEqual(
+      scratchRootA,
+      scratchRootB,
+      'fixture assumption: the two scratch roots must be different absolute paths',
+    );
+
+    // Both generator runs are expected to fail closed on the same
+    // theme-content findings (if any) that the real committed theme
+    // carries; only the exact bytes of what got written before that
+    // failure need to agree between the two paths, so failures are
+    // tolerated identically via runCheckScript rather than asserted away.
+    const generateA = await runCheckScript('generate-theme-digests.mjs', {
+      env: { THEME_ROOT: scratchRootA },
+    });
+    const generateB = await runCheckScript('generate-theme-digests.mjs', {
+      env: { THEME_ROOT: scratchRootB },
+    });
+    assert.equal(
+      generateA.passed,
+      generateB.passed,
+      'the same theme content must produce the same pass/fail disposition regardless of absolute path',
+    );
+
+    const themeA = await readFile(
+      path.join(scratchRootA, 'theme.json'),
+      'utf8',
+    );
+    const themeB = await readFile(
+      path.join(scratchRootB, 'theme.json'),
+      'utf8',
+    );
+    assert.equal(
+      themeA,
+      themeB,
+      'theme.json bytes must be identical regardless of the absolute path the theme was generated from',
+    );
+  } finally {
+    await rm(scratchRootA, { recursive: true, force: true });
+    await rm(scratchRootBParent, { recursive: true, force: true });
+    await rm(
+      path.join(
+        path.dirname(scratchRootBParent),
+        'a-differently-shaped-and-much-longer-absolute-path-segment',
+      ),
+      {
+        recursive: true,
+        force: true,
+      },
+    );
   }
 });
 
