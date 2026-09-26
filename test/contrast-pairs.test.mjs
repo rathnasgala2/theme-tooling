@@ -26,9 +26,9 @@ const CONTRAST_PAIRS_PATH = path.join(
   'contrast-pairs.json',
 );
 
-test('scripts/contrast-pairs.json carries the three new adjacency pairs alongside the original seventeen', async () => {
+test('scripts/contrast-pairs.json carries the four new adjacency pairs alongside the original seventeen', async () => {
   const pairs = JSON.parse(await readFile(CONTRAST_PAIRS_PATH, 'utf8'));
-  assert.equal(pairs.length, 20);
+  assert.equal(pairs.length, 21);
   const byLabel = new Map(pairs.map((pair) => [pair.label, pair]));
   assert.equal(
     byLabel.get('color-surface-raised on color-surface (surface adjacency)')
@@ -44,6 +44,12 @@ test('scripts/contrast-pairs.json carries the three new adjacency pairs alongsid
   assert.equal(
     byLabel.get(
       'color-accent on color-surface (accent as a non-text UI element on a raised surface)',
+    )?.minimum,
+    3,
+  );
+  assert.equal(
+    byLabel.get(
+      'color-accent on color-code-canvas (accent as a non-text UI element, e.g. the pre border)',
     )?.minimum,
     3,
   );
@@ -137,6 +143,27 @@ test('fails when color-accent is too close to color-surface (< 3:1)', async () =
       minimum: 3,
     },
     { key: 'color-accent', light: surface.light, dark: surface.dark },
+  );
+  assert.ok(!passed, output);
+  assert.match(output, /FAIL/);
+});
+
+test('fails when color-accent is too close to color-code-canvas (< 3:1)', async () => {
+  const themeRoot = resolveThemeRoot();
+  const theme = JSON.parse(
+    await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
+  );
+  const codeCanvas = theme.tokens.find(
+    (token) => token.key === 'color-code-canvas',
+  );
+  const { passed, output } = await checkSinglePairFixture(
+    {
+      label: 'color-accent on color-code-canvas',
+      foreground: 'color-accent',
+      background: 'color-code-canvas',
+      minimum: 3,
+    },
+    { key: 'color-accent', light: codeCanvas.light, dark: codeCanvas.dark },
   );
   assert.ok(!passed, output);
   assert.match(output, /FAIL/);

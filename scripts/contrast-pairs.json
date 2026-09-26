@@ -118,5 +118,11 @@
     "foreground": "color-accent",
     "background": "color-surface",
     "minimum": 3
+  },
+  {
+    "label": "color-accent on color-code-canvas (accent as a non-text UI element, e.g. the pre border)",
+    "foreground": "color-accent",
+    "background": "color-code-canvas",
+    "minimum": 3
   }
 ]
