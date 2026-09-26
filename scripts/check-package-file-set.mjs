@@ -19,7 +19,13 @@ const run = promisify(execFile);
  *
  * @type {readonly string[]}
  */
-const CLOSED_PACKAGE_JSON_KEYS = ['files', 'license', 'name', 'repository', 'version'];
+const CLOSED_PACKAGE_JSON_KEYS = [
+  'files',
+  'license',
+  'name',
+  'repository',
+  'version',
+];
 
 /**
  * Parse a POSIX ustar tar stream into `{path, mode, typeflag}` rows, enough

@@ -102,6 +102,19 @@ each runner's actual captured output, not only its pass/fail disposition,
 so it changes if a runner's diagnostics change even when it keeps exiting
 zero (THD-M5).
 
+`digest:check`'s regenerated `theme.json` depends on the exact bytes of the
+runner scripts under `scripts/` (`fixtureRelease.runners[].executableDigest`
+is a hash of each script's own source, and `evidenceDigest` binds each
+runner's captured output). A change to this package's tooling — even a
+formatting-only one, such as the `check-package-file-set.mjs` reformat that
+fixed its Prettier drift — changes those bytes and therefore the digest
+chain every theme's committed `theme.json` was generated against. Each of
+the five theme repositories must run `digest:generate` and commit the
+resulting `theme.json` after picking up a new commit of this package, or
+its own `digest:check` will fail; this is the responsibility of that
+theme's own maintenance pass, not something this repository does on the
+themes' behalf.
+
 ## Property/at-rule/volume conformance (`grammar:check`, THD-M4)
 
 `css:check` validates selectors only (the closed hook catalog). `grammar:check`
