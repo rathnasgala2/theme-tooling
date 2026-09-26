@@ -95,3 +95,54 @@ test('rejects a rule that sets outline-color/outline-width without outline-style
     await rm(scratchRoot, { recursive: true, force: true });
   }
 });
+
+test('accepts text-decoration-skip-ink set to one of its closed auto|none|all values', async () => {
+  const themeRoot = resolveThemeRoot();
+  const { stylesheets } = await loadPackedFileSet(themeRoot);
+  const scratchRoot = await buildScratchThemeCopy(themeRoot);
+  try {
+    const [firstStylesheet] = stylesheets;
+    const cssPath = path.join(scratchRoot, firstStylesheet);
+    const css = await readFile(cssPath, 'utf8');
+    await writeFile(
+      cssPath,
+      `${css}\n@layer gala-test {\n[data-gala-publication-root] a {\n  text-decoration-skip-ink: none;\n}\n}\n`,
+      'utf8',
+    );
+
+    const { passed, output } = await runCheckScript('check-css-grammar.mjs', {
+      env: { THEME_ROOT: scratchRoot },
+    });
+    assert.ok(passed, output);
+  } finally {
+    await rm(scratchRoot, { recursive: true, force: true });
+  }
+});
+
+test('rejects text-decoration-skip-ink set to a value outside auto|none|all', async () => {
+  const themeRoot = resolveThemeRoot();
+  const { stylesheets } = await loadPackedFileSet(themeRoot);
+  const scratchRoot = await buildScratchThemeCopy(themeRoot);
+  try {
+    const [firstStylesheet] = stylesheets;
+    const cssPath = path.join(scratchRoot, firstStylesheet);
+    const css = await readFile(cssPath, 'utf8');
+    await writeFile(
+      cssPath,
+      `${css}\n@layer gala-test {\n[data-gala-publication-root] a {\n  text-decoration-skip-ink: objects;\n}\n}\n`,
+      'utf8',
+    );
+
+    const { passed, output } = await runCheckScript('check-css-grammar.mjs', {
+      env: { THEME_ROOT: scratchRoot },
+    });
+    assert.equal(
+      passed,
+      false,
+      'text-decoration-skip-ink: objects must fail check-css-grammar',
+    );
+    assert.match(output, /text-decoration-skip-ink.*only auto\|none\|all/i);
+  } finally {
+    await rm(scratchRoot, { recursive: true, force: true });
+  }
+});

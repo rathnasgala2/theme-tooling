@@ -71,6 +71,10 @@ const ALLOWED_PROPERTIES = new Set([
   'padding-inline-start',
   'padding-top',
   'text-decoration-line',
+  // Admitted only for its closed `auto|none|all` value set (see the
+  // dedicated check below) — it never accepts an arbitrary length or
+  // color the way most other admitted properties can.
+  'text-decoration-skip-ink',
   'text-decoration-thickness',
   'text-transform',
   'text-underline-offset',
@@ -80,6 +84,14 @@ const ALLOWED_PROPERTIES = new Set([
 
 /** @type {RegExp} an empty CSS string literal, either quote style. */
 const EMPTY_STRING_LITERAL = /^(?:""|'')$/;
+
+/** @type {ReadonlySet<string>} `text-decoration-skip-ink`'s closed value
+ * set — its only admitted keywords. */
+const ALLOWED_TEXT_DECORATION_SKIP_INK_VALUES = new Set([
+  'auto',
+  'none',
+  'all',
+]);
 
 /** @type {ReadonlySet<string>} the closed at-rule vocabulary. */
 const ALLOWED_AT_RULES = new Set(['layer', 'media']);
@@ -136,6 +148,18 @@ async function main() {
         ) {
           console.error(
             `${stylesheet}: "${rule.selector}" sets content to "${decl.value}", but only content: "" is admitted`,
+          );
+          failed = true;
+        }
+        if (
+          decl.prop === 'text-decoration-skip-ink' &&
+          !ALLOWED_TEXT_DECORATION_SKIP_INK_VALUES.has(
+            decl.value.trim().toLowerCase(),
+          )
+        ) {
+          console.error(
+            `${stylesheet}: "${rule.selector}" sets text-decoration-skip-ink to ` +
+              `"${decl.value}", but only auto|none|all is admitted`,
           );
           failed = true;
         }
