@@ -27,23 +27,33 @@ const ALLOWED_PSEUDO_ELEMENTS = new Set([
 ]);
 const ALLOWED_COMBINATORS = new Set(['', '>', '+', '~']);
 
-// Contract 2.1.0 (TPL-H2): a closed five-member simple pseudo-class
-// catalog, plus `:nth-child()` restricted to the two keyword arguments the
-// contract's `functionalPseudoKeywordArguments` admits. Kept as a fixed
-// literal set here, scoped to exactly what 2.1.0 publishes, rather than
-// implementing the contract's general `nthExpressionProfile` An+B grammar,
-// which no reference theme uses.
-const ALLOWED_SIMPLE_PSEUDO_CLASSES = new Set([
-  ':hover',
-  ':focus-visible',
-  ':active',
-  ':visited',
-  ':disabled',
-]);
-const ALLOWED_FUNCTIONAL_PSEUDO_CLASSES = new Set([
-  ':nth-child(even)',
-  ':nth-child(odd)',
-]);
+// `nth-child`/`nth-last-child` are the only functional pseudo-classes this
+// runner admits (`:is()`/`:where()`/`:not()` are in the contract's
+// `functionalPseudos` too, but no reference theme uses them and validating
+// their compound-only, depth-1 nested-selector argument is a separate
+// feature; out of scope here).
+const FUNCTIONAL_NTH_PSEUDO_NAMES = new Set(['nth-child', 'nth-last-child']);
+
+/**
+ * Validate an `nth-child()`/`nth-last-child()` argument against the
+ * contract's `nthExpressionProfile: "gala-positive-an-plus-b-v2"`: the
+ * `functionalPseudoKeywordArguments` keywords, or a non-negative An+B
+ * expression (no leading `-` on either the step or the offset) — `n`,
+ * `2n`, `3n+1`, or a bare non-negative integer. A profile name is
+ * published, not a grammar, so this regex is this runner's own
+ * interpretation of "positive An+B", scoped to what the two admitted
+ * keywords plus ordinary non-negative step/offset forms need.
+ *
+ * @param {string} argument the raw text inside the parentheses
+ * @param {ReadonlySet<string>} keywordArguments contract's
+ *   `functionalPseudoKeywordArguments` (e.g. `even`, `odd`)
+ * @returns {boolean} whether the argument is admitted
+ */
+function isValidPositiveAnPlusB(argument, keywordArguments) {
+  const trimmed = argument.trim();
+  if (keywordArguments.has(trimmed)) return true;
+  return /^(?:\d*n(?:\s*\+\s*\d+)?|\d+)$/.test(trimmed);
+}
 
 /**
  * @returns {Promise<{contract: any, allowedAtoms: Set<string>, rootCompounds: Set<string>, atomToHookId: Map<string, string>}>}
@@ -74,33 +84,68 @@ async function loadContract() {
     contract.resolvedPaletteSelectors.light,
     contract.resolvedPaletteSelectors.dark,
   ]);
-  return { contract, allowedAtoms, rootCompounds, atomToHookId };
+  // Contract 2.1.0 (TPL-H2): the simple pseudo-class catalog and the
+  // nth-expression keyword arguments are read from the published contract
+  // itself, not hand-copied here, so a future contract revision that adds
+  // or removes a pseudo-class takes effect without an edit to this file.
+  // An older (2.0.0) contract publishes no `pseudoClasses`/
+  // `composition.functionalPseudoKeywordArguments` at all, so both
+  // default to empty.
+  const allowedSimplePseudoClasses = new Set(
+    (contract.pseudoClasses ?? []).map((name) => `:${name}`),
+  );
+  const nthKeywordArguments = new Set(
+    contract.composition?.functionalPseudoKeywordArguments ?? [],
+  );
+  const allowedFunctionalPseudoNames = new Set(
+    (contract.functionalPseudos ?? []).filter((name) =>
+      FUNCTIONAL_NTH_PSEUDO_NAMES.has(name),
+    ),
+  );
+  return {
+    contract,
+    allowedAtoms,
+    rootCompounds,
+    atomToHookId,
+    allowedSimplePseudoClasses,
+    nthKeywordArguments,
+    allowedFunctionalPseudoNames,
+  };
 }
 
 /**
  * Strip zero or more trailing simple/functional pseudo-classes from a
- * compound's remaining text (contract 2.1.0's closed pseudo-class
- * catalog), after any trailing pseudo-elements have already been removed.
+ * compound's remaining text, after any trailing pseudo-elements have
+ * already been removed, against the contract's own published catalogs.
  *
  * @param {string} compound compound text with pseudo-elements already stripped
+ * @param {ReadonlySet<string>} allowedSimplePseudoClasses e.g. `:hover`
+ * @param {ReadonlySet<string>} allowedFunctionalPseudoNames e.g. `nth-child`
+ * @param {ReadonlySet<string>} nthKeywordArguments e.g. `even`, `odd`
  * @returns {{remaining: string, pseudoClasses: string[]}} the atom text and
  *   the stripped pseudo-classes, outermost-last
  */
-function stripTrailingPseudoClasses(compound) {
+function stripTrailingPseudoClasses(
+  compound,
+  allowedSimplePseudoClasses,
+  allowedFunctionalPseudoNames,
+  nthKeywordArguments,
+) {
   let remaining = compound;
   const pseudoClasses = [];
   while (true) {
-    const functionalMatch = /(:nth-child\((?:even|odd)\))$/.exec(remaining);
+    const functionalMatch = /:([a-zA-Z-]+)\(([^()]*)\)$/.exec(remaining);
     if (
       functionalMatch &&
-      ALLOWED_FUNCTIONAL_PSEUDO_CLASSES.has(functionalMatch[1])
+      allowedFunctionalPseudoNames.has(functionalMatch[1]) &&
+      isValidPositiveAnPlusB(functionalMatch[2], nthKeywordArguments)
     ) {
-      pseudoClasses.unshift(functionalMatch[1]);
-      remaining = remaining.slice(0, -functionalMatch[1].length);
+      pseudoClasses.unshift(functionalMatch[0]);
+      remaining = remaining.slice(0, -functionalMatch[0].length);
       continue;
     }
     const simpleMatch = /(:[a-zA-Z-]+)$/.exec(remaining);
-    if (simpleMatch && ALLOWED_SIMPLE_PSEUDO_CLASSES.has(simpleMatch[1])) {
+    if (simpleMatch && allowedSimplePseudoClasses.has(simpleMatch[1])) {
       pseudoClasses.unshift(simpleMatch[1]);
       remaining = remaining.slice(0, -simpleMatch[1].length);
       continue;
@@ -144,11 +189,20 @@ function decompose(selector) {
 /**
  * @param {string} compound one compound selector's exact text
  * @param {Set<string>} allowedAtoms the 64-hook selectorAtom catalog
+ * @param {ReadonlySet<string>} allowedSimplePseudoClasses e.g. `:hover`
+ * @param {ReadonlySet<string>} allowedFunctionalPseudoNames e.g. `nth-child`
+ * @param {ReadonlySet<string>} nthKeywordArguments e.g. `even`, `odd`
  * @returns {{atom: string, pseudoElements: string[]} | null} the split
  *   atom/pseudo-elements, or `null` if the compound is not a single
- *   allowed atom plus zero or more allowed pseudo-elements
+ *   allowed atom plus zero or more allowed pseudo-elements/classes
  */
-function splitTrailingPseudoElements(compound, allowedAtoms) {
+function splitTrailingPseudoElements(
+  compound,
+  allowedAtoms,
+  allowedSimplePseudoClasses,
+  allowedFunctionalPseudoNames,
+  nthKeywordArguments,
+) {
   let remaining = compound;
   const pseudoElements = [];
   while (true) {
@@ -161,14 +215,25 @@ function splitTrailingPseudoElements(compound, allowedAtoms) {
   // sit between the atom and any trailing pseudo-element(s), e.g.
   // `a:hover::before`. Strip it before checking the remaining text
   // against the closed atom catalog.
-  const { remaining: atom, pseudoClasses } =
-    stripTrailingPseudoClasses(remaining);
+  const { remaining: atom, pseudoClasses } = stripTrailingPseudoClasses(
+    remaining,
+    allowedSimplePseudoClasses,
+    allowedFunctionalPseudoNames,
+    nthKeywordArguments,
+  );
   if (!allowedAtoms.has(atom)) return null;
   return { atom, pseudoElements, pseudoClasses };
 }
 
 async function main() {
-  const { allowedAtoms, rootCompounds, atomToHookId } = await loadContract();
+  const {
+    allowedAtoms,
+    rootCompounds,
+    atomToHookId,
+    allowedSimplePseudoClasses,
+    allowedFunctionalPseudoNames,
+    nthKeywordArguments,
+  } = await loadContract();
   const { stylesheets } = await loadPackedFileSet();
   const themeRoot = resolveThemeRoot();
   const theme = JSON.parse(
@@ -196,6 +261,9 @@ async function main() {
           const firstSplit = splitTrailingPseudoElements(
             firstRaw,
             rootCompounds,
+            allowedSimplePseudoClasses,
+            allowedFunctionalPseudoNames,
+            nthKeywordArguments,
           );
           if (!firstSplit) {
             console.error(
@@ -221,7 +289,13 @@ async function main() {
             }
           }
           for (const compound of rest) {
-            const split = splitTrailingPseudoElements(compound, allowedAtoms);
+            const split = splitTrailingPseudoElements(
+              compound,
+              allowedAtoms,
+              allowedSimplePseudoClasses,
+              allowedFunctionalPseudoNames,
+              nthKeywordArguments,
+            );
             if (!split) {
               console.error(
                 `${stylesheet}: "${singleSelector}" uses a hook not in the template's published 64-hook catalog: "${compound}"`,

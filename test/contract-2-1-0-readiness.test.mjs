@@ -27,6 +27,7 @@ import { test } from 'node:test';
 import { resolveTemplateDir } from '../scripts/resolve-template-dir.mjs';
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import { buildScratchThemeCopy } from '../scripts/scratch-theme.mjs';
+import { normalizeSlotHooks } from './helpers/normalize-slot-hooks.mjs';
 import { runCheckScript } from './helpers/run-check.mjs';
 import { buildFixture } from './fixtures/rich-build-input.mjs';
 import { testProvenance } from './fixtures/test-provenance.mjs';
@@ -47,49 +48,6 @@ const GENERATE_SCRIPT = path.join(
   'scripts',
   'generate-theme-digests.mjs',
 );
-
-/**
- * Self-heal `theme.json.slotHooks` against `check-css-hooks.mjs`'s own
- * THM-M3 diagnostics, re-running until it passes or the failure is not a
- * slotHooks-set mismatch. Used to isolate this fixture from any
- * pre-existing drift in the real theme under test (a separate, per-theme
- * finding), rather than hand-copying its current `slotHooks` list, which
- * would go stale the moment that theme's own CSS changes.
- *
- * @param {string} scratchRoot the scratch theme root to normalize in place
- * @returns {Promise<void>} resolves once `check-css-hooks.mjs` passes
- */
-async function normalizeSlotHooks(scratchRoot) {
-  const themePath = path.join(scratchRoot, 'theme.json');
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    const { passed, output } = await runCheckScript('check-css-hooks.mjs', {
-      env: { THEME_ROOT: scratchRoot },
-    });
-    if (passed) return;
-    const declaresUnused = /declares hook\(s\) the CSS never uses: (.+)/.exec(
-      output,
-    );
-    const usesUndeclared = /does not declare: (.+)/.exec(output);
-    if (!declaresUnused && !usesUndeclared) {
-      throw new Error(
-        `check-css-hooks.mjs failed for an unrelated reason:\n${output}`,
-      );
-    }
-    const theme = JSON.parse(await readFile(themePath, 'utf8'));
-    if (declaresUnused) {
-      const toRemove = new Set(
-        declaresUnused[1].split(',').map((s) => s.trim()),
-      );
-      theme.slotHooks = theme.slotHooks.filter((id) => !toRemove.has(id));
-    }
-    if (usesUndeclared) {
-      const toAdd = usesUndeclared[1].split(',').map((s) => s.trim());
-      theme.slotHooks = [...new Set([...theme.slotHooks, ...toAdd])].sort();
-    }
-    await writeFile(themePath, JSON.stringify(theme, null, 2), 'utf8');
-  }
-  throw new Error('could not normalize theme.json.slotHooks within 4 attempts');
-}
 
 /**
  * Build a scratch theme, bumped to contract 2.1.0, with two rules added
