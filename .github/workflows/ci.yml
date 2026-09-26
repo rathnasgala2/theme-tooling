@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify (format, lint, test, duplication, SBOM, audit)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      WORKSPACE_ROOT: ${{ github.workspace }}
+      GALA_TEMPLATE_DIR: ${{ github.workspace }}/template
+      THEME_ROOT: ${{ github.workspace }}/theme-default
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      # Pinned to the commit tagged @rathnasgala2/template 2.1.0
+      # (unreleased) — the same pin every @rathnasgala2/theme-* repository
+      # checks out; this package's own test suite (template-conformance,
+      # css/grammar checks) reads it by path.
+      - name: Check out the template sibling repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rathnasgala2/template
+          ref: 20f8fdefe822f264f9d7fdd787d0d58431930a0b # 2.1.0
+          path: template
+          persist-credentials: false
+
+      # This package's own conformance/digest test suite runs its checks
+      # against a real theme's packed file set (THEME_ROOT). Pinned to
+      # theme-default's `main` tip so this workflow is not coupled to
+      # whatever is mid-review on a theme's feature branch (THD-M6: "the
+      # producer verifies its own artifacts" — this is that verification,
+      # so it needs a stable consumer to verify against).
+      - name: Check out the theme-default sibling repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: rathnasgala2/theme-default
+          ref: 50957da66db16bb3b735eb2cd0b6a7f78e29b739 # main
+          path: theme-default
+          persist-credentials: false
+
+      - name: Install the pinned Node.js distribution
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Verify toolchain pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.18.0"
+          test "$(npm --version)" = "11.16.0"
+
+      - name: Install the template sibling repository's dependencies
+        working-directory: template
+        run: npm ci
+
+      - name: Install this package's own dependencies
+        run: npm ci
+
+      - name: Run the complete verify gate
+        run: npm run verify
+
+  gitleaks:
+    name: Gitleaks secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the complete history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install the checksum-pinned Gitleaks binary
+        shell: bash
+        run: |
+          install -d "${RUNNER_TEMP}/gitleaks"
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --retry 3 \
+            'https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz' \
+            --output "${RUNNER_TEMP}/gitleaks/gitleaks.tar.gz"
+          cd "${RUNNER_TEMP}/gitleaks"
+          printf '%s  %s\n' \
+            '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb' \
+            'gitleaks.tar.gz' | sha256sum --check --strict
+          tar --extract --gzip --file gitleaks.tar.gz gitleaks
+
+      - name: Scan repository history for secrets
+        run: >-
+          "${RUNNER_TEMP}/gitleaks/gitleaks" git --redact --no-banner
+          --log-opts="--all" .

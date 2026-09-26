@@ -18,8 +18,10 @@
     "lint": "eslint --config eslint.config.js .",
     "test": "node --test \"test/**/*.test.mjs\"",
     "duplication": "jscpd --config .jscpd.json",
+    "sbom:generate": "node scripts/generate-own-sbom.mjs",
+    "sbom:check": "node scripts/check-own-sbom-current.mjs",
     "audit": "npm audit --audit-level=high",
-    "verify": "npm run format:check && npm run lint && npm test && npm run duplication && npm run audit"
+    "verify": "npm run format:check && npm run lint && npm test && npm run duplication && npm run sbom:check && npm run audit"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.1",

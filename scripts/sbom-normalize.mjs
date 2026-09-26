@@ -42,7 +42,7 @@ export function deterministicSerialNumber(name, version) {
  * @param {string} fullName full package name, e.g. `@rathnasgala2/theme-default`
  * @returns {{group: string | undefined, name: string}} the split identity
  */
-function splitScopedPackageName(fullName) {
+export function splitScopedPackageName(fullName) {
   if (fullName.startsWith('@')) {
     const slashIndex = fullName.indexOf('/');
     return {
@@ -62,11 +62,62 @@ function splitScopedPackageName(fullName) {
  * @param {string} version package version
  * @returns {string} the purl
  */
-function toPurl(fullName, version) {
+export function toPurl(fullName, version) {
   const encoded = fullName.startsWith('@')
     ? `%40${fullName.slice(1)}`
     : fullName;
   return `pkg:npm/${encoded}@${version}`;
+}
+
+/**
+ * Build a complete, self-contained CycloneDX 1.6 document describing a
+ * theme package **alone** — root component only, zero dependency
+ * components — instead of shelling out to `cyclonedx-npm` at all (THD-M6,
+ * post-mortem: the previous design ran `cyclonedx-npm --package-lock-only`
+ * against `@rathnasgala2/theme-tooling`'s own `package-lock.json` and
+ * attributed the result to the calling theme's identity; that tied every
+ * theme's committed SBOM to the tooling package's devDependency tree,
+ * which is not something the published theme actually ships, and produced
+ * bytes that depended on which `cyclonedx-npm`/`cyclonedx-library` release
+ * happened to be resolved locally versus in CI — a repeated source of
+ * local-vs-CI divergence). A published `@rathnasgala2/theme-*` package has
+ * no runtime `dependencies` of its own, so its accurate SBOM has an empty
+ * `components` array; building the document directly here, from nothing
+ * but the theme's own `name`/`version`, means generation touches neither
+ * `node_modules` nor any lockfile and is therefore identical regardless of
+ * install state, host platform, or which tool versions a lockfile
+ * resolved to.
+ *
+ * @param {{name: string, version: string}} packageIdentity the described
+ *   theme package's `name` and `version`
+ * @returns {Record<string, unknown>} a complete CycloneDX 1.6 JSON document
+ */
+export function buildThemeOnlySbom(packageIdentity) {
+  const { group, name } = splitScopedPackageName(packageIdentity.name);
+  const bomRef = `${packageIdentity.name}@${packageIdentity.version}`;
+  return {
+    $schema: 'http://cyclonedx.org/schema/bom-1.6.schema.json',
+    bomFormat: 'CycloneDX',
+    specVersion: '1.6',
+    version: 1,
+    serialNumber: deterministicSerialNumber(
+      packageIdentity.name,
+      packageIdentity.version,
+    ),
+    metadata: {
+      timestamp: SBOM_FIXED_TIMESTAMP,
+      component: {
+        type: 'library',
+        name,
+        group,
+        version: packageIdentity.version,
+        'bom-ref': bomRef,
+        purl: toPurl(packageIdentity.name, packageIdentity.version),
+      },
+    },
+    components: [],
+    dependencies: [{ ref: bomRef, dependsOn: [] }],
+  };
 }
 
 /**

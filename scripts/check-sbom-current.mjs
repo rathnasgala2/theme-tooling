@@ -1,72 +1,60 @@
-import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { promisify } from 'node:util';
 
 import {
-  normalizeSbomDocument,
+  buildThemeOnlySbom,
   serializeSbomDocument,
 } from './sbom-normalize.mjs';
 
-const run = promisify(execFile);
-
-/** @type {string} this shared package's own root — the supply chain the
- * SBOM documents is this package's devDependency tree (the theme itself
- * has none), attributed to the calling theme's identity. */
-const TOOLING_PACKAGE_DIR = path.join(import.meta.dirname, '..');
-
 /**
- * Regenerate the SBOM into a scratch file and assert it is byte-identical
- * to the committed `sbom.cdx.json` (both normalized the same way). Fails
- * closed if the committed SBOM drifted from `@rathnasgala2/theme-tooling`'s
- * own `package.json`/`package-lock.json`, or from the calling theme's own
- * `package.json` identity.
+ * THD-M6 (post-mortem): the theme's SBOM is no longer a committed file —
+ * it is generated fresh at release time and attached as a build artifact
+ * (see `generate-theme-sbom.mjs`), so there is nothing here to compare
+ * against a checked-in copy any more. What `verify` still needs to catch
+ * is generation itself becoming non-deterministic (it previously depended
+ * on which `cyclonedx-npm` release a lockfile resolved to, and diverged
+ * between a local machine and CI for that reason three times running).
+ * This regenerates the document twice from the calling theme's own
+ * `package.json` and asserts the two runs are byte-identical — which they
+ * always are for `buildThemeOnlySbom` (a pure function of `name`/
+ * `version`, touching neither `node_modules` nor any lockfile), so a
+ * regression here means someone reintroduced an environment-dependent
+ * input into that function.
  *
  * @returns {Promise<void>} resolves once the check passes
  */
 async function main() {
-  const committedPath = path.resolve('../sbom.cdx.json');
-  const committed = await readFile(committedPath, 'utf8');
+  const packageJson = JSON.parse(
+    await readFile(path.resolve('../package.json'), 'utf8'),
+  );
+  const identity = { name: packageJson.name, version: packageJson.version };
 
-  const scratchDirectory = await mkdtemp(path.join(tmpdir(), 'theme-sbom-'));
-  const scratchPath = path.join(scratchDirectory, 'sbom.cdx.json');
-  try {
-    await run(
-      path.join(TOOLING_PACKAGE_DIR, 'node_modules', '.bin', 'cyclonedx-npm'),
-      [
-        '--package-lock-only',
-        '--output-file',
-        scratchPath,
-        '--output-format',
-        'JSON',
-        '--spec-version',
-        '1.6',
-        path.join(TOOLING_PACKAGE_DIR, 'package.json'),
-      ],
+  const first = serializeSbomDocument(buildThemeOnlySbom(identity));
+  const second = serializeSbomDocument(buildThemeOnlySbom(identity));
+
+  if (first !== second) {
+    console.error(
+      'sbom generation is not deterministic: two generations from the ' +
+        'same package.json produced different bytes.',
     );
-    const packageJson = JSON.parse(
-      await readFile(path.resolve('../package.json'), 'utf8'),
-    );
-    const generated = JSON.parse(await readFile(scratchPath, 'utf8'));
-    const normalized = serializeSbomDocument(
-      normalizeSbomDocument(generated, {
-        name: packageJson.name,
-        version: packageJson.version,
-      }),
-    );
-    if (normalized !== committed) {
-      console.error(
-        'sbom.cdx.json is stale: regenerating it produces different bytes. ' +
-          'Run `npm run sbom:generate` and commit the result.',
-      );
-      process.exitCode = 1;
-      return;
-    }
-    console.log('sbom.cdx.json is current.');
-  } finally {
-    await rm(scratchDirectory, { recursive: true, force: true });
+    process.exitCode = 1;
+    return;
   }
+
+  // Also exercise the actual output path generate-theme-sbom.mjs writes to,
+  // by rebuilding it in isolation from a bare package.json object literal
+  // (no filesystem/network/install-state input at all), so this check
+  // fails closed if buildThemeOnlySbom ever starts reading anything else.
+  const isolated = serializeSbomDocument(
+    buildThemeOnlySbom({ name: identity.name, version: identity.version }),
+  );
+  if (isolated !== first) {
+    console.error('sbom generation depends on more than name/version.');
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log('sbom generation is deterministic.');
 }
 
 await main();

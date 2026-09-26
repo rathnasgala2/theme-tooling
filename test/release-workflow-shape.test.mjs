@@ -131,4 +131,41 @@ for (const themeName of THEME_NAMES) {
       "the release job must publish the reviewed commit's package.json unchanged",
     );
   });
+
+  test(`${themeName}/.github/workflows/release.yaml: generates and uploads the release SBOM (THD-M6)`, async (t) => {
+    const filePath = workflowPath(themeName);
+    let yaml;
+    try {
+      yaml = await readFile(filePath, 'utf8');
+    } catch {
+      t.skip(`${filePath} not present on disk`);
+      return;
+    }
+    const generateIndex = yaml.indexOf('sbom:generate');
+    const uploadIndex = yaml.indexOf('actions/upload-artifact@');
+    assert.notEqual(
+      generateIndex,
+      -1,
+      'expected a step running `npm run sbom:generate` (or `-- --out ...`)',
+    );
+    assert.notEqual(
+      uploadIndex,
+      -1,
+      'expected an `actions/upload-artifact` step (pinned by commit SHA)',
+    );
+    assert.ok(
+      generateIndex < uploadIndex,
+      'the SBOM must be generated before it is uploaded',
+    );
+    assert.match(
+      yaml,
+      /actions\/upload-artifact@[0-9a-f]{40}/,
+      'actions/upload-artifact must be pinned to a full commit SHA, like every other action here',
+    );
+    assert.match(
+      yaml,
+      /sbom\.cdx\.json/,
+      'the uploaded artifact must reference sbom.cdx.json',
+    );
+  });
 }

@@ -223,6 +223,32 @@ silently imposing that install step on every local `npm run verify`.
 is generated from `bin/cli.mjs`'s own `VERIFY_SEQUENCE`, so this
 paragraph and the code it describes cannot drift the way THD-M11 found.
 
+## SBOM design (THD-M6 post-mortem)
+
+Two separate SBOMs exist, on purpose:
+
+- **This package's own `sbom.cdx.json`** (committed, at this repository's
+  root) describes `@rathnasgala2/theme-tooling`'s own devDependency tree —
+  `npm run sbom:generate`/`sbom:check` here shell out to `cyclonedx-npm
+--package-lock-only` against this package's own
+  `package.json`/`package-lock.json`, exactly as before. `sbom:check` is
+  part of this package's own `verify`.
+- **A calling theme's SBOM** (`bin/cli.mjs`'s `sbom:generate`, invoked as
+  `tooling/run.mjs sbom:generate` from a theme's own root) used to be this
+  same tree, attributed to the theme's identity instead of this package's
+  — and that design repeatedly diverged between a local machine and CI, for
+  reasons that traced back to which `cyclonedx-npm`/`cyclonedx-library`
+  release a `package-lock.json` scan happened to resolve to, not to
+  anything about the theme itself. A published `@rathnasgala2/theme-*`
+  package ships zero runtime dependencies, so its accurate SBOM has an
+  empty `components` array; `scripts/sbom-normalize.mjs`'s
+  `buildThemeOnlySbom` now builds that document directly from nothing but
+  the theme's own `name`/`version` — no `cyclonedx-npm` invocation,
+  no `node_modules`, no lockfile read — so it cannot diverge by
+  environment. It is not committed in the theme repository any more: a
+  theme's release workflow generates it fresh into a build directory and
+  uploads it as a release artifact (see each theme's `release.yaml`).
+
 ## Developing this package
 
 ```sh
