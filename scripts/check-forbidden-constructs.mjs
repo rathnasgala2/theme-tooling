@@ -45,7 +45,14 @@ async function main() {
       failed = true;
       continue;
     }
-    if ((stats.mode & 0o777) !== 0o644) {
+    // THD-L3: the source-tree file mode is POSIX-only — a Windows
+    // checkout, or a non-022 umask, has no consistent 0644 to assert
+    // against, and would fail this gate over something unrelated to the
+    // change under review. `check-package-file-set.mjs`'s tarball-member
+    // mode check stays unconditional: npm normalizes every packed
+    // member's mode to 0644 on every platform, so that check is
+    // platform-independent.
+    if (process.platform !== 'win32' && (stats.mode & 0o777) !== 0o644) {
       console.error(
         `${relativePath} has mode ${(stats.mode & 0o777).toString(8)}, expected 0644`,
       );

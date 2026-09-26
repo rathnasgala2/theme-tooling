@@ -217,6 +217,12 @@ async function buildFixtureRelease(theme) {
     profile: 'gala-theme-fixture-release-v2',
     fixtureReleaseId: FIXTURE_RELEASE_ID,
     contractVersion: '2.0.0',
+    // THD-L6: not a typo. `@rathnasgala2/schemas`'s
+    // `theme-contract.schema.json` fixes this exact string as a `const`
+    // for `browserPolicyRef`, so it is a real, schema-mandated policy
+    // identifier this repository must reproduce verbatim; the embedded
+    // date predates this project and names when that policy revision was
+    // first adopted upstream, not when this file was written.
     browserPolicyRef: 'gala-theme-css-v2-20211224',
     binaryAssetProfile: 'gala-theme-binary-assets-v2',
     stylingContractDigest: theme.stylingContractDigest,
