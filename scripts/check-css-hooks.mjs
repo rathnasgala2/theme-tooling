@@ -27,6 +27,24 @@ const ALLOWED_PSEUDO_ELEMENTS = new Set([
 ]);
 const ALLOWED_COMBINATORS = new Set(['', '>', '+', '~']);
 
+// Contract 2.1.0 (TPL-H2): a closed five-member simple pseudo-class
+// catalog, plus `:nth-child()` restricted to the two keyword arguments the
+// contract's `functionalPseudoKeywordArguments` admits. Kept as a fixed
+// literal set here, scoped to exactly what 2.1.0 publishes, rather than
+// implementing the contract's general `nthExpressionProfile` An+B grammar,
+// which no reference theme uses.
+const ALLOWED_SIMPLE_PSEUDO_CLASSES = new Set([
+  ':hover',
+  ':focus-visible',
+  ':active',
+  ':visited',
+  ':disabled',
+]);
+const ALLOWED_FUNCTIONAL_PSEUDO_CLASSES = new Set([
+  ':nth-child(even)',
+  ':nth-child(odd)',
+]);
+
 /**
  * @returns {Promise<{contract: any, allowedAtoms: Set<string>, rootCompounds: Set<string>, atomToHookId: Map<string, string>}>}
  */
@@ -60,6 +78,39 @@ async function loadContract() {
 }
 
 /**
+ * Strip zero or more trailing simple/functional pseudo-classes from a
+ * compound's remaining text (contract 2.1.0's closed pseudo-class
+ * catalog), after any trailing pseudo-elements have already been removed.
+ *
+ * @param {string} compound compound text with pseudo-elements already stripped
+ * @returns {{remaining: string, pseudoClasses: string[]}} the atom text and
+ *   the stripped pseudo-classes, outermost-last
+ */
+function stripTrailingPseudoClasses(compound) {
+  let remaining = compound;
+  const pseudoClasses = [];
+  while (true) {
+    const functionalMatch = /(:nth-child\((?:even|odd)\))$/.exec(remaining);
+    if (
+      functionalMatch &&
+      ALLOWED_FUNCTIONAL_PSEUDO_CLASSES.has(functionalMatch[1])
+    ) {
+      pseudoClasses.unshift(functionalMatch[1]);
+      remaining = remaining.slice(0, -functionalMatch[1].length);
+      continue;
+    }
+    const simpleMatch = /(:[a-zA-Z-]+)$/.exec(remaining);
+    if (simpleMatch && ALLOWED_SIMPLE_PSEUDO_CLASSES.has(simpleMatch[1])) {
+      pseudoClasses.unshift(simpleMatch[1]);
+      remaining = remaining.slice(0, -simpleMatch[1].length);
+      continue;
+    }
+    break;
+  }
+  return { remaining, pseudoClasses };
+}
+
+/**
  * @param {import('postcss-selector-parser').Selector} selector one parsed
  *   selector (a comma-separated member of a selector list)
  * @returns {{compounds: string[], combinators: string[]}} the selector
@@ -69,7 +120,15 @@ function decompose(selector) {
   const compounds = [];
   const combinators = [];
   let current = '';
-  selector.walk((node) => {
+  // `selector.each()` visits only this selector's direct children (tag,
+  // id, class, attribute, pseudo, combinator). A functional pseudo-class
+  // such as `:nth-child(even)` renders its whole text, argument included,
+  // from a single top-level pseudo node's own `toString()` — the argument
+  // is not itself walked as a sibling compound. `selector.walk()` instead
+  // recurses into that argument's nested selector nodes too, appending
+  // their text a second time (e.g. "li:nth-child(even)eveneven"), which is
+  // why this uses `each()` rather than `walk()`.
+  selector.each((node) => {
     if (node.type === 'combinator') {
       compounds.push(current);
       combinators.push(node.value.trim());
@@ -98,8 +157,14 @@ function splitTrailingPseudoElements(compound, allowedAtoms) {
     pseudoElements.unshift(match[1]);
     remaining = remaining.slice(0, -match[1].length);
   }
-  if (!allowedAtoms.has(remaining)) return null;
-  return { atom: remaining, pseudoElements };
+  // Contract 2.1.0: a pseudo-class (`:hover`, `:nth-child(even)`, ...) may
+  // sit between the atom and any trailing pseudo-element(s), e.g.
+  // `a:hover::before`. Strip it before checking the remaining text
+  // against the closed atom catalog.
+  const { remaining: atom, pseudoClasses } =
+    stripTrailingPseudoClasses(remaining);
+  if (!allowedAtoms.has(atom)) return null;
+  return { atom, pseudoElements, pseudoClasses };
 }
 
 async function main() {
