@@ -1,0 +1,122 @@
+[
+  {
+    "label": "color-text on color-canvas",
+    "foreground": "color-text",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-text-muted on color-canvas",
+    "foreground": "color-text-muted",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-link on color-canvas",
+    "foreground": "color-link",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-link-visited on color-canvas",
+    "foreground": "color-link-visited",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-danger on color-canvas",
+    "foreground": "color-danger",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-warning on color-canvas",
+    "foreground": "color-warning",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-success on color-canvas",
+    "foreground": "color-success",
+    "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-code-text on color-code-canvas",
+    "foreground": "color-code-text",
+    "background": "color-code-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-on-accent on color-accent",
+    "foreground": "color-on-accent",
+    "background": "color-accent",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-text on color-surface",
+    "foreground": "color-text",
+    "background": "color-surface",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-text on color-surface-raised",
+    "foreground": "color-text",
+    "background": "color-surface-raised",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-border on color-canvas (non-text UI)",
+    "foreground": "color-border",
+    "background": "color-canvas",
+    "minimum": 3
+  },
+  {
+    "label": "color-focus on color-canvas (non-text UI)",
+    "foreground": "color-focus",
+    "background": "color-canvas",
+    "minimum": 3
+  },
+  {
+    "label": "color-text-muted on color-surface (footer/header)",
+    "foreground": "color-text-muted",
+    "background": "color-surface",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-link on color-surface (header/footer links)",
+    "foreground": "color-link",
+    "background": "color-surface",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-text on color-selection (::selection)",
+    "foreground": "color-text",
+    "background": "color-selection",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-accent on color-canvas (non-text UI, e.g. a border)",
+    "foreground": "color-accent",
+    "background": "color-canvas",
+    "minimum": 3
+  },
+  {
+    "label": "color-surface-raised on color-surface (surface adjacency)",
+    "foreground": "color-surface-raised",
+    "background": "color-surface",
+    "minimum": 1.3
+  },
+  {
+    "label": "color-accent on color-text (accent as a non-text UI element near body text)",
+    "foreground": "color-accent",
+    "background": "color-text",
+    "minimum": 3
+  },
+  {
+    "label": "color-accent on color-surface (accent as a non-text UI element on a raised surface)",
+    "foreground": "color-accent",
+    "background": "color-surface",
+    "minimum": 3
+  }
+]

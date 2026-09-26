@@ -45,136 +45,39 @@ function colorOf(tokens, key, palette) {
 }
 
 /**
- * The hand-maintained floor (THD-M2): every pair listed here is either a
- * token combination the contract requires regardless of whether a given
- * theme's CSS currently renders it (`color-link-visited`,
- * `color-warning`, `color-success`, `color-on-accent` on their paired
- * surfaces), or a combination this reference theme's own `components.css`
- * is known to render (the four pairs added below: the footer/header text
- * on `surface`, links on `surface`, selected text, and `accent` used as a
- * non-text border/UI color) — reviewed and kept in sync with the CSS by
- * hand rather than derived from it; deriving pairs by walking the parsed
- * stylesheet for rules that set both `color` and `background-color` was
- * judged not worth the added parser surface for five small, hand-reviewed
- * files, but is the natural next step if the theme set grows.
+ * The default pair list (coordinator addendum item C): externalized to
+ * `contrast-pairs.json` so the checked adjacencies are a configurable
+ * list rather than a literal only readable by editing this script.
+ * `THD-M2`'s reasoning for hand-maintaining rather than deriving the list
+ * from the parsed stylesheet still applies (see the file's own header
+ * comment) — deriving pairs by walking the CSS for rules that set both
+ * `color` and `background-color` was judged not worth the added parser
+ * surface for five small, hand-reviewed files, but is the natural next
+ * step if the theme set grows.
  *
- * @type {readonly {label: string, foreground: string, background: string, minimum: number}[]}
+ * `GALA_CONTRAST_PAIRS_PATH` overrides the default file (used by this
+ * package's own tests, which need failing fixtures the shipped default
+ * list would never produce against a conformant reference theme).
+ *
+ * @returns {Promise<{label: string, foreground: string, background: string, minimum: number}[]>}
+ *   the pair list to enforce
  */
-const PAIRS = [
-  {
-    label: 'color-text on color-canvas',
-    foreground: 'color-text',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-text-muted on color-canvas',
-    foreground: 'color-text-muted',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-link on color-canvas',
-    foreground: 'color-link',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-link-visited on color-canvas',
-    foreground: 'color-link-visited',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-danger on color-canvas',
-    foreground: 'color-danger',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-warning on color-canvas',
-    foreground: 'color-warning',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-success on color-canvas',
-    foreground: 'color-success',
-    background: 'color-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-code-text on color-code-canvas',
-    foreground: 'color-code-text',
-    background: 'color-code-canvas',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-on-accent on color-accent',
-    foreground: 'color-on-accent',
-    background: 'color-accent',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-text on color-surface',
-    foreground: 'color-text',
-    background: 'color-surface',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-text on color-surface-raised',
-    foreground: 'color-text',
-    background: 'color-surface-raised',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-border on color-canvas (non-text UI)',
-    foreground: 'color-border',
-    background: 'color-canvas',
-    minimum: 3,
-  },
-  {
-    label: 'color-focus on color-canvas (non-text UI)',
-    foreground: 'color-focus',
-    background: 'color-canvas',
-    minimum: 3,
-  },
-  // The four pairs below close THD-M2: the CSS actually renders these,
-  // and the original thirteen did not cover them.
-  {
-    label: 'color-text-muted on color-surface (footer/header)',
-    foreground: 'color-text-muted',
-    background: 'color-surface',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-link on color-surface (header/footer links)',
-    foreground: 'color-link',
-    background: 'color-surface',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-text on color-selection (::selection)',
-    foreground: 'color-text',
-    background: 'color-selection',
-    minimum: 4.5,
-  },
-  {
-    label: 'color-accent on color-canvas (non-text UI, e.g. a border)',
-    foreground: 'color-accent',
-    background: 'color-canvas',
-    minimum: 3,
-  },
-];
+async function loadPairs() {
+  const pairsPath =
+    process.env.GALA_CONTRAST_PAIRS_PATH ||
+    path.join(import.meta.dirname, 'contrast-pairs.json');
+  return JSON.parse(await readFile(pairsPath, 'utf8'));
+}
 
 async function main() {
   const theme = JSON.parse(
     await readFile(path.join(resolveThemeRoot(), 'theme.json'), 'utf8'),
   );
   const tokens = theme.tokens;
+  const pairs = await loadPairs();
   let failed = false;
   for (const palette of ['light', 'dark']) {
-    for (const pair of PAIRS) {
+    for (const pair of pairs) {
       const foreground = colorOf(tokens, pair.foreground, palette);
       const background = colorOf(tokens, pair.background, palette);
       const ratio = contrastRatio(foreground, background);
