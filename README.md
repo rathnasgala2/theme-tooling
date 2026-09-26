@@ -15,18 +15,21 @@ code-discipline review, THD-M6/THD-H3). This package is the single
 implementation; the five theme repositories depend on it instead of
 carrying their own copy.
 
-## Status: not yet published
+## Status: versioned, not on npm
 
-This package is **not on the npm registry** (publishing it is an owner
-decision — see the parent review's THD-M6 remediation). Until it is
-published, no theme repository can add it as an ordinary pinned
-`devDependency` (`npm ci` cannot install a version that does not exist on
-the registry, and a `file:` specifier is not acceptable for CI — it
-resolves to a path that does not exist on a fresh checkout).
+This package is versioned (`0.1.0`, tagged `v0.1.0`) but **not published to
+the npm registry** — publishing it there is a separate owner decision (see
+the parent review's THD-M6 remediation) and has not been made. No theme
+repository can add it as an ordinary pinned `devDependency` (`npm ci`
+cannot install a version that does not exist on the registry, and a
+`file:` specifier is not acceptable for CI — it resolves to a path that
+does not exist on a fresh checkout).
 
-Every theme repository therefore resolves this package **only** through
-`GALA_THEME_TOOLING_DIR`, an environment variable pointing at a checkout
-of this repository, via each theme's `tooling/run.mjs`:
+It is versioned 0.1.0 and consumed by the theme repos via a pinned
+checkout, not from npm. Every theme repository therefore resolves this
+package **only** through `GALA_THEME_TOOLING_DIR`, an environment variable
+pointing at a checkout of this repository, via each theme's
+`tooling/run.mjs`:
 
 ```sh
 GALA_THEME_TOOLING_DIR=../../theme-tooling npm --prefix tooling run verify

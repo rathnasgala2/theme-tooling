@@ -4,6 +4,8 @@ All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
 ## Unreleased
 
+## [0.1.0] - 2026-09-26
+
 ### Added
 
 - Initial extraction from the five `@rathnasgala2/theme-*` repositories'
@@ -24,7 +26,7 @@ All notable changes to `@rathnasgala2/theme-tooling` are documented here.
   used as a non-text UI color.
 - `bin/cli.mjs`, the single dispatcher every theme's `tooling/run.mjs`
   calls, resolved via the `GALA_THEME_TOOLING_DIR` override documented in
-  README "Status: not yet published".
+  README "Status: versioned, not on npm".
 
 ### Changed
 
