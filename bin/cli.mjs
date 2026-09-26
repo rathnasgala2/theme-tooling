@@ -156,6 +156,12 @@ const COMMANDS = {
     }).status ?? 1,
   'workflows:check': () => runScript('check-workflow-pins.mjs'),
   'workflows:drift': () => runScript('check-workflow-drift.mjs'),
+  // THD-M10: deliberately not in VERIFY_SEQUENCE — this is the one gate
+  // that requires a browser binary on disk (`npx playwright install
+  // chromium`), so theme CI runs it as its own job instead of imposing
+  // that install step on every local `npm run verify`. Forwards every
+  // argument after `visual:check` (e.g. `--out <dir>`) verbatim.
+  'visual:check': () => runScript('visual-check.mjs', process.argv.slice(3)),
 };
 
 /** @type {readonly string[]} the full release gate, in the order the

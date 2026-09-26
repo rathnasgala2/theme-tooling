@@ -74,7 +74,10 @@ whichever theme's `tooling/` directory it was invoked from
   derives every packed-file and stylesheet list from the calling theme's
   own `package.json` at run time — the single fix for THD-M6's "hardcoded
   in five places, one for the file list and four/five more for the
-  stylesheet list."
+  stylesheet list." `contrast-pairs.json` is the configurable pair list
+  `check-contrast.mjs` reads (see "Contrast pairs" below); `visual-check.mjs`
+  and `visual-fixture.mjs` are the shared Playwright + axe-core harness
+  (see "Visual/accessibility check" below), not part of `verify`.
 - `test/` — the corresponding `node:test` suites, parametrized by
   `process.cwd()` (the calling theme), not by this package's own location.
   `tooling-drift.test.mjs` does not exist here: THD-H3's drift gate is
@@ -136,6 +139,54 @@ stylesheet was judged not worth the added parser surface for five small
 files), but it now also covers the pairs the reference CSS actually
 renders and the review found missing: muted text and links on `surface`,
 selected text, and `accent` used as a non-text UI color.
+
+The list itself lives in `scripts/contrast-pairs.json`, not in
+`check-contrast.mjs`, so it is a configurable list rather than a literal
+only editable by changing the script (`GALA_CONTRAST_PAIRS_PATH`
+overrides the file, used by this package's own failing-fixture tests). It
+carries three adjacency pairs beyond the original seventeen —
+`color-surface-raised` on `color-surface` (>=1.3:1), `color-accent` on
+`color-text` (>=3:1), and `color-accent` on `color-surface` (>=3:1) — for
+themes whose CSS actually renders those combinations (a flashy/zebra-style
+accent-heavy design, for instance). A theme whose current tokens do not
+clear one of these floors will see `contrast:check` fail; that is the
+gate finding a real gap in the tokens, not a defect in the gate.
+
+## Visual/accessibility check (`visual:check`, THD-M10)
+
+A shared Playwright + axe-core harness (`scripts/visual-check.mjs`,
+fixture built by `scripts/visual-fixture.mjs`): renders one rich fixture
+publication (headings 1-6, prose, lists, a blockquote, inline and fenced
+code) through `@rathnasgala2/template`'s own renderer with the theme under
+test, then loads that page in headless Chromium at 320/768/1440px, once
+per palette (light/dark, selected through Playwright's `colorScheme`
+context option — the template's pre-paint bootstrap script resolves
+`prefers-color-scheme` the same way for a real visitor). At each of the
+six combinations it runs an axe-core scan (failing on any `serious`/
+`critical` violation), asserts there is no horizontal overflow, and writes
+a full-page screenshot.
+
+Usage: `node bin/cli.mjs visual:check -- --out <directory>` (from a
+theme's `tooling/`, via `run.mjs`) or directly,
+`node scripts/visual-check.mjs --out <directory>`. `--out` is required and
+the directory is created if needed; screenshots are written there and are
+**never committed** — the caller names a scratch location.
+
+**Deliberately not part of `verify`/`VERIFY_SEQUENCE`.** Every other gate
+here needs nothing beyond `npm install`; this one needs a browser binary
+on disk, which is a separate, explicit, pinned download:
+
+```sh
+npx playwright install chromium
+```
+
+Run that once (locally, or as its own CI step/job) before
+`npm run visual:check`. `playwright` and `axe-core` are exact-pinned
+devDependencies (see `package.json`) so the browser version this harness
+drives never drifts silently; bump both together, deliberately, when
+upgrading. A theme's CI runs `visual:check` as its own job — install
+Chromium, then run the script — rather than folding it into `verify` and
+silently imposing that install step on every local `npm run verify`.
 
 ## Verify sequence
 
