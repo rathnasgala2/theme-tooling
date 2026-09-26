@@ -2,7 +2,30 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
-## Unreleased
+## [0.2.0] - 2026-09-26
+
+### Changed
+
+- **THD-M6 (post-mortem)**: a theme's `sbom:generate` no longer runs
+  `cyclonedx-npm` against this package's own `package-lock.json` and
+  attributes the result to the calling theme's identity — that design
+  repeatedly diverged between a local machine and CI, for reasons traced
+  to which `cyclonedx-npm`/`cyclonedx-library` release a lockfile scan
+  happened to resolve to. It now builds a self-contained CycloneDX
+  document directly from the theme's own `name`/`version`
+  (`buildThemeOnlySbom`): zero dependency components (a published theme
+  ships none), no tool invocation, no `node_modules`, no lockfile read.
+  `sbom:check` now asserts generation is deterministic instead of
+  diffing against a committed file — the theme's SBOM is no longer
+  committed at all; a release workflow generates and uploads it as a
+  build artifact instead.
+- `ignore-scripts=true` pinned in `.npmrc` so a local `npm ci` and CI's
+  `npm ci` install identically.
+- This package now carries its own committed `sbom.cdx.json` (its own
+  devDependency tree, still `cyclonedx-npm`-generated — a real dependency
+  tree, unlike the above), with `sbom:check` in its own `verify`, and its
+  own `.github/workflows/ci.yml` running that `verify` against a real
+  `theme-default`/`template` checkout.
 
 ## [0.1.0] - 2026-09-26
 

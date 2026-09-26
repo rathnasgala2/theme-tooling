@@ -217,6 +217,7 @@ silently imposing that install step on every local `npm run verify`.
 ## Verify sequence
 
 `verify` runs, in order: `format:check`, `lint`, `schema:check`,
+`package-identity:check`,
 `css:check`, `grammar:check`, `contrast:check`, `budgets:check`,
 `package:check`, `absence:check`, `schema-pin:check`, `digest:check`,
 `test`, `duplication`, `sbom:check`, `audit`, `workflows:check`. This list
