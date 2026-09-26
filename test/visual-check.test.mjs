@@ -1,20 +1,25 @@
 import { strict as assert } from 'node:assert';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { test } from 'node:test';
 
-import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
-
 const run = promisify(execFile);
-const SCRIPT_PATH = path.join(
-  import.meta.dirname,
-  '..',
-  'scripts',
-  'visual-check.mjs',
-);
+// `resolveThemeRoot()` (and every other `scripts/` helper) expects to run
+// with this package's own `tooling/` directory as the process cwd — that
+// is the convention the npm scripts and `resolve-theme-root.mjs` document,
+// and it is how `visual-check.mjs` resolves its *own* `THEME_ROOT`/default
+// when the child process calls `resolveThemeRoot()` again internally.
+// Previously this test passed `resolveThemeRoot()` itself as `cwd`, i.e.
+// the theme root one level up — the child process then resolved its
+// default theme root one level up *from there*, missing entirely (or, by
+// coincidence, an unrelated directory), so the end-to-end case never ran
+// against the intended theme and crashed to "0 screenshots" instead of
+// being skipped or passing.
+const TOOLING_ROOT = path.join(import.meta.dirname, '..');
+const SCRIPT_PATH = path.join(TOOLING_ROOT, 'scripts', 'visual-check.mjs');
 
 /**
  * THD-M10: `visual-check.mjs` is deliberately not exercised end-to-end by
@@ -29,7 +34,7 @@ test('fails closed with a usage message when --out is missing', async () => {
   let stderr = '';
   try {
     await run(process.execPath, [SCRIPT_PATH], {
-      cwd: resolveThemeRoot(),
+      cwd: TOOLING_ROOT,
       env: process.env,
     });
   } catch (error) {
@@ -58,7 +63,7 @@ test(
         execFile(
           process.execPath,
           [SCRIPT_PATH, '--out', outDirectory],
-          { cwd: resolveThemeRoot(), env: process.env },
+          { cwd: TOOLING_ROOT, env: process.env },
           (error, stdoutResult, stderrResult) => {
             resolve({
               exitCode: error?.code ?? 0,
@@ -81,11 +86,49 @@ test(
           assert.match(stdout, new RegExp(`${palette} ${width}px:`));
         }
       }
+
+      // THD-M10 regression proof: this used to load the fixture via
+      // `file://`, under which the theme's root-absolute stylesheet
+      // `<link>`s and bootstrap `<script src>` never resolved, so the
+      // page rendered with User-Agent styles only and light/dark
+      // screenshots came out byte-identical. The script itself now
+      // asserts this on every run (a resolved stylesheet, a themed
+      // computed style, light != dark bytes) and fails closed if it
+      // regresses; re-assert the same three things here, independently,
+      // against this test's own run's screenshot files, so a change to
+      // the script's internal assertions cannot silently stop proving it.
+      const lightBytes = await readFile(
+        path.join(outDirectory, findScreenshot(files, 'light', 1440)),
+      );
+      const darkBytes = await readFile(
+        path.join(outDirectory, findScreenshot(files, 'dark', 1440)),
+      );
+      assert.ok(
+        !lightBytes.equals(darkBytes),
+        'light and dark screenshots must not be byte-identical — the ' +
+          "theme's CSS must actually have loaded and applied",
+      );
     } finally {
       await rm(outDirectory, { recursive: true, force: true });
     }
   },
 );
+
+/**
+ * @param {string[]} files screenshot basenames from the run's `--out` dir
+ * @param {'light'|'dark'} palette
+ * @param {number} width
+ * @returns {string} the matching screenshot's basename
+ */
+function findScreenshot(files, palette, width) {
+  const match = files.find((name) => name.includes(`-${palette}-${width}.png`));
+  if (!match) {
+    throw new Error(
+      `no ${palette} ${width}px screenshot among: ${files.join(', ')}`,
+    );
+  }
+  return match;
+}
 
 /**
  * @returns {Promise<string|false>} a skip reason, or `false` to run the test
