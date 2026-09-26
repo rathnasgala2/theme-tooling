@@ -41,16 +41,19 @@ jobs:
           persist-credentials: false
 
       # This package's own conformance/digest test suite runs its checks
-      # against a real theme's packed file set (THEME_ROOT). Pinned to
-      # theme-default's `main` tip so this workflow is not coupled to
-      # whatever is mid-review on a theme's feature branch (THD-M6: "the
-      # producer verifies its own artifacts" — this is that verification,
-      # so it needs a stable consumer to verify against).
+      # against a real theme's packed file set (THEME_ROOT), including
+      # properties (like the no-JS fallback palette block in tokens.css)
+      # that theme-default's `main` tip does not carry yet as of
+      # 2026-09-26 — `main` still predates the THD-M6 tooling-extraction
+      # migration this very pin exists to verify. Pinned instead to
+      # theme-default's review/2026-09-25 branch tip, the first commit
+      # that both consumes this package and carries that CSS feature; move
+      # this back to a `main` commit once that branch merges.
       - name: Check out the theme-default sibling repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: rathnasgala2/theme-default
-          ref: 50957da66db16bb3b735eb2cd0b6a7f78e29b739 # main
+          ref: 4d8ddd5ddda78f6b21229594bdc55f7cbfb7985f # review/2026-09-25
           path: theme-default
           persist-credentials: false
 
