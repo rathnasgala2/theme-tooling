@@ -23,16 +23,12 @@
  * `appearance.colorMode.default`.
  */
 
-import { readFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
+import { loadCanonicalBuildInput } from './canonical-build-input.mjs';
+import { computeRenderPolicyIdentity } from './render-policy-identity.mjs';
 import { resolveTemplateDir } from './resolve-template-dir.mjs';
-
-const RENDER_POLICY_DIGEST_DOMAIN = 'GALA-RENDER-POLICY-V2\0';
-const RENDER_POLICY_NAME = 'gala-render-policy';
-const RENDER_POLICY_VERSION = '2.0.0';
 
 const RICH_BODY = `# Visual check fixture
 
@@ -69,27 +65,6 @@ const answer = 42;
 `;
 
 /**
- * @param {string} templateRoot the template checkout to read
- *   `contracts/render-policy.jcs` from
- * @returns {Promise<{name: string, version: string, digest: string}>} the
- *   current render-policy identity (reproduces the template's own
- *   unexported `computeRenderPolicyIdentity()`)
- */
-async function computeRenderPolicyIdentity(templateRoot) {
-  const contractBytes = await readFile(
-    path.join(templateRoot, 'contracts', 'render-policy.jcs'),
-  );
-  const hash = createHash('sha256');
-  hash.update(RENDER_POLICY_DIGEST_DOMAIN, 'utf8');
-  hash.update(contractBytes);
-  return {
-    name: RENDER_POLICY_NAME,
-    version: RENDER_POLICY_VERSION,
-    digest: `sha256:${hash.digest('hex')}`,
-  };
-}
-
-/**
  * @returns {Promise<Record<string, unknown>>} a fresh, render-ready
  *   `build-input:2.0.0` instance
  */
@@ -106,21 +81,7 @@ export async function buildVisualCheckFixture() {
   const { html: normalizedBody, bodyDigest } =
     normalizeAuthoredMarkdown(RICH_BODY);
 
-  const schemasPackageJsonUrl = import.meta
-    .resolve('@rathnasgala2/schemas/package.json');
-  const schemasRoot = path.dirname(fileURLToPath(schemasPackageJsonUrl));
-  const buildInput = JSON.parse(
-    await readFile(
-      path.join(
-        schemasRoot,
-        'examples',
-        'valid',
-        'build-input',
-        'canonical.json',
-      ),
-      'utf8',
-    ),
-  );
+  const buildInput = await loadCanonicalBuildInput();
 
   const identity = await computeRenderPolicyIdentity(templateRoot);
   for (const record of buildInput.content) {

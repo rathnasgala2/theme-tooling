@@ -17,7 +17,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFile } from 'node:child_process';
-import { readFile, writeFile, rm, mkdtemp, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, rm, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -28,6 +28,7 @@ import { resolveTemplateDir } from '../scripts/resolve-template-dir.mjs';
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import { buildScratchThemeCopy } from '../scripts/scratch-theme.mjs';
 import { normalizeSlotHooks } from './helpers/normalize-slot-hooks.mjs';
+import { createRenderDirectories } from './helpers/render-directories.mjs';
 import { runCheckScript } from './helpers/run-check.mjs';
 import { buildFixture } from './fixtures/rich-build-input.mjs';
 import { testProvenance } from './fixtures/test-provenance.mjs';
@@ -195,11 +196,8 @@ test(
       pathToFileURL(path.join(TEMPLATE_DIR, 'src', 'core', 'index.js')).href
     );
     const scratchRoot = await buildContract210Fixture();
-    const root = await mkdtemp(path.join(tmpdir(), 'contract-210-render-'));
-    const outputDirectory = path.join(root, 'output');
-    const workDirectory = path.join(root, 'work');
-    const sourceDirectory = path.join(root, 'source');
-    await mkdir(sourceDirectory, { recursive: true });
+    const { outputDirectory, workDirectory, sourceDirectory, cleanup } =
+      await createRenderDirectories('contract-210-render-');
     try {
       const buildInput = await buildFixture();
       const { manifest } = await renderPublication(buildInput, {
@@ -216,7 +214,7 @@ test(
         'manifest must record the theme components.css asset row',
       );
     } finally {
-      await rm(root, { recursive: true, force: true });
+      await cleanup();
       await rm(scratchRoot, { recursive: true, force: true });
     }
   },

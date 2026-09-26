@@ -16,11 +16,11 @@
  * (S2-T04) so `renderPublication` accepts it (DEC-097 §5).
  */
 
-import { readFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
+import { loadCanonicalBuildInput } from '../../scripts/canonical-build-input.mjs';
+import { computeRenderPolicyIdentity as computeRenderPolicyIdentityFor } from '../../scripts/render-policy-identity.mjs';
 import { resolveTemplateDir } from '../../scripts/resolve-template-dir.mjs';
 
 // `@rathnasgala2/template` is consumed *by path*, not as an npm
@@ -32,34 +32,12 @@ const { computeBodyDigest } = await import(
   pathToFileURL(path.join(resolveTemplateDir(), 'src', 'core', 'index.js')).href
 );
 
-const RENDER_POLICY_DIGEST_DOMAIN = 'GALA-RENDER-POLICY-V2\0';
-const RENDER_POLICY_NAME = 'gala-render-policy';
-const RENDER_POLICY_VERSION = '2.0.0';
-
 /**
- * Reproduce `@rathnasgala2/template`'s own (unexported)
- * `computeRenderPolicyIdentity()`: `sha256("GALA-RENDER-POLICY-V2\0" +
- * <the published contracts/render-policy.jcs bytes>)`. Not part of the
- * template's public `exports` map, so its documented algorithm is
- * reproduced here directly against the same published contract file,
- * rather than importing a template-internal module.
- *
  * @returns {Promise<{name: string, version: string, digest: string}>} the
- *   current render-policy identity
+ *   current render-policy identity, for this fixture's template checkout
  */
 async function computeRenderPolicyIdentity() {
-  const templateRoot = resolveTemplateDir();
-  const contractBytes = await readFile(
-    path.join(templateRoot, 'contracts', 'render-policy.jcs'),
-  );
-  const hash = createHash('sha256');
-  hash.update(RENDER_POLICY_DIGEST_DOMAIN, 'utf8');
-  hash.update(contractBytes);
-  return {
-    name: RENDER_POLICY_NAME,
-    version: RENDER_POLICY_VERSION,
-    digest: `sha256:${hash.digest('hex')}`,
-  };
+  return computeRenderPolicyIdentityFor(resolveTemplateDir());
 }
 
 /**
@@ -67,21 +45,7 @@ async function computeRenderPolicyIdentity() {
  *   `build-input:2.0.0` instance naming this package as its theme
  */
 export async function buildFixture() {
-  const schemasPackageJsonUrl = import.meta
-    .resolve('@rathnasgala2/schemas/package.json');
-  const schemasRoot = path.dirname(fileURLToPath(schemasPackageJsonUrl));
-  const buildInput = JSON.parse(
-    await readFile(
-      path.join(
-        schemasRoot,
-        'examples',
-        'valid',
-        'build-input',
-        'canonical.json',
-      ),
-      'utf8',
-    ),
-  );
+  const buildInput = await loadCanonicalBuildInput();
 
   const identity = await computeRenderPolicyIdentity();
   for (const record of buildInput.content) {

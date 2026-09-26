@@ -11,8 +11,7 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { mkdtemp, readdir, readFile, rm, mkdir } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readdir, readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -21,6 +20,7 @@ import { resolveTemplateDir } from '../scripts/resolve-template-dir.mjs';
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import { buildFixture } from './fixtures/rich-build-input.mjs';
 import { testProvenance } from './fixtures/test-provenance.mjs';
+import { createRenderDirectories } from './helpers/render-directories.mjs';
 
 // `@rathnasgala2/template` is consumed *by path*, not as an npm
 // dependency (independent-review finding on S2-T13). See
@@ -33,24 +33,6 @@ const { renderPublication } = await import(
 // shared across five theme repositories; see bin/cli.mjs), not by this
 // test file's own location.
 const THEME_DIRECTORY = resolveThemeRoot();
-
-/**
- * @returns {Promise<{outputDirectory: string, workDirectory: string, sourceDirectory: string, cleanup: () => Promise<void>}>}
- *   a fresh, empty output/work/source directory triple
- */
-async function createRenderDirectories() {
-  const root = await mkdtemp(path.join(tmpdir(), 'theme-default-conformance-'));
-  const outputDirectory = path.join(root, 'output');
-  const workDirectory = path.join(root, 'work');
-  const sourceDirectory = path.join(root, 'source');
-  await mkdir(sourceDirectory, { recursive: true });
-  return {
-    outputDirectory,
-    workDirectory,
-    sourceDirectory,
-    cleanup: () => rm(root, { recursive: true, force: true }),
-  };
-}
 
 /**
  * @param {string} directory absolute directory
@@ -83,7 +65,7 @@ async function listFilesSorted(directory) {
 test('renderPublication with options.themeDirectory pointing at this package renders successfully and links the theme stylesheets', async () => {
   const buildInput = await buildFixture();
   const { outputDirectory, workDirectory, sourceDirectory, cleanup } =
-    await createRenderDirectories();
+    await createRenderDirectories('theme-default-conformance-');
   try {
     const { manifest } = await renderPublication(buildInput, {
       outputDirectory,
@@ -119,8 +101,8 @@ test('renderPublication with options.themeDirectory pointing at this package ren
 test('two independent builds of the same pinned inputs against this theme are byte-identical (determinism)', async () => {
   const buildInputA = await buildFixture();
   const buildInputB = await buildFixture();
-  const first = await createRenderDirectories();
-  const second = await createRenderDirectories();
+  const first = await createRenderDirectories('theme-default-conformance-');
+  const second = await createRenderDirectories('theme-default-conformance-');
   try {
     const [{ manifest: manifestA }, { manifest: manifestB }] =
       await Promise.all([

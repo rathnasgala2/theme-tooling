@@ -18,6 +18,7 @@ import { test } from 'node:test';
 import postcss from 'postcss';
 
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
+import { wcagContrastRatio } from './helpers/contrast.mjs';
 
 const BARE_ROOT_SELECTOR = '[data-gala-publication-root]';
 const DARK_OVERRIDE_SELECTOR = '[data-gala-publication-root]';
@@ -25,32 +26,6 @@ const RESOLVED_LIGHT_SELECTOR =
   '[data-gala-publication-root][data-gala-resolved-color-mode="light"]';
 const RESOLVED_DARK_SELECTOR =
   '[data-gala-publication-root][data-gala-resolved-color-mode="dark"]';
-
-/**
- * @param {number} hex a `#rrggbb` color
- * @returns {number} relative luminance in [0, 1] (WCAG formula)
- */
-function relativeLuminance(hex) {
-  const channels = [1, 3, 5].map(
-    (index) => parseInt(hex.slice(index, index + 2), 16) / 255,
-  );
-  const [r, g, b] = channels.map((c) =>
-    c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4,
-  );
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-/**
- * @param {string} a a `#rrggbb` color
- * @param {string} b a `#rrggbb` color
- * @returns {number} the WCAG contrast ratio, >= 1
- */
-function contrastRatio(a, b) {
-  const [high, low] = [relativeLuminance(a), relativeLuminance(b)].sort(
-    (x, y) => y - x,
-  );
-  return (high + 0.05) / (low + 0.05);
-}
 
 /**
  * @returns {Promise<{root: import('postcss').Root, css: string}>}
@@ -143,7 +118,10 @@ test('the no-JS fallback palette (bare-root and its dark media override) clears 
     ['fallback light (bare root)', bareRoot],
     ['fallback dark (prefers-color-scheme)', mediaDark],
   ]) {
-    const ratio = contrastRatio(tokens['color-text'], tokens['color-canvas']);
+    const ratio = wcagContrastRatio(
+      tokens['color-text'],
+      tokens['color-canvas'],
+    );
     assert.ok(
       ratio >= 4.5,
       `${label}: color-text on color-canvas is ${ratio.toFixed(2)}, below WCAG AA 4.5`,

@@ -8,6 +8,8 @@ import { test } from 'node:test';
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import { buildScratchThemeCopy } from '../scripts/scratch-theme.mjs';
 import { runCheckScript } from './helpers/run-check.mjs';
+import { readThemeJson, writeThemeJson } from './helpers/theme-json.mjs';
+import { withScratchTheme } from './helpers/with-scratch-theme.mjs';
 
 const execFileAsync = promisify(execFile);
 const GENERATE_SCRIPT = path.join(
@@ -215,16 +217,14 @@ test('digest:check fails on a committed theme.json with a stale asset digest, an
   // — the exact defect THD-H2 reports: a stale `sha256`/`integrity` that
   // slipped past `--check` because the un-flagged generator step rewrote
   // the file before the comparison ran.
-  const themeRoot = resolveThemeRoot();
-  const scratchRoot = await buildScratchThemeCopy(themeRoot);
-  try {
+  await withScratchTheme(async (scratchRoot) => {
     const themePath = path.join(scratchRoot, 'theme.json');
-    const theme = JSON.parse(await readFile(themePath, 'utf8'));
+    const theme = await readThemeJson(scratchRoot);
     // Mutate one committed asset digest so it disagrees with the packed
     // CSS bytes, without touching the CSS itself.
     theme.assets[0].sha256 =
       'sha256:0000000000000000000000000000000000000000000000000000000000000';
-    await writeFile(themePath, JSON.stringify(theme, null, 2), 'utf8');
+    await writeThemeJson(scratchRoot, theme);
     const staleBytes = await readFile(themePath, 'utf8');
 
     let checkFailed = false;
@@ -247,7 +247,5 @@ test('digest:check fails on a committed theme.json with a stale asset digest, an
       staleBytes,
       'digest:check must never rewrite the committed theme.json, even when it fails',
     );
-  } finally {
-    await rm(scratchRoot, { recursive: true, force: true });
-  }
+  });
 });

@@ -12,13 +12,7 @@
  * the longhands paint nothing on their own (THD-H1).
  */
 
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-
-import postcss from 'postcss';
-
-import { loadPackedFileSet } from './packed-files.mjs';
-import { resolveThemeRoot } from './resolve-theme-root.mjs';
+import { loadParsedStylesheets } from './lib/parsed-stylesheets.mjs';
 
 /** @type {ReadonlySet<string>} every non-custom property observed across
  * the five reference themes' shipped stylesheets, reviewed and accepted as
@@ -101,13 +95,10 @@ const ALLOWED_AT_RULES = new Set(['layer', 'media']);
 const MAXIMUM_RULES_PER_FILE = 160;
 
 async function main() {
-  const { stylesheets } = await loadPackedFileSet();
-  const themeRoot = resolveThemeRoot();
+  const parsedStylesheets = await loadParsedStylesheets();
   let failed = false;
 
-  for (const stylesheet of stylesheets) {
-    const css = await readFile(path.join(themeRoot, stylesheet), 'utf8');
-    const root = postcss.parse(css, { from: stylesheet });
+  for (const { stylesheet, root } of parsedStylesheets) {
     let ruleCount = 0;
 
     root.walkAtRules((atRule) => {

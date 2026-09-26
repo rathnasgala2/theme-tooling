@@ -1,12 +1,13 @@
 import { strict as assert } from 'node:assert';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
-import { buildScratchThemeCopy } from '../scripts/scratch-theme.mjs';
 import { runCheckScript } from './helpers/run-check.mjs';
+import { withScratchDir } from './helpers/scratch-dir.mjs';
+import { readThemeJson, writeThemeJson } from './helpers/theme-json.mjs';
+import { withScratchTheme } from './helpers/with-scratch-theme.mjs';
 
 /**
  * Coordinator addendum item C: the contrast pair list is now externalized
@@ -62,34 +63,30 @@ test('scripts/contrast-pairs.json carries the four new adjacency pairs alongside
  * @returns {Promise<{passed: boolean, output: string}>} check-contrast.mjs's outcome
  */
 async function checkSinglePairFixture(pair, tokenOverride) {
-  const scratchRoot = await buildScratchThemeCopy(resolveThemeRoot());
-  const pairsDirectory = await mkdtemp(path.join(tmpdir(), 'contrast-pairs-'));
-  try {
-    const pairsPath = path.join(pairsDirectory, 'contrast-pairs.json');
-    await writeFile(pairsPath, JSON.stringify([pair]), 'utf8');
+  return withScratchTheme((scratchRoot) =>
+    withScratchDir('contrast-pairs-', async (pairsDirectory) => {
+      const pairsPath = path.join(pairsDirectory, 'contrast-pairs.json');
+      await writeFile(pairsPath, JSON.stringify([pair]), 'utf8');
 
-    const themePath = path.join(scratchRoot, 'theme.json');
-    const theme = JSON.parse(await readFile(themePath, 'utf8'));
-    const index = theme.tokens.findIndex(
-      (token) => token.key === tokenOverride.key,
-    );
-    assert.ok(
-      index !== -1,
-      `fixture assumption: ${tokenOverride.key} must exist`,
-    );
-    theme.tokens[index] = { ...theme.tokens[index], ...tokenOverride };
-    await writeFile(themePath, JSON.stringify(theme, null, 2), 'utf8');
+      const theme = await readThemeJson(scratchRoot);
+      const index = theme.tokens.findIndex(
+        (token) => token.key === tokenOverride.key,
+      );
+      assert.ok(
+        index !== -1,
+        `fixture assumption: ${tokenOverride.key} must exist`,
+      );
+      theme.tokens[index] = { ...theme.tokens[index], ...tokenOverride };
+      await writeThemeJson(scratchRoot, theme);
 
-    return await runCheckScript('check-contrast.mjs', {
-      env: {
-        THEME_ROOT: scratchRoot,
-        GALA_CONTRAST_PAIRS_PATH: pairsPath,
-      },
-    });
-  } finally {
-    await rm(scratchRoot, { recursive: true, force: true });
-    await rm(pairsDirectory, { recursive: true, force: true });
-  }
+      return runCheckScript('check-contrast.mjs', {
+        env: {
+          THEME_ROOT: scratchRoot,
+          GALA_CONTRAST_PAIRS_PATH: pairsPath,
+        },
+      });
+    }),
+  );
 }
 
 test('fails when color-surface-raised is nearly identical to color-surface (< 1.3:1)', async () => {
@@ -110,10 +107,7 @@ test('fails when color-surface-raised is nearly identical to color-surface (< 1.
 });
 
 test('fails when color-accent is too close to color-text (< 3:1)', async () => {
-  const themeRoot = resolveThemeRoot();
-  const theme = JSON.parse(
-    await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
-  );
+  const theme = await readThemeJson(resolveThemeRoot());
   const text = theme.tokens.find((token) => token.key === 'color-text');
   const { passed, output } = await checkSinglePairFixture(
     {
@@ -130,10 +124,7 @@ test('fails when color-accent is too close to color-text (< 3:1)', async () => {
 });
 
 test('fails when color-accent is too close to color-surface (< 3:1)', async () => {
-  const themeRoot = resolveThemeRoot();
-  const theme = JSON.parse(
-    await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
-  );
+  const theme = await readThemeJson(resolveThemeRoot());
   const surface = theme.tokens.find((token) => token.key === 'color-surface');
   const { passed, output } = await checkSinglePairFixture(
     {
@@ -149,10 +140,7 @@ test('fails when color-accent is too close to color-surface (< 3:1)', async () =
 });
 
 test('fails when color-accent is too close to color-code-canvas (< 3:1)', async () => {
-  const themeRoot = resolveThemeRoot();
-  const theme = JSON.parse(
-    await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
-  );
+  const theme = await readThemeJson(resolveThemeRoot());
   const codeCanvas = theme.tokens.find(
     (token) => token.key === 'color-code-canvas',
   );

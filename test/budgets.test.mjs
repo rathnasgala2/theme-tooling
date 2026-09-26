@@ -1,11 +1,10 @@
 import { strict as assert } from 'node:assert';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import path from 'node:path';
 import { test } from 'node:test';
 
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import { runCheckScript } from './helpers/run-check.mjs';
+import { withScratchDir } from './helpers/scratch-dir.mjs';
+import { readThemeJson, writeThemeJson } from './helpers/theme-json.mjs';
 
 test('the theme is within its own declared theme.json budgets (THD-M3)', async () => {
   const { passed, output } = await runCheckScript('check-budgets.mjs');
@@ -13,12 +12,8 @@ test('the theme is within its own declared theme.json budgets (THD-M3)', async (
 });
 
 test('fails when a declared asset exceeds maximumFileBytes, or the total exceeds maximumTotalBytes (THD-M3)', async () => {
-  const themeRoot = resolveThemeRoot();
-  const theme = JSON.parse(
-    await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
-  );
-  const scratchRoot = await mkdtemp(path.join(tmpdir(), 'theme-budgets-'));
-  try {
+  const theme = await readThemeJson(resolveThemeRoot());
+  await withScratchDir('theme-budgets-', async (scratchRoot) => {
     const oversized = {
       ...theme,
       assets: theme.assets.map((asset, index) =>
@@ -30,11 +25,7 @@ test('fails when a declared asset exceeds maximumFileBytes, or the total exceeds
           : asset,
       ),
     };
-    await writeFile(
-      path.join(scratchRoot, 'theme.json'),
-      JSON.stringify(oversized, null, 2),
-      'utf8',
-    );
+    await writeThemeJson(scratchRoot, oversized);
 
     const { passed, output } = await runCheckScript('check-budgets.mjs', {
       env: { THEME_ROOT: scratchRoot },
@@ -45,7 +36,5 @@ test('fails when a declared asset exceeds maximumFileBytes, or the total exceeds
       'an asset over maximumFileBytes must fail check-budgets',
     );
     assert.match(output, /exceeding maximumFileBytes/);
-  } finally {
-    await rm(scratchRoot, { recursive: true, force: true });
-  }
+  });
 });

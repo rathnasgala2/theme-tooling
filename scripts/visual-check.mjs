@@ -46,6 +46,7 @@ import { pathToFileURL } from 'node:url';
 
 import { chromium } from 'playwright';
 
+import { buildFixtureProvenance } from './fixture-provenance.mjs';
 import { resolveTemplateDir } from './resolve-template-dir.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
 import { startStaticFileServer } from './static-file-server.mjs';
@@ -59,80 +60,6 @@ const PALETTES = ['light', 'dark'];
 const FAILING_IMPACTS = new Set(['serious', 'critical']);
 /** @type {number} fixed viewport height; only width varies by breakpoint. */
 const VIEWPORT_HEIGHT = 1000;
-
-/**
- * @param {string} n an arbitrary short suffix
- * @returns {string} a schema-shaped placeholder `sha256:` digest
- */
-function digest(n) {
-  return `sha256:${'0'.repeat(64 - String(n).length)}${n}`;
-}
-
-/**
- * A schema-valid, deterministic placeholder `provenance` bundle (the same
- * convention `test/fixtures/test-provenance.mjs` uses; duplicated here so
- * `scripts/` does not depend on `test/` — see `visual-fixture.mjs`).
- *
- * @returns {Record<string, unknown>} a fresh provenance bundle
- */
-function visualCheckProvenance() {
-  return {
-    builder: {
-      package: '@rathnasgala2/publish-action',
-      version: '2.0.0',
-      integrity: digest(1),
-      registry: 'https://fixture-1.example.com/',
-    },
-    repositoryCoordinate: 'fixture-owner/fixture-repository',
-    workflowIdentity: digest(1),
-    buildToolVersions: [
-      { kind: 'runtime', name: 'node', version: '24.18.0', digest: digest(1) },
-      { kind: 'runtime', name: 'npm', version: '11.16.0', digest: digest(2) },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/schemas',
-        version: '2.0.0',
-        digest: digest(3),
-      },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/template',
-        version: '2.0.0',
-        digest: digest(4),
-      },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/theme-default',
-        version: '2.0.0',
-        digest: digest(5),
-      },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/publish-action',
-        version: '2.0.0',
-        digest: digest(6),
-      },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/publish-kernel',
-        version: '2.0.0',
-        digest: digest(7),
-      },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/adapter-protocol',
-        version: '2.0.0',
-        digest: digest(8),
-      },
-      {
-        kind: 'package',
-        package: '@rathnasgala2/adapter-local-directory',
-        version: '2.0.0',
-        digest: digest(9),
-      },
-    ],
-  };
-}
 
 /**
  * @param {string[]} argv `process.argv.slice(2)`
@@ -174,7 +101,7 @@ async function renderFixture(themeRoot, templateDir, workRoot) {
     workDirectory,
     sourceDirectory,
     themeDirectory: themeRoot,
-    provenance: visualCheckProvenance(),
+    provenance: buildFixtureProvenance(),
   });
   // The rendered publication has several `html` routes (the article, its
   // archive/tag/author index pages, the site index, the 404 page). The
