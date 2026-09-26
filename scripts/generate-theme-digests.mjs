@@ -15,8 +15,7 @@
  */
 
 import { execFile } from 'node:child_process';
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
@@ -27,6 +26,8 @@ import { canonicalizeJcsBytes } from './jcs.mjs';
 import { loadPackedFileSet } from './packed-files.mjs';
 import { resolveTemplateDir } from './resolve-template-dir.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
+import { runIfMain } from './run-if-main.mjs';
+import { buildScratchThemeCopy } from './scratch-theme.mjs';
 
 // Resolved once, from this process's own (never-changing) cwd, before any
 // scratch-directory child is spawned — `check-css-hooks.mjs` needs the
@@ -230,6 +231,33 @@ async function buildFixtureRelease(theme) {
 }
 
 /**
+ * THD-M5: the per-fixture evidence digest binds the runner's actual
+ * captured output, not only its disposition — a runner that exits zero
+ * while printing different diagnostics produces a different digest.
+ * Exported (rather than inlined in {@link buildConformanceResult}) so the
+ * binding itself has a direct unit test independent of spawning real
+ * child processes.
+ *
+ * @param {{fixtureId: string, runnerId: string, disposition: string, output: string}} observation
+ * @returns {string} `sha256:<hex>` tagged digest
+ */
+export function computeObservedEvidenceDigest({
+  fixtureId,
+  runnerId,
+  disposition,
+  output,
+}) {
+  return sha256Tagged(
+    canonicalizeJcsBytes({
+      fixtureId,
+      runnerId,
+      disposition,
+      outputDigest: sha256Tagged(Buffer.from(output, 'utf8')),
+    }),
+  );
+}
+
+/**
  * Run every local runner for real against `themeRoot` and build the
  * conformance-result record. THD-M5: unlike the original implementation,
  * `observedEvidenceDigest` binds the runner's actual captured output (not
@@ -260,14 +288,12 @@ async function buildConformanceResult(
         throw new Error(`no local runner for ${definition.fixtureId}`);
       const { passed, output } = await runLocalCheck(themeRoot, runner.script);
       const observedDisposition = passed ? 'accepted' : 'rejected';
-      const observedEvidenceDigest = sha256Tagged(
-        canonicalizeJcsBytes({
-          fixtureId: definition.fixtureId,
-          runnerId: definition.runnerId,
-          disposition: observedDisposition,
-          outputDigest: sha256Tagged(Buffer.from(output, 'utf8')),
-        }),
-      );
+      const observedEvidenceDigest = computeObservedEvidenceDigest({
+        fixtureId: definition.fixtureId,
+        runnerId: definition.runnerId,
+        disposition: observedDisposition,
+        output,
+      });
       const state =
         observedDisposition === definition.expectedDisposition
           ? 'pass'
@@ -359,31 +385,6 @@ async function generate(themeRoot) {
   return theme;
 }
 
-/**
- * Copy the theme's packed file set into a fresh scratch directory, mode
- * 0644 (the packed-file-set/absence runners assert every packed member is
- * mode 0644, which `cp` does not guarantee survives a copy).
- *
- * @param {string} themeRoot the real repository root to copy from
- * @returns {Promise<string>} the scratch directory's path
- */
-async function copyPackedFilesToScratch(themeRoot) {
-  const { packedFiles } = await loadPackedFileSet(themeRoot);
-  const scratchRoot = await mkdtemp(path.join(tmpdir(), 'theme-digest-'));
-  const { chmod, mkdir } = await import('node:fs/promises');
-  for (const relativePath of packedFiles) {
-    const destination = path.join(scratchRoot, relativePath);
-    await cp(path.join(themeRoot, relativePath), destination);
-    await chmod(destination, 0o644);
-  }
-  // `runLocalCheck` uses `<themeRoot>/tooling` as the local runners' cwd
-  // (matching every real theme's layout); it only needs to exist, not to
-  // hold any files, since the runners resolve `THEME_ROOT` from the
-  // environment, not from this directory's contents.
-  await mkdir(path.join(scratchRoot, 'tooling'), { recursive: true });
-  return scratchRoot;
-}
-
 async function main() {
   const check = process.argv.includes('--check');
   const themeRoot = resolveThemeRoot();
@@ -393,11 +394,8 @@ async function main() {
     return;
   }
 
-  const committed = await readFile(
-    path.join(themeRoot, 'theme.json'),
-    'utf8',
-  );
-  const scratchRoot = await copyPackedFilesToScratch(themeRoot);
+  const committed = await readFile(path.join(themeRoot, 'theme.json'), 'utf8');
+  const scratchRoot = await buildScratchThemeCopy(themeRoot);
   try {
     await generate(scratchRoot);
     const regenerated = await readFile(
@@ -414,12 +412,10 @@ async function main() {
       process.exitCode = 1;
       return;
     }
-    console.log(
-      'theme.json digest cycle matches the committed packed files.',
-    );
+    console.log('theme.json digest cycle matches the committed packed files.');
   } finally {
     await rm(scratchRoot, { recursive: true, force: true });
   }
 }
 
-await main();
+await runIfMain(import.meta.url, main);

@@ -5,9 +5,11 @@
  * `position: fixed`, `@keyframes`, an unbounded rule count all passed. This
  * runner closes that gap: a property allowlist (derived from every
  * property the five reference themes actually use, plus any `--gala-*`
- * custom property), an at-rule allowlist, and a per-file rule-count
- * ceiling generous enough for real design work but well short of "no
- * limit".
+ * custom property), an at-rule allowlist, a per-file rule-count ceiling
+ * generous enough for real design work but well short of "no limit", and
+ * a grammar rule that a rule setting `outline-color` or `outline-width`
+ * must also set `outline-style` (or `outline`) in the same rule, since
+ * the longhands paint nothing on their own (THD-H1).
  */
 
 import { readFile } from 'node:fs/promises';
@@ -87,6 +89,8 @@ async function main() {
 
     root.walkRules((rule) => {
       ruleCount += 1;
+      let hasOutlineColorOrWidth = false;
+      let hasOutlineStyle = false;
       for (const decl of rule.nodes ?? []) {
         if (decl.type !== 'decl') continue;
         if (decl.prop.startsWith('--')) continue; // custom properties
@@ -96,6 +100,23 @@ async function main() {
           );
           failed = true;
         }
+        if (decl.prop === 'outline-color' || decl.prop === 'outline-width') {
+          hasOutlineColorOrWidth = true;
+        }
+        if (decl.prop === 'outline-style' || decl.prop === 'outline') {
+          hasOutlineStyle = true;
+        }
+      }
+      // THD-H1: `outline-color`/`outline-width` paint nothing without
+      // `outline-style` (its initial value is `none`), so a rule setting
+      // one of the two longhands without also setting `outline-style` (or
+      // the `outline` shorthand) is an inert declaration that a themed
+      // focus ring must never regress into again.
+      if (hasOutlineColorOrWidth && !hasOutlineStyle) {
+        console.error(
+          `${stylesheet}: "${rule.selector}" sets outline-color/outline-width without outline-style, which paints nothing (THD-H1)`,
+        );
+        failed = true;
       }
     });
 
