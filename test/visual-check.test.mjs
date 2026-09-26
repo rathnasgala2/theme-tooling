@@ -6,20 +6,32 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { test } from 'node:test';
 
+import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
+
 const run = promisify(execFile);
-// `resolveThemeRoot()` (and every other `scripts/` helper) expects to run
-// with this package's own `tooling/` directory as the process cwd — that
-// is the convention the npm scripts and `resolve-theme-root.mjs` document,
-// and it is how `visual-check.mjs` resolves its *own* `THEME_ROOT`/default
-// when the child process calls `resolveThemeRoot()` again internally.
-// Previously this test passed `resolveThemeRoot()` itself as `cwd`, i.e.
-// the theme root one level up — the child process then resolved its
-// default theme root one level up *from there*, missing entirely (or, by
-// coincidence, an unrelated directory), so the end-to-end case never ran
-// against the intended theme and crashed to "0 screenshots" instead of
-// being skipped or passing.
+// `SCRIPT_PATH` always lives in *this* checkout's `scripts/` directory —
+// that part is safe to resolve from `import.meta.dirname` regardless of
+// how this suite is invoked.
+//
+// The theme root under test is a different thing entirely, and must not
+// be derived from `import.meta.dirname`: when this suite runs as part of
+// a theme's own `verify` (THEME_ROOT unset, cwd = the theme's `tooling/`
+// directory, this checkout reached only via `GALA_THEME_TOOLING_DIR`),
+// `import.meta.dirname` still points at *this* package's own `test/`
+// directory, not the calling theme's — deriving a cwd from it would send
+// the child process's own `resolveThemeRoot()` looking one level up from
+// the wrong place. `resolveThemeRoot()` itself, called here with this
+// process's own cwd/env, resolves correctly in every supported
+// invocation (standalone with `THEME_ROOT` set, or from a theme's
+// `tooling/` with it unset) — so this test resolves it once, up front,
+// in the parent process, and hands the child that resolved absolute path
+// explicitly via the `THEME_ROOT` env var. The child's own
+// `resolveThemeRoot()` then reads that override rather than
+// recomputing anything from its own cwd, and the whole thing no longer
+// depends on the child's cwd matching any particular directory.
 const TOOLING_ROOT = path.join(import.meta.dirname, '..');
 const SCRIPT_PATH = path.join(TOOLING_ROOT, 'scripts', 'visual-check.mjs');
+const RESOLVED_THEME_ROOT = resolveThemeRoot();
 
 /**
  * THD-M10: `visual-check.mjs` is deliberately not exercised end-to-end by
@@ -63,7 +75,15 @@ test(
         execFile(
           process.execPath,
           [SCRIPT_PATH, '--out', outDirectory],
-          { cwd: TOOLING_ROOT, env: process.env },
+          {
+            cwd: TOOLING_ROOT,
+            // THD-M10: pass the theme root this process already resolved
+            // explicitly, rather than relying on the child inheriting a
+            // cwd that happens to put its own `resolveThemeRoot()`
+            // default in the right place — see the comment above
+            // `RESOLVED_THEME_ROOT`.
+            env: { ...process.env, THEME_ROOT: RESOLVED_THEME_ROOT },
+          },
           (error, stdoutResult, stderrResult) => {
             resolve({
               exitCode: error?.code ?? 0,
