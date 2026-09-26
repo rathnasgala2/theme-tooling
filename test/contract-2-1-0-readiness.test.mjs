@@ -49,6 +49,38 @@ const GENERATE_SCRIPT = path.join(
   'generate-theme-digests.mjs',
 );
 
+// Isolate this fixture from the coordinator-addendum contrast pairs
+// (item C: color-surface-raised/color-accent adjacency floors), which are
+// a separate, real finding against the theme under test's current tokens
+// (see contrast-pairs.test.mjs) and not part of what this suite tests.
+// `generate-theme-digests.mjs`'s "semantic" local runner shells out to
+// check-contrast.mjs, which honours GALA_CONTRAST_PAIRS_PATH from its own
+// process.env — set once here and forwarded through every child process
+// this file spawns.
+const ORIGINAL_SEVENTEEN_PAIRS_PATH = path.join(
+  await mkdtemp(path.join(tmpdir(), 'contract-210-pairs-')),
+  'contrast-pairs.json',
+);
+{
+  const allPairs = JSON.parse(
+    await readFile(
+      path.join(import.meta.dirname, '..', 'scripts', 'contrast-pairs.json'),
+      'utf8',
+    ),
+  );
+  const addendumLabels = new Set([
+    'color-surface-raised on color-surface (surface adjacency)',
+    'color-accent on color-text (accent as a non-text UI element near body text)',
+    'color-accent on color-surface (accent as a non-text UI element on a raised surface)',
+  ]);
+  await writeFile(
+    ORIGINAL_SEVENTEEN_PAIRS_PATH,
+    JSON.stringify(allPairs.filter((pair) => !addendumLabels.has(pair.label))),
+    'utf8',
+  );
+}
+process.env.GALA_CONTRAST_PAIRS_PATH = ORIGINAL_SEVENTEEN_PAIRS_PATH;
+
 /**
  * Build a scratch theme, bumped to contract 2.1.0, with two rules added
  * that exercise the new pseudo-class catalog on hooks already declared in
