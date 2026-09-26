@@ -27,6 +27,14 @@ const ALLOWED_PROPERTIES = new Set([
   'animation-duration',
   'background-color',
   'background-image',
+  // Coordinator addendum item B: a sanitised passive SVG asset (TPL-C2)
+  // can only be rendered as an icon through `background-image`/
+  // `mask-image` on `::before`/`::after` — these six properties are the
+  // minimum needed to size and position it there.
+  'background-position',
+  'background-repeat',
+  'background-size',
+  'block-size',
   'border',
   'border-bottom',
   'border-bottom-color',
@@ -37,6 +45,10 @@ const ALLOWED_PROPERTIES = new Set([
   'border-top',
   'border-top-color',
   'color',
+  // `content` is admitted only for the empty string (see the dedicated
+  // check below): a pseudo-element needs `content: ""` to exist at all
+  // before it can carry an icon image.
+  'content',
   'display',
   'font-family',
   'font-size',
@@ -44,10 +56,14 @@ const ALLOWED_PROPERTIES = new Set([
   'font-weight',
   'gap',
   'height',
+  'inline-size',
   'letter-spacing',
   'line-height',
   'margin',
   'margin-top',
+  'mask-image',
+  'mask-repeat',
+  'mask-size',
   'max-width',
   'outline-color',
   'outline-width',
@@ -59,7 +75,11 @@ const ALLOWED_PROPERTIES = new Set([
   'text-transform',
   'text-underline-offset',
   'transition-duration',
+  'width',
 ]);
+
+/** @type {RegExp} an empty CSS string literal, either quote style. */
+const EMPTY_STRING_LITERAL = /^(?:""|'')$/;
 
 /** @type {ReadonlySet<string>} the closed at-rule vocabulary. */
 const ALLOWED_AT_RULES = new Set(['layer', 'media']);
@@ -105,6 +125,19 @@ async function main() {
         }
         if (decl.prop === 'outline-style' || decl.prop === 'outline') {
           hasOutlineStyle = true;
+        }
+        // Coordinator addendum item B: `content` is admitted into the
+        // property catalog only to create an icon-carrying pseudo-element
+        // (`content: ""`, styled with `background-image`/`mask-image`),
+        // never to inject author-controlled text through CSS.
+        if (
+          decl.prop === 'content' &&
+          !EMPTY_STRING_LITERAL.test(decl.value.trim())
+        ) {
+          console.error(
+            `${stylesheet}: "${rule.selector}" sets content to "${decl.value}", but only content: "" is admitted`,
+          );
+          failed = true;
         }
       }
       // THD-H1: `outline-color`/`outline-width` paint nothing without
