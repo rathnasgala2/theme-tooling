@@ -2684,8 +2684,8 @@
     {
       "type": "library",
       "name": "source-map-js",
-      "version": "1.2.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.3.0|source-map-js@1.2.1",
+      "version": "1.2.2",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.3.0|source-map-js@1.2.2",
       "licenses": [
         {
           "license": {
@@ -2694,15 +2694,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/source-map-js@1.2.1",
+      "purl": "pkg:npm/source-map-js@1.2.2",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+          "url": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "51758c2a12cec1529bef6f0852d40f5f17d853ebac7726ed52b2bff2e184f0240cbeb84ea70bf30c1c23d108522fb31073bbc8b084811bc550f3e203431a5f40"
+              "content": "2868fff18e37c77e5a6550edb7e27898ad61a0b18750b3187d290e0c93508cd0c2de85b53ea3e8c4cc28d292d4b1633f5041b338dfcdc5e1f2c047cd5cd3f757"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -6198,8 +6198,8 @@
     {
       "type": "library",
       "name": "http-cache-semantics",
-      "version": "4.2.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.3.0|http-cache-semantics@4.2.0",
+      "version": "4.3.0",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.3.0|http-cache-semantics@4.3.0",
       "scope": "optional",
       "licenses": [
         {
@@ -6209,15 +6209,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/http-cache-semantics@4.2.0",
+      "purl": "pkg:npm/http-cache-semantics@4.3.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.2.0.tgz",
+          "url": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.3.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "753c5cbcf5ea3ef5c1429ab9754afa9843095f8a08105bfa6f0a26dc50f02910ecb888e324600daa106ea009fd73545024874029abf7dc40fae44db2b3ef3b41"
+              "content": "339b792e52694b5507323bf045055d147bcf21219e2c0c4d72b5ae2647868742b1b2a0876753b7357654ffcc7b703d010dc196f246a9c4c293bf096aacd90790"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -10473,7 +10473,7 @@
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.3.0|nanoid@3.3.19",
         "@rathnasgala2/theme-tooling@0.3.0|picocolors@1.1.1",
-        "@rathnasgala2/theme-tooling@0.3.0|source-map-js@1.2.1"
+        "@rathnasgala2/theme-tooling@0.3.0|source-map-js@1.2.2"
       ]
     },
     {
@@ -10755,7 +10755,7 @@
       "ref": "@rathnasgala2/theme-tooling@0.3.0|picocolors@1.1.1"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.3.0|source-map-js@1.2.1"
+      "ref": "@rathnasgala2/theme-tooling@0.3.0|source-map-js@1.2.2"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.3.0|punycode@2.3.1"
@@ -11032,7 +11032,7 @@
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.3.0|@npmcli/agent@3.0.0",
         "@rathnasgala2/theme-tooling@0.3.0|cacache@19.0.1",
-        "@rathnasgala2/theme-tooling@0.3.0|http-cache-semantics@4.2.0",
+        "@rathnasgala2/theme-tooling@0.3.0|http-cache-semantics@4.3.0",
         "@rathnasgala2/theme-tooling@0.3.0|minipass-fetch@4.0.1",
         "@rathnasgala2/theme-tooling@0.3.0|minipass-flush@1.0.7",
         "@rathnasgala2/theme-tooling@0.3.0|minipass-pipeline@1.2.4",
@@ -11231,7 +11231,7 @@
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.3.0|http-cache-semantics@4.2.0"
+      "ref": "@rathnasgala2/theme-tooling@0.3.0|http-cache-semantics@4.3.0"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.3.0|minipass-fetch@4.0.1",
