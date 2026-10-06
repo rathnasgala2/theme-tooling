@@ -15,6 +15,7 @@
  */
 
 import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -155,7 +156,9 @@ async function runLocalCheck(themeRoot, script) {
         // consumer of `resolveTemplateDir()`'s relative default assumes:
         // one level up is the theme root, two levels up is the workspace
         // sibling directory holding `template`.
-        cwd: path.join(themeRoot, 'tooling'),
+        cwd: existsSync(path.join(themeRoot, 'tooling'))
+          ? path.join(themeRoot, 'tooling')
+          : themeRoot,
         env: {
           ...process.env,
           THEME_ROOT: themeRoot,
@@ -216,7 +219,7 @@ async function buildFixtureRelease(theme) {
   const releaseWithoutDigest = {
     profile: 'gala-theme-fixture-release-v2',
     fixtureReleaseId: FIXTURE_RELEASE_ID,
-    contractVersion: '2.0.0',
+    contractVersion: '3.0.0',
     // THD-L6: not a typo. `@rathnasgala2/schemas`'s
     // `theme-contract.schema.json` fixes this exact string as a `const`
     // for `browserPolicyRef`, so it is a real, schema-mandated policy

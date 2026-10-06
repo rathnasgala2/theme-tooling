@@ -1,0 +1,33 @@
+@layer gala-print {
+  @media print {
+    [data-gala-publication-root] {
+      background-color: Canvas;
+      color: CanvasText;
+    }
+
+    [data-gala-publication-root] nav {
+      display: none;
+    }
+
+    [data-gala-publication-root] header {
+      border-bottom: var(--gala-border-width) solid CanvasText;
+    }
+
+    [data-gala-publication-root] footer {
+      border-top: var(--gala-border-width) solid CanvasText;
+    }
+
+    [data-gala-publication-root] a {
+      color: CanvasText;
+      text-decoration-line: underline;
+    }
+
+    [data-gala-publication-root] pre {
+      border: var(--gala-border-width) solid CanvasText;
+    }
+
+    [data-gala-publication-root] [data-gala-slot="header-actions"] {
+      display: none;
+    }
+  }
+}

@@ -31,17 +31,34 @@ function contrastRatio(a, b) {
   return (high + 0.05) / (low + 0.05);
 }
 
+const OPAQUE_COLOR = /^#[0-9a-f]{6}(?:ff)?$/u;
+
 /**
  * @param {{key: string, light: string, dark: string}[]} tokens the parsed
  *   `theme.json.tokens` array
  * @param {string} key a token key
  * @param {'light'|'dark'} palette which palette's value to read
- * @returns {string} the token's `#rrggbb` value for that palette
+ * @returns {string} the token's raw value for that palette
  */
-function colorOf(tokens, key, palette) {
+function valueOf(tokens, key, palette) {
   const token = tokens.find((candidate) => candidate.key === key);
   if (!token) throw new Error(`no token named ${key}`);
   return token[palette];
+}
+
+/**
+ * Describe why a token value cannot take part in a WCAG ratio, or return
+ * `undefined` when it is a plain opaque `#rrggbb`/`#rrggbbff` colour.
+ *
+ * @param {string} value a token value
+ * @returns {string | undefined} the reason, for the skip note
+ */
+function whyNotPlainColor(value) {
+  if (OPAQUE_COLOR.test(value)) return undefined;
+  if (/^#[0-9a-f]{6}00$/u.test(value)) return 'fully transparent';
+  if (/^#[0-9a-f]{8}$/u.test(value)) return 'translucent';
+  if (value === 'none') return 'none';
+  return 'a gradient';
 }
 
 /**
@@ -59,7 +76,7 @@ function colorOf(tokens, key, palette) {
  * package's own tests, which need failing fixtures the shipped default
  * list would never produce against a conformant reference theme).
  *
- * @returns {Promise<{label: string, foreground: string, background: string, minimum: number}[]>}
+ * @returns {Promise<{label: string, foreground: string, background: string, minimum: number, skipWhenNotPlainColor?: boolean}[]>}
  *   the pair list to enforce
  */
 async function loadPairs() {
@@ -78,8 +95,27 @@ async function main() {
   let failed = false;
   for (const palette of ['light', 'dark']) {
     for (const pair of pairs) {
-      const foreground = colorOf(tokens, pair.foreground, palette);
-      const background = colorOf(tokens, pair.background, palette);
+      const foreground = valueOf(tokens, pair.foreground, palette);
+      const background = valueOf(tokens, pair.background, palette);
+      // Paint and toc-active pairs are only measurable over a plain colour:
+      // a gradient, `none` or a transparent fill has no single backdrop, so
+      // such a pair is reported as skipped (never silently passed).
+      // Every other pair must be a plain opaque colour on both sides.
+      const unmeasurable =
+        whyNotPlainColor(background) ?? whyNotPlainColor(foreground);
+      if (unmeasurable !== undefined) {
+        if (pair.skipWhenNotPlainColor) {
+          console.log(
+            `${palette.padEnd(5)} ${pair.label.padEnd(50)} SKIPPED (${unmeasurable})`,
+          );
+          continue;
+        }
+        failed = true;
+        console.log(
+          `${palette.padEnd(5)} ${pair.label.padEnd(50)} FAIL (${unmeasurable}, a plain opaque colour is required)`,
+        );
+        continue;
+      }
       const ratio = contrastRatio(foreground, background);
       const ok = ratio >= pair.minimum;
       if (!ok) failed = true;

@@ -6,8 +6,8 @@
  * template tasks, not yet done as of this package's authoring) to consume
  * directly, so this fixture is built from `@rathnasgala2/schemas`' own
  * published, structurally-valid `examples/valid/build-input/canonical.json`
- * — whose `appearance.theme` already names
- * `@rathnasgala2/theme-default@2.0.0` — with the two upstream placeholder
+ * — re-pointed at the theme under test (the contract-3 theme fixture by
+ * default, see `scripts/canonical-build-input.mjs`) — with the two upstream placeholder
  * fields `@rathnasgala2/template`'s own test helpers document and clear
  * (`content[].frontmatter.redirects` self-collision,
  * `appearance.fontAssets` unresolvable placeholder digest) cleared the same

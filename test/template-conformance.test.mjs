@@ -93,6 +93,18 @@ test('renderPublication with options.themeDirectory pointing at this package ren
     assert.ok(html.includes('assets/theme/tokens.css'));
     assert.ok(html.includes('assets/theme/components.css'));
     assert.ok(html.includes('assets/theme/print.css'));
+    // Contract 3: the template's base layer owns layout, so the page is
+    // styled by token-driven `.g-*` hooks, and the theme's tokens.css
+    // reaches the output unchanged.
+    assert.ok(html.includes('g-card') || html.includes('g-wrap'));
+    const tokensAsset = manifest.assets.find((asset) =>
+      asset.path.endsWith('assets/theme/tokens.css'),
+    );
+    const tokens = await readFile(
+      path.join(outputDirectory, tokensAsset.path),
+      'utf8',
+    );
+    assert.ok(tokens.includes('--gala-paint-panel:'));
   } finally {
     await cleanup();
   }

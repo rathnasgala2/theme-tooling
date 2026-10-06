@@ -2,6 +2,28 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [0.3.0] - 2026-10-05
+
+### Changed (breaking: theme contract 3 only, no dual support)
+
+- Every check understands the 116-token contract-3 catalog and its typed
+  value grammars (`theme-token-catalog.mjs`, mirrored from
+  `@rathnasgala2/schemas` 3.0.0 and pinned to its `default-3.0.json`).
+  New `tokens:check` and `tokens:generate` commands; `schema:check`
+  rejects a `contractVersion` outside 3.x.
+- `grammar:check` validates every custom property as a catalog token with a
+  grammar-valid value, and admits `box-shadow`, `opacity`, `transform`,
+  `filter` (no `url()`), `aspect-ratio`, `object-fit`, `background`,
+  per-corner radii, `text-shadow`, `text-align` and `grid-template-columns`.
+- `contrast-pairs.json` is replaced by the 17 contract-3 text pairs; pairs
+  over gradients or transparent fills are reported as skipped.
+- The hook closure check follows the template's published catalog (178
+  hooks) instead of a fixed 64.
+- New `test/fixtures/theme-default-contract-3` theme fixture; `npm test`
+  runs against it by default. The rich build input names the theme under
+  test. The contract 2.1.0 readiness suite is removed.
+- Dev dependency `@rathnasgala2/schemas` 3.0.0.
+
 ## [0.2.0] - 2026-09-26
 
 ### Changed

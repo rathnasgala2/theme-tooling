@@ -6,9 +6,21 @@
     "minimum": 4.5
   },
   {
+    "label": "color-text on color-surface",
+    "foreground": "color-text",
+    "background": "color-surface",
+    "minimum": 4.5
+  },
+  {
     "label": "color-text-muted on color-canvas",
     "foreground": "color-text-muted",
     "background": "color-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-text-muted on color-surface",
+    "foreground": "color-text-muted",
+    "background": "color-surface",
     "minimum": 4.5
   },
   {
@@ -18,32 +30,65 @@
     "minimum": 4.5
   },
   {
-    "label": "color-link-visited on color-canvas",
-    "foreground": "color-link-visited",
-    "background": "color-canvas",
+    "label": "color-chip-text on paint-chip",
+    "foreground": "color-chip-text",
+    "background": "paint-chip",
+    "minimum": 4.5,
+    "skipWhenNotPlainColor": true
+  },
+  {
+    "label": "color-btn-text on paint-button",
+    "foreground": "color-btn-text",
+    "background": "paint-button",
+    "minimum": 4.5,
+    "skipWhenNotPlainColor": true
+  },
+  {
+    "label": "color-btn-panel-text on color-btn-panel",
+    "foreground": "color-btn-panel-text",
+    "background": "color-btn-panel",
     "minimum": 4.5
   },
   {
-    "label": "color-danger on color-canvas",
-    "foreground": "color-danger",
-    "background": "color-canvas",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-warning on color-canvas",
-    "foreground": "color-warning",
-    "background": "color-canvas",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-success on color-canvas",
-    "foreground": "color-success",
-    "background": "color-canvas",
-    "minimum": 4.5
+    "label": "color-panel-text on paint-panel",
+    "foreground": "color-panel-text",
+    "background": "paint-panel",
+    "minimum": 4.5,
+    "skipWhenNotPlainColor": true
   },
   {
     "label": "color-code-text on color-code-canvas",
     "foreground": "color-code-text",
+    "background": "color-code-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-syntax-comment on color-code-canvas",
+    "foreground": "color-syntax-comment",
+    "background": "color-code-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-syntax-function on color-code-canvas",
+    "foreground": "color-syntax-function",
+    "background": "color-code-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-syntax-keyword on color-code-canvas",
+    "foreground": "color-syntax-keyword",
+    "background": "color-code-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-syntax-number on color-code-canvas",
+    "foreground": "color-syntax-number",
+    "background": "color-code-canvas",
+    "minimum": 4.5
+  },
+  {
+    "label": "color-syntax-string on color-code-canvas",
+    "foreground": "color-syntax-string",
     "background": "color-code-canvas",
     "minimum": 4.5
   },
@@ -54,75 +99,10 @@
     "minimum": 4.5
   },
   {
-    "label": "color-text on color-surface",
-    "foreground": "color-text",
-    "background": "color-surface",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-text on color-surface-raised",
-    "foreground": "color-text",
-    "background": "color-surface-raised",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-border on color-canvas (non-text UI)",
-    "foreground": "color-border",
-    "background": "color-canvas",
-    "minimum": 3
-  },
-  {
-    "label": "color-focus on color-canvas (non-text UI)",
-    "foreground": "color-focus",
-    "background": "color-canvas",
-    "minimum": 3
-  },
-  {
-    "label": "color-text-muted on color-surface (footer/header)",
-    "foreground": "color-text-muted",
-    "background": "color-surface",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-link on color-surface (header/footer links)",
-    "foreground": "color-link",
-    "background": "color-surface",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-text on color-selection (::selection)",
-    "foreground": "color-text",
-    "background": "color-selection",
-    "minimum": 4.5
-  },
-  {
-    "label": "color-accent on color-canvas (non-text UI, e.g. a border)",
-    "foreground": "color-accent",
-    "background": "color-canvas",
-    "minimum": 3
-  },
-  {
-    "label": "color-surface-raised on color-surface (surface adjacency)",
-    "foreground": "color-surface-raised",
-    "background": "color-surface",
-    "minimum": 1.3
-  },
-  {
-    "label": "color-accent on color-text (accent as a non-text UI element near body text)",
-    "foreground": "color-accent",
-    "background": "color-text",
-    "minimum": 3
-  },
-  {
-    "label": "color-accent on color-surface (accent as a non-text UI element on a raised surface)",
-    "foreground": "color-accent",
-    "background": "color-surface",
-    "minimum": 3
-  },
-  {
-    "label": "color-accent on color-code-canvas (accent as a non-text UI element, e.g. the pre border)",
-    "foreground": "color-accent",
-    "background": "color-code-canvas",
-    "minimum": 3
+    "label": "color-toc-active-text on color-toc-active",
+    "foreground": "color-toc-active-text",
+    "background": "color-toc-active",
+    "minimum": 4.5,
+    "skipWhenNotPlainColor": true
   }
 ]

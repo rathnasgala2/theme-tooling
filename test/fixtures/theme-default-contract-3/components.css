@@ -1,0 +1,29 @@
+@layer gala-components {
+  /* Skin rules only: the template's gala-base layer owns layout. */
+  [data-gala-publication-root] .g-card {
+    box-shadow: var(--gala-shadow-card);
+    transition-duration: var(--gala-duration-base);
+  }
+
+  [data-gala-publication-root] .g-card:hover {
+    box-shadow: var(--gala-shadow-card-hover);
+    transform: translate(var(--gala-lift-x), var(--gala-lift-y));
+  }
+
+  [data-gala-publication-root] .g-chip {
+    background: var(--gala-paint-chip);
+    text-transform: var(--gala-label-transform);
+  }
+
+  [data-gala-publication-root] .g-avatar {
+    border-radius: var(--gala-radius-avatar);
+  }
+
+  [data-gala-publication-root] li {
+    padding-top: var(--gala-space-1);
+  }
+
+  [data-gala-publication-root] strong {
+    font-weight: var(--gala-weight-strong);
+  }
+}

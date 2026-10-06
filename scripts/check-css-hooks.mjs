@@ -1,7 +1,7 @@
 /**
  * CSS-hook closure conformance test (task packet S2-T13): every selector in
  * every packed stylesheet must resolve to nothing but the template's own
- * published, closed 64-entry `publicThemeSlotHooks` catalog
+ * published, closed `publicThemeSlotHooks` catalog
  * (`contracts/theme-styling-contract.jcs` in `@rathnasgala2/template`,
  * consumed by path per LOCAL-4/README "Consuming the template by path"),
  * scoped under the required root/palette compound, joined only by the
@@ -84,13 +84,11 @@ async function loadContract() {
     contract.resolvedPaletteSelectors.light,
     contract.resolvedPaletteSelectors.dark,
   ]);
-  // Contract 2.1.0 (TPL-H2): the simple pseudo-class catalog and the
+  // The simple pseudo-class catalog and the
   // nth-expression keyword arguments are read from the published contract
   // itself, not hand-copied here, so a future contract revision that adds
   // or removes a pseudo-class takes effect without an edit to this file.
-  // An older (2.0.0) contract publishes no `pseudoClasses`/
-  // `composition.functionalPseudoKeywordArguments` at all, so both
-  // default to empty.
+  // A contract that publishes neither leaves both catalogs empty.
   const allowedSimplePseudoClasses = new Set(
     (contract.pseudoClasses ?? []).map((name) => `:${name}`),
   );
@@ -188,7 +186,7 @@ function decompose(selector) {
 
 /**
  * @param {string} compound one compound selector's exact text
- * @param {Set<string>} allowedAtoms the 64-hook selectorAtom catalog
+ * @param {Set<string>} allowedAtoms the published hook selectorAtom catalog
  * @param {ReadonlySet<string>} allowedSimplePseudoClasses e.g. `:hover`
  * @param {ReadonlySet<string>} allowedFunctionalPseudoNames e.g. `nth-child`
  * @param {ReadonlySet<string>} nthKeywordArguments e.g. `even`, `odd`
@@ -211,7 +209,7 @@ function splitTrailingPseudoElements(
     pseudoElements.unshift(match[1]);
     remaining = remaining.slice(0, -match[1].length);
   }
-  // Contract 2.1.0: a pseudo-class (`:hover`, `:nth-child(even)`, ...) may
+  // A pseudo-class (`:hover`, `:nth-child(even)`, ...) may
   // sit between the atom and any trailing pseudo-element(s), e.g.
   // `a:hover::before`. Strip it before checking the remaining text
   // against the closed atom catalog.
@@ -298,7 +296,7 @@ async function main() {
             );
             if (!split) {
               console.error(
-                `${stylesheet}: "${singleSelector}" uses a hook not in the template's published 64-hook catalog: "${compound}"`,
+                `${stylesheet}: "${singleSelector}" uses a hook not in the template's published hook catalog: "${compound}"`,
               );
               failed = true;
               continue;
@@ -350,7 +348,7 @@ async function main() {
     process.exitCode = 1;
     return;
   }
-  console.log('every selector resolves only to the closed 64-hook catalog.');
+  console.log('every selector resolves only to the closed hook catalog.');
 }
 
 await main();

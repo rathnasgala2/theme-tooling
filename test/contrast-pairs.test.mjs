@@ -10,14 +10,14 @@ import { readThemeJson, writeThemeJson } from './helpers/theme-json.mjs';
 import { withScratchTheme } from './helpers/with-scratch-theme.mjs';
 
 /**
- * Coordinator addendum item C: the contrast pair list is now externalized
- * to `contrast-pairs.json` (`GALA_CONTRAST_PAIRS_PATH` overrides it) and
- * carries three new pairs: `color-surface-raised` on `color-surface`
- * (>=1.3:1), `color-accent` on `color-text` (>=3:1), and `color-accent` on
- * `color-surface` (>=3:1). Each gets its own failing fixture, isolated to
- * exactly that one pair (via a scratch `contrast-pairs.json` of one entry)
- * with token values deliberately set below its floor, independent of
- * whatever the theme under test's own real tokens happen to be.
+ * Theme contract 3 contrast pairs: `contrast-pairs.json` (overridable with
+ * `GALA_CONTRAST_PAIRS_PATH`) lists the text pairs the template renders, all
+ * at the WCAG AA 4.5:1 floor. Pairs whose background is a `paint-*` token,
+ * or whose fill may be transparent (`color-toc-active`), are measurable only
+ * when the value is a plain opaque colour; otherwise they are reported as
+ * SKIPPED, never silently passed. Each failing fixture below is isolated to
+ * exactly one pair (a scratch pair file of one entry) with token values
+ * deliberately set below the floor.
  */
 
 const CONTRAST_PAIRS_PATH = path.join(
@@ -27,33 +27,41 @@ const CONTRAST_PAIRS_PATH = path.join(
   'contrast-pairs.json',
 );
 
-test('scripts/contrast-pairs.json carries the four new adjacency pairs alongside the original seventeen', async () => {
+const EXPECTED_PAIRS = [
+  ['color-text', 'color-canvas'],
+  ['color-text', 'color-surface'],
+  ['color-text-muted', 'color-canvas'],
+  ['color-text-muted', 'color-surface'],
+  ['color-link', 'color-canvas'],
+  ['color-chip-text', 'paint-chip'],
+  ['color-btn-text', 'paint-button'],
+  ['color-btn-panel-text', 'color-btn-panel'],
+  ['color-panel-text', 'paint-panel'],
+  ['color-code-text', 'color-code-canvas'],
+  ['color-syntax-comment', 'color-code-canvas'],
+  ['color-syntax-function', 'color-code-canvas'],
+  ['color-syntax-keyword', 'color-code-canvas'],
+  ['color-syntax-number', 'color-code-canvas'],
+  ['color-syntax-string', 'color-code-canvas'],
+  ['color-on-accent', 'color-accent'],
+  ['color-toc-active-text', 'color-toc-active'],
+];
+
+test('scripts/contrast-pairs.json carries exactly the contract-3 text pairs at 4.5:1, paint and toc pairs skippable', async () => {
   const pairs = JSON.parse(await readFile(CONTRAST_PAIRS_PATH, 'utf8'));
-  assert.equal(pairs.length, 21);
-  const byLabel = new Map(pairs.map((pair) => [pair.label, pair]));
-  assert.equal(
-    byLabel.get('color-surface-raised on color-surface (surface adjacency)')
-      ?.minimum,
-    1.3,
+  assert.deepEqual(
+    pairs.map((pair) => [pair.foreground, pair.background]),
+    EXPECTED_PAIRS,
   );
-  assert.equal(
-    byLabel.get(
-      'color-accent on color-text (accent as a non-text UI element near body text)',
-    )?.minimum,
-    3,
-  );
-  assert.equal(
-    byLabel.get(
-      'color-accent on color-surface (accent as a non-text UI element on a raised surface)',
-    )?.minimum,
-    3,
-  );
-  assert.equal(
-    byLabel.get(
-      'color-accent on color-code-canvas (accent as a non-text UI element, e.g. the pre border)',
-    )?.minimum,
-    3,
-  );
+  for (const pair of pairs) {
+    assert.equal(pair.minimum, 4.5, pair.label);
+    assert.equal(
+      pair.skipWhenNotPlainColor === true,
+      pair.background.startsWith('paint-') ||
+        pair.background === 'color-toc-active',
+      `${pair.label}: skipWhenNotPlainColor must be set exactly on paint and toc-active pairs`,
+    );
+  }
 });
 
 /**
@@ -89,70 +97,60 @@ async function checkSinglePairFixture(pair, tokenOverride) {
   );
 }
 
-test('fails when color-surface-raised is nearly identical to color-surface (< 1.3:1)', async () => {
-  const { passed, output } = await checkSinglePairFixture(
-    {
-      label: 'color-surface-raised on color-surface (surface adjacency)',
-      foreground: 'color-surface-raised',
-      background: 'color-surface',
-      minimum: 1.3,
-    },
-    { key: 'color-surface-raised', light: '#ffffff', dark: '#000000' },
-  );
-  // color-surface is #ffffff in light / #000000-ish in dark for the
-  // reference theme; setting color-surface-raised to the exact same value
-  // in both palettes forces a 1:1 ratio, below the 1.3:1 floor.
-  assert.ok(!passed, output);
-  assert.match(output, /FAIL/);
-});
-
-test('fails when color-accent is too close to color-text (< 3:1)', async () => {
-  const theme = await readThemeJson(resolveThemeRoot());
-  const text = theme.tokens.find((token) => token.key === 'color-text');
-  const { passed, output } = await checkSinglePairFixture(
-    {
-      label: 'color-accent on color-text',
-      foreground: 'color-accent',
-      background: 'color-text',
-      minimum: 3,
-    },
-    { key: 'color-accent', light: text.light, dark: text.dark },
-  );
-  // color-accent set to byte-identical to color-text forces a 1:1 ratio.
-  assert.ok(!passed, output);
-  assert.match(output, /FAIL/);
-});
-
-test('fails when color-accent is too close to color-surface (< 3:1)', async () => {
+test('fails when color-text-muted is too close to color-surface (< 4.5:1)', async () => {
   const theme = await readThemeJson(resolveThemeRoot());
   const surface = theme.tokens.find((token) => token.key === 'color-surface');
   const { passed, output } = await checkSinglePairFixture(
     {
-      label: 'color-accent on color-surface',
-      foreground: 'color-accent',
+      label: 'color-text-muted on color-surface',
+      foreground: 'color-text-muted',
       background: 'color-surface',
-      minimum: 3,
+      minimum: 4.5,
     },
-    { key: 'color-accent', light: surface.light, dark: surface.dark },
+    { key: 'color-text-muted', light: surface.light, dark: surface.dark },
   );
   assert.ok(!passed, output);
   assert.match(output, /FAIL/);
 });
 
-test('fails when color-accent is too close to color-code-canvas (< 3:1)', async () => {
+test('fails when a plain-colour paint-chip is too close to color-chip-text, and skips a gradient one', async () => {
+  const pair = {
+    label: 'color-chip-text on paint-chip',
+    foreground: 'color-chip-text',
+    background: 'paint-chip',
+    minimum: 4.5,
+    skipWhenNotPlainColor: true,
+  };
   const theme = await readThemeJson(resolveThemeRoot());
-  const codeCanvas = theme.tokens.find(
-    (token) => token.key === 'color-code-canvas',
-  );
+  const text = theme.tokens.find((token) => token.key === 'color-chip-text');
+  const failing = await checkSinglePairFixture(pair, {
+    key: 'paint-chip',
+    light: text.light,
+    dark: text.dark,
+  });
+  assert.ok(!failing.passed, failing.output);
+  assert.match(failing.output, /FAIL/);
+
+  const gradient = 'linear-gradient(135deg, #ffffff, #000000)';
+  const skipped = await checkSinglePairFixture(pair, {
+    key: 'paint-chip',
+    light: gradient,
+    dark: gradient,
+  });
+  assert.ok(skipped.passed, skipped.output);
+  assert.match(skipped.output, /SKIPPED \(a gradient\)/);
+});
+
+test('a pair that is not skippable fails when a side is not a plain opaque colour', async () => {
   const { passed, output } = await checkSinglePairFixture(
     {
-      label: 'color-accent on color-code-canvas',
-      foreground: 'color-accent',
-      background: 'color-code-canvas',
-      minimum: 3,
+      label: 'color-text on color-canvas',
+      foreground: 'color-text',
+      background: 'color-canvas',
+      minimum: 4.5,
     },
-    { key: 'color-accent', light: codeCanvas.light, dark: codeCanvas.dark },
+    { key: 'color-canvas', light: '#ffffff80', dark: '#00000080' },
   );
   assert.ok(!passed, output);
-  assert.match(output, /FAIL/);
+  assert.match(output, /plain opaque colour is required/);
 });

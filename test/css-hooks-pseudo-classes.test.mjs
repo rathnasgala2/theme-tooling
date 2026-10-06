@@ -66,7 +66,7 @@ test(
       '[data-gala-publication-root] li:focus { color: red; }',
     );
     assert.ok(!passed, output);
-    assert.match(output, /not in the template's published 64-hook catalog/);
+    assert.match(output, /not in the template's published hook catalog/);
   },
 );
 
@@ -109,7 +109,7 @@ test(
       '[data-gala-publication-root] li:nth-child(foo) { color: red; }',
     );
     assert.ok(!passed, output);
-    assert.match(output, /not in the template's published 64-hook catalog/);
+    assert.match(output, /not in the template's published hook catalog/);
   },
 );
 

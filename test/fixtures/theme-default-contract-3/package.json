@@ -1,0 +1,15 @@
+{
+  "name": "@rathnasgala2/theme-default",
+  "version": "3.0.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rathnasgala2/theme-default.git"
+  },
+  "files": [
+    "components.css",
+    "print.css",
+    "theme.json",
+    "tokens.css"
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "name": "@rathnasgala2/theme-tooling",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "Apache-2.0",
-  "description": "Shared dev/test/SBOM/release tooling for the five @rathnasgala2/theme-* packages (theme-default, theme-minimal, theme-amaze, theme-flashy, theme-zebra). Not yet published (OWNER-DECISION); consumed today via the GALA_THEME_TOOLING_DIR override documented in README.md.",
+  "description": "Shared dev/test/SBOM/release tooling (theme contract 3) for the five @rathnasgala2/theme-* packages (theme-default, theme-minimal, theme-amaze, theme-flashy, theme-zebra). Not yet published (OWNER-DECISION); consumed today via the GALA_THEME_TOOLING_DIR override documented in README.md.",
   "repository": {
     "type": "git",
     "url": "https://github.com/rathnasgala2/theme-tooling.git"
@@ -16,17 +16,18 @@
     "format": "prettier --write --config .prettierrc.json '*.md' 'bin/*.mjs' 'scripts/*.mjs' 'test/**/*.mjs' eslint.config.js",
     "format:check": "prettier --check --config .prettierrc.json '*.md' 'bin/*.mjs' 'scripts/*.mjs' 'test/**/*.mjs' eslint.config.js",
     "lint": "eslint --config eslint.config.js .",
-    "test": "node --test \"test/**/*.test.mjs\"",
+    "test": "node scripts/with-fixture-theme.mjs node --test \"test/**/*.test.mjs\"",
     "duplication": "jscpd --config .jscpd.json",
     "sbom:generate": "node scripts/generate-own-sbom.mjs",
     "sbom:check": "node scripts/check-own-sbom-current.mjs",
     "audit": "npm audit --audit-level=high",
-    "verify": "npm run format:check && npm run lint && npm test && npm run duplication && npm run sbom:check && npm run audit"
+    "verify": "npm run format:check && npm run lint && npm test && npm run duplication && npm run sbom:check && npm run audit",
+    "tokens:generate": "node scripts/with-fixture-theme.mjs node scripts/emit-tokens-css.mjs"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.1",
     "@eslint/js": "10.0.1",
-    "@rathnasgala2/schemas": "2.11.0",
+    "@rathnasgala2/schemas": "3.0.0",
     "axe-core": "4.13.0",
     "eslint": "10.10.0",
     "globals": "17.12.0",

@@ -21,40 +21,23 @@ jobs:
     env:
       WORKSPACE_ROOT: ${{ github.workspace }}
       GALA_TEMPLATE_DIR: ${{ github.workspace }}/template
-      THEME_ROOT: ${{ github.workspace }}/theme-default
     steps:
       - name: Check out this repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
 
-      # Pinned to the commit tagged @rathnasgala2/template 2.1.0
-      # (unreleased) — the same pin every @rathnasgala2/theme-* repository
-      # checks out; this package's own test suite (template-conformance,
-      # css/grammar checks) reads it by path.
+      # Pinned to the commit of @rathnasgala2/template 3.0.0 (styling
+      # contract 3.0.0). This package's own test suite reads it by path and
+      # runs against its own contract-3 theme fixture
+      # (test/fixtures/theme-default-contract-3), so no theme repository
+      # checkout is needed.
       - name: Check out the template sibling repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: rathnasgala2/template
-          ref: 20f8fdefe822f264f9d7fdd787d0d58431930a0b # 2.1.0
+          ref: dcfb158e3f3420779920f7ff8e4937cb40248df6 # 3.0.0
           path: template
-          persist-credentials: false
-
-      # This package's own conformance/digest test suite runs its checks
-      # against a real theme's packed file set (THEME_ROOT), including
-      # properties (like the no-JS fallback palette block in tokens.css)
-      # that theme-default's `main` tip does not carry yet as of
-      # 2026-09-26 — `main` still predates the THD-M6 tooling-extraction
-      # migration this very pin exists to verify. Pinned instead to
-      # theme-default's review/2026-09-25 branch tip, the first commit
-      # that both consumes this package and carries that CSS feature; move
-      # this back to a `main` commit once that branch merges.
-      - name: Check out the theme-default sibling repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          repository: rathnasgala2/theme-default
-          ref: c011d4205fe4339b437e054863a62501810dd6f7 # review/2026-09-25 (THD-M6 SBOM redesign)
-          path: theme-default
           persist-credentials: false
 
       - name: Install the pinned Node.js distribution

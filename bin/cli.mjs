@@ -86,6 +86,9 @@ const COMMANDS = {
     ]),
   'schema:check': () => runScript('check-theme-schema.mjs'),
   'package-identity:check': () => runScript('check-package-identity.mjs'),
+  'tokens:check': () => runScript('check-token-values.mjs'),
+  // Rewrites tokens.css from theme.json's `tokens` (local dev only).
+  'tokens:generate': () => runScript('emit-tokens-css.mjs'),
   'css:check': () => runScript('check-css-hooks.mjs'),
   'grammar:check': () => runScript('check-css-grammar.mjs'),
   'contrast:check': () => runScript('check-contrast.mjs'),
@@ -107,7 +110,7 @@ const COMMANDS = {
     ]),
   duplication: () =>
     // `tokens.css` is deliberately excluded: its light/dark palette blocks
-    // repeat the same ~35 custom-property names by design (only the
+    // repeat the same 116 custom-property names by design (only the
     // values differ), which is not the kind of duplication this gate
     // exists to catch.
     run(path.join(BIN_DIR, 'jscpd'), [
@@ -157,6 +160,7 @@ const VERIFY_SEQUENCE = [
   'format:check',
   'lint',
   'schema:check',
+  'tokens:check',
   'package-identity:check',
   'css:check',
   'grammar:check',

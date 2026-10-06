@@ -71,7 +71,9 @@ whichever theme's `tooling/` directory it was invoked from
   `verify` sequence (THD-M11: kept in one place, so the README describing
   it can never drift from what actually runs).
 - `scripts/` — one implementation per gate: schema, CSS-hook and CSS-grammar
-  (property/at-rule/rule-count) conformance, WCAG contrast, budgets, the
+  (property/at-rule/rule-count) conformance, token catalog and value
+  grammar (`check-token-values.mjs`, with `theme-token-catalog.mjs` and
+  `emit-tokens-css.mjs`), WCAG contrast, budgets, the
   closed packed-file-set and forbidden-construct absence checks, the
   digest cycle, SBOM currency, workflow-pin/drift checks. `packed-files.mjs`
   derives every packed-file and stylesheet list from the calling theme's
@@ -81,6 +83,10 @@ whichever theme's `tooling/` directory it was invoked from
   `check-contrast.mjs` reads (see "Contrast pairs" below); `visual-check.mjs`
   and `visual-fixture.mjs` are the shared Playwright + axe-core harness
   (see "Visual/accessibility check" below), not part of `verify`.
+- `test/fixtures/theme-default-contract-3/` — a complete contract-3 theme
+  package (the `@rathnasgala2/schemas` `default-3.0.json` Default values,
+  `tokens.css` emitted from them). `npm test` here runs against it (see
+  "Contract 3" below), so the suite needs no theme repository checkout.
 - `test/` — the corresponding `node:test` suites, parametrized by
   `process.cwd()` (the calling theme), not by this package's own location.
   `tooling-drift.test.mjs` does not exist here: THD-H3's drift gate is
@@ -144,13 +150,55 @@ different absolute paths regenerate byte-identical `theme.json` output
 (`test/digest-cycle.test.mjs`'s "path independence" case; also verified
 locally by running that case in a 30-iteration loop with zero failures).
 
+## Contract 3 (token catalog, `tokens:check`)
+
+This tooling checks theme contract 3 only (`theme.json.contractVersion`
+3.x; no dual support, earlier-contract themes are rejected by
+`schema:check`). Contract 3 fixes a 116-token catalog (sorted by key, each
+with a type: color, paint, border, shadow, length, box, number, duration,
+easing, font-family, font-weight, keyword) and a 256-hook cap on
+`slotHooks`; the template publishes 178 hooks in styling contract 3.0.0.
+
+- **Catalog source.** `scripts/theme-token-catalog.mjs` is a verbatim
+  mirror of the schema repository's `theme-token-grammar.js` (the published
+  `@rathnasgala2/schemas` package does not export it).
+  `test/token-catalog.test.mjs` pins the mirror to the package's own
+  `default-3.0.json` example, so a grammar change in the schema shows up as
+  a failing test here; re-copy the module then.
+- **`tokens:check`** (`check-token-values.mjs`) requires `theme.json.tokens`
+  to be exactly the catalog (keys, order, types), every value to satisfy its
+  type's allow-list grammar, mode-invariant types to be byte-equal in light
+  and dark, and `tokens.css` to carry every token, with `theme.json`'s
+  value, in its four scopes (bare root, its `prefers-color-scheme: dark`
+  override, resolved light, resolved dark). Long values that Prettier has
+  wrapped compare equal to their single-line form.
+- **`tokens:generate`** (`emit-tokens-css.mjs`, local dev only) writes
+  `tokens.css` from `theme.json`, so `theme.json` is the one hand-edited
+  source of token values.
+- **Running this repository's own suite.** `npm test` goes through
+  `scripts/with-fixture-theme.mjs`, which defaults `THEME_ROOT` to the
+  fixture theme and `GALA_TEMPLATE_DIR` to the sibling `template` checkout
+  (which must have `@rathnasgala2/schemas` 3.0.0 installed, and be at
+  template 3.0.0). Set either variable to test against a real theme.
+- **Budgets.** A contract-3 `tokens.css` is about 19 KB (116 tokens in four
+  scopes), so a theme's `theme.json.budgets` must allow at least that per
+  file; the fixture declares 32768 bytes per file and 98304 in total.
+
 ## Property/at-rule/volume conformance (`grammar:check`, THD-M4)
 
 `css:check` validates selectors only (the closed hook catalog). `grammar:check`
-closes the gap the review found: a closed CSS property allowlist (derived
-from every property the five reference themes actually use, plus any
-`--gala-*` custom property), a closed at-rule allowlist (`@layer`,
-`@media`), and a per-file rule-count ceiling.
+closes the gap the review found: a closed CSS property allowlist, a closed
+at-rule allowlist (`@layer`, `@media`), and a per-file rule-count ceiling.
+Themes now mostly set tokens, so the allow-list stays narrow: beyond the
+original vocabulary it admits only the paint and geometry properties a skin
+rule needs for the contract-3 hooks (`box-shadow`, `opacity`, `transform`,
+`filter` without `url()`, `aspect-ratio`, `object-fit`, the `background`
+shorthand, per-corner radii, `text-shadow`, `text-align`,
+`grid-template-columns`; `display`, `gap` and `font-style` were already
+admitted), each justified in a comment in `check-css-grammar.mjs`. Every
+custom property must be `--gala-<token key>` of the catalog and its value
+must satisfy that token's grammar, so `url()`, `var()`, `calc()`, `attr()`,
+expressions, quotes and braces cannot appear in a token value.
 
 ## Budgets (`budgets:check`, THD-M3)
 
@@ -158,25 +206,28 @@ Enforces `theme.json.budgets` (`maximumFileBytes`, `maximumTotalBytes`,
 `maximumFiles`) against the theme's own real packed files. Template-side
 enforcement is out of scope here (TPL-H1/TPL-C2).
 
-## Contrast pairs (`contrast:check`, THD-M2)
+## Contrast pairs (`contrast:check`)
 
-The pair list is still hand-maintained (deriving it by walking the parsed
-stylesheet was judged not worth the added parser surface for five small
-files), but it now also covers the pairs the reference CSS actually
-renders and the review found missing: muted text and links on `surface`,
-selected text, and `accent` used as a non-text UI color.
+The pair list lives in `scripts/contrast-pairs.json`
+(`GALA_CONTRAST_PAIRS_PATH` overrides the file, used by this package's own
+failing-fixture tests). For contract 3 it is the 17 text pairs the template
+renders, all at the WCAG AA 4.5:1 floor, in both modes: `color-text` on
+`color-canvas` and `color-surface`; `color-text-muted` on `color-canvas`
+and `color-surface`; `color-link` on `color-canvas`; `color-chip-text` on
+`paint-chip`; `color-btn-text` on `paint-button`; `color-btn-panel-text` on
+`color-btn-panel`; `color-panel-text` on `paint-panel`; `color-code-text`
+and the five `color-syntax-*` colours on `color-code-canvas`;
+`color-on-accent` on `color-accent`; `color-toc-active-text` on
+`color-toc-active`.
 
-The list itself lives in `scripts/contrast-pairs.json`, not in
-`check-contrast.mjs`, so it is a configurable list rather than a literal
-only editable by changing the script (`GALA_CONTRAST_PAIRS_PATH`
-overrides the file, used by this package's own failing-fixture tests). It
-carries three adjacency pairs beyond the original seventeen —
-`color-surface-raised` on `color-surface` (>=1.3:1), `color-accent` on
-`color-text` (>=3:1), and `color-accent` on `color-surface` (>=3:1) — for
-themes whose CSS actually renders those combinations (a flashy/zebra-style
-accent-heavy design, for instance). A theme whose current tokens do not
-clear one of these floors will see `contrast:check` fail; that is the
-gate finding a real gap in the tokens, not a defect in the gate.
+A pair marked `skipWhenNotPlainColor` (every `paint-*` background and
+`color-toc-active`) is measured only when the background and foreground are
+plain opaque colours; a gradient, `none`, or a transparent or translucent
+fill has no single backdrop, so the row prints `SKIPPED (<reason>)` instead
+of a ratio (never a silent pass). Any other pair must be plain opaque
+colours on both sides, or it fails. A theme whose tokens do not clear a
+floor will see `contrast:check` fail; that is the gate finding a real gap
+in the tokens.
 
 ## Visual/accessibility check (`visual:check`, THD-M10)
 
@@ -217,7 +268,7 @@ silently imposing that install step on every local `npm run verify`.
 ## Verify sequence
 
 `verify` runs, in order: `format:check`, `lint`, `schema:check`,
-`package-identity:check`,
+`tokens:check`, `package-identity:check`,
 `css:check`, `grammar:check`, `contrast:check`, `budgets:check`,
 `package:check`, `absence:check`, `schema-pin:check`, `digest:check`,
 `test`, `duplication`, `sbom:check`, `audit`, `workflows:check`. This list

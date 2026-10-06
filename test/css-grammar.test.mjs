@@ -79,3 +79,88 @@ test('rejects text-decoration-skip-ink set to a value outside auto|none|all', as
   );
   assert.match(output, /text-decoration-skip-ink.*only auto\|none\|all/i);
 });
+
+/**
+ * @param {string} body declarations for one rule appended to the theme
+ * @returns {Promise<{passed: boolean, output: string}>} the check's outcome
+ */
+function checkAppendedDeclarations(body) {
+  return withAppendedStylesheetCss(
+    `@layer gala-test {\n[data-gala-publication-root] .g-card {\n${body}\n}\n}\n`,
+    (scratchRoot) =>
+      runCheckScript('check-css-grammar.mjs', {
+        env: { THEME_ROOT: scratchRoot },
+      }),
+  );
+}
+
+test('accepts the contract-3 skin properties (shadow, opacity, transform, filter, aspect-ratio, object-fit, background, per-corner radii, text-shadow, text-align, grid columns)', async () => {
+  const { passed, output } = await checkAppendedDeclarations(
+    [
+      'box-shadow: var(--gala-shadow-card);',
+      'opacity: 0.9;',
+      'transform: translate(0, -2px);',
+      'filter: grayscale(1);',
+      'aspect-ratio: 16 / 9;',
+      'object-fit: cover;',
+      'background: var(--gala-paint-chip);',
+      'border-top-left-radius: 4px;',
+      'border-top-right-radius: 4px;',
+      'border-bottom-left-radius: 4px;',
+      'border-bottom-right-radius: 4px;',
+      'text-shadow: none;',
+      'text-align: center;',
+      'font-style: italic;',
+      'gap: 1rem;',
+      'display: grid;',
+      'grid-template-columns: 1fr 1fr;',
+    ].join('\n'),
+  );
+  assert.ok(passed, output);
+});
+
+test('rejects a property outside the closed catalog (position)', async () => {
+  const { passed, output } =
+    await checkAppendedDeclarations('position: fixed;');
+  assert.equal(passed, false);
+  assert.match(output, /property "position" is not in the closed catalog/);
+});
+
+test('rejects filter: url(...) (an SVG filter reference)', async () => {
+  const { passed, output } =
+    await checkAppendedDeclarations('filter: url(#f);');
+  assert.equal(passed, false);
+  assert.match(output, /url\(\) filter references are not admitted/);
+});
+
+test('accepts a token override with a valid value of its type', async () => {
+  const { passed, output } = await checkAppendedDeclarations(
+    '--gala-card-pad: 1rem 2rem;',
+  );
+  assert.ok(passed, output);
+});
+
+test('rejects a token value that breaks its type grammar (var(), url(), calc(), wrong type)', async () => {
+  for (const declaration of [
+    '--gala-card-pad: var(--gala-space-4);',
+    '--gala-paint-chip: url(x.png);',
+    '--gala-space-1: calc(1px + 2px);',
+    '--gala-color-text: red;',
+    '--gala-media-filter: blur(2px);',
+  ]) {
+    const { passed, output } = await checkAppendedDeclarations(declaration);
+    assert.equal(passed, false, declaration);
+    assert.match(output, /is not a valid/, declaration);
+  }
+});
+
+test('rejects a custom property that is not a --gala-<token key> of the catalog', async () => {
+  for (const declaration of [
+    '--local: 1px;',
+    '--gala-color-heading: #000000;',
+  ]) {
+    const { passed, output } = await checkAppendedDeclarations(declaration);
+    assert.equal(passed, false, declaration);
+    assert.match(output, /not a --gala-<key> of the closed token catalog/);
+  }
+});
