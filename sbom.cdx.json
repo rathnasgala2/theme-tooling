@@ -245,7 +245,7 @@
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "1de39e58f44973bb5e74b1d41f807518c15a257c59c4c30af7c9109b5720a81ec26d9bb76d15818d95b9eb9516790667e7b2f8f46d4d91db3405bffe563c9fcc"
+              "content": "767e23f477c348d41e83be1cf4b60f42fcbcbff1c3439501060bc6346a3b5bc40a6be04b3407f32d0310b617b11cd4ae12fc3974a5fda5aa1d42bd8dfcada787"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
