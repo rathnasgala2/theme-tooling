@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { parseGradientStops } from './lib/gradient-stops.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
 
 /**
@@ -62,6 +63,28 @@ function whyNotPlainColor(value) {
 }
 
 /**
+ * Measure a text colour against a gradient fill: the pair's ratio is the
+ * minimum over every colour stop, and the worst stop is named.
+ *
+ * @param {string} foreground a `#rrggbb` text colour
+ * @param {string} fill a gradient `paint-*` value
+ * @returns {{ratio: number, worst: string} | {reason: string}} the minimum
+ *   ratio with its stop, or why the fill cannot be read
+ */
+function measureGradient(foreground, fill) {
+  const parsed = parseGradientStops(fill);
+  if ('reason' in parsed) return parsed;
+  let worst;
+  for (const stop of parsed.stops) {
+    const ratio = contrastRatio(foreground, stop.hex);
+    if (worst === undefined || ratio < worst.ratio) {
+      worst = { ratio, worst: stop.hex };
+    }
+  }
+  return worst;
+}
+
+/**
  * The default pair list (coordinator addendum item C): externalized to
  * `contrast-pairs.json` so the checked adjacencies are a configurable
  * list rather than a literal only readable by editing this script.
@@ -101,8 +124,25 @@ async function main() {
       // a gradient, `none` or a transparent fill has no single backdrop, so
       // such a pair is reported as skipped (never silently passed).
       // Every other pair must be a plain opaque colour on both sides.
-      const unmeasurable =
+      let unmeasurable =
         whyNotPlainColor(background) ?? whyNotPlainColor(foreground);
+      if (
+        unmeasurable === 'a gradient' &&
+        whyNotPlainColor(foreground) === undefined
+      ) {
+        const measured = measureGradient(foreground, background);
+        if ('reason' in measured) {
+          unmeasurable = `unreadable fill: ${measured.reason}`;
+        } else {
+          const ok = measured.ratio >= pair.minimum;
+          if (!ok) failed = true;
+          console.log(
+            `${palette.padEnd(5)} ${pair.label.padEnd(50)} ${measured.ratio.toFixed(2)} ` +
+              `(>= ${pair.minimum}) ${ok ? 'PASS' : 'FAIL'} (worst stop ${measured.worst})`,
+          );
+          continue;
+        }
+      }
       if (unmeasurable !== undefined) {
         if (pair.skipWhenNotPlainColor) {
           console.log(

@@ -2,6 +2,17 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [0.4.0] - 2026-10-10
+
+### Changed
+
+- `contrast:check` measures a text colour over a gradient fill against every
+  colour stop and reports the minimum as the pair's ratio, naming the worst
+  stop. A gradient it cannot read stays `SKIPPED` with the reason and is never
+  counted as a pass. Previously every gradient was skipped.
+- The tooling's gradient test cases are built from the fixture theme, not the
+  hosting theme. The fixture's light panel gradient now clears 4.5:1.
+
 ## [0.3.0] - 2026-10-05
 
 ### Changed (breaking: theme contract 3 only, no dual support)

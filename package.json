@@ -1,6 +1,6 @@
 {
   "name": "@rathnasgala2/theme-tooling",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "Apache-2.0",
   "description": "Shared dev/test/SBOM/release tooling (theme contract 3) for the five @rathnasgala2/theme-* packages (theme-default, theme-minimal, theme-amaze, theme-flashy, theme-zebra). Not yet published (OWNER-DECISION); consumed today via the GALA_THEME_TOOLING_DIR override documented in README.md.",
   "repository": {

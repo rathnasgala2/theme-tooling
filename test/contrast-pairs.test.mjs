@@ -14,7 +14,7 @@ import { withScratchTheme } from './helpers/with-scratch-theme.mjs';
  * `GALA_CONTRAST_PAIRS_PATH`) lists the text pairs the template renders, all
  * at the WCAG AA 4.5:1 floor. Pairs whose background is a `paint-*` token,
  * or whose fill may be transparent (`color-toc-active`), are measurable only
- * when the value is a plain opaque colour; otherwise they are reported as
+ * when the value is a plain opaque colour; otherwise (or when a gradient cannot be read) they are reported as
  * SKIPPED, never silently passed. Each failing fixture below is isolated to
  * exactly one pair (a scratch pair file of one entry) with token values
  * deliberately set below the floor.
@@ -113,7 +113,7 @@ test('fails when color-text-muted is too close to color-surface (< 4.5:1)', asyn
   assert.match(output, /FAIL/);
 });
 
-test('fails when a plain-colour paint-chip is too close to color-chip-text, and skips a gradient one', async () => {
+test('fails when a plain-colour paint-chip is too close to color-chip-text, measures a gradient one over every stop, and skips an unreadable one', async () => {
   const pair = {
     label: 'color-chip-text on paint-chip',
     foreground: 'color-chip-text',
@@ -131,14 +131,24 @@ test('fails when a plain-colour paint-chip is too close to color-chip-text, and 
   assert.ok(!failing.passed, failing.output);
   assert.match(failing.output, /FAIL/);
 
+  // A gradient is measured over every stop: black text-on-white..black fails.
   const gradient = 'linear-gradient(135deg, #ffffff, #000000)';
-  const skipped = await checkSinglePairFixture(pair, {
+  const measured = await checkSinglePairFixture(pair, {
     key: 'paint-chip',
     light: gradient,
     dark: gradient,
   });
+  assert.ok(!measured.passed, measured.output);
+  assert.match(measured.output, /FAIL \(worst stop #[0-9a-f]{6}\)/);
+
+  const unreadable = 'conic-gradient(#ffffff, #000000)';
+  const skipped = await checkSinglePairFixture(pair, {
+    key: 'paint-chip',
+    light: unreadable,
+    dark: unreadable,
+  });
   assert.ok(skipped.passed, skipped.output);
-  assert.match(skipped.output, /SKIPPED \(a gradient\)/);
+  assert.match(skipped.output, /SKIPPED \(unreadable fill/);
 });
 
 test('a pair that is not skippable fails when a side is not a plain opaque colour', async () => {

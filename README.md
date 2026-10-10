@@ -220,14 +220,22 @@ and the five `color-syntax-*` colours on `color-code-canvas`;
 `color-on-accent` on `color-accent`; `color-toc-active-text` on
 `color-toc-active`.
 
+A text colour over a gradient fill (`linear-gradient`, `radial-gradient`,
+their `repeating-` forms, and several comma-separated layers) is measured
+against every colour stop (`#rrggbb`, `#rrggbbaa` with full opacity,
+`rgb()`/`rgba()`, `hsl()`/`hsla()`, `white`, `black`). The pair's ratio is
+the minimum over all stops and the row names the worst one, for example
+`5.03 (>= 4.5) PASS (worst stop #007c7c)`.
+
 A pair marked `skipWhenNotPlainColor` (every `paint-*` background and
-`color-toc-active`) is measured only when the background and foreground are
-plain opaque colours; a gradient, `none`, or a transparent or translucent
-fill has no single backdrop, so the row prints `SKIPPED (<reason>)` instead
-of a ratio (never a silent pass). Any other pair must be plain opaque
-colours on both sides, or it fails. A theme whose tokens do not clear a
-floor will see `contrast:check` fail; that is the gate finding a real gap
-in the tokens.
+`color-toc-active`) whose fill cannot be measured prints
+`SKIPPED (<reason>)` instead of a ratio: `none`, a fully transparent or
+translucent colour, or a gradient the parser cannot read (an image, an
+unknown function, `color-mix()`, `var()`, a transparent or translucent
+stop; the reason reads `unreadable fill: ...`). A skipped row is never a
+pass. Any other pair must be plain opaque colours on both sides, or it
+fails. A theme whose tokens do not clear a floor will see `contrast:check`
+fail; that is the gate finding a real gap in the tokens.
 
 ## Visual/accessibility check (`visual:check`, THD-M10)
 

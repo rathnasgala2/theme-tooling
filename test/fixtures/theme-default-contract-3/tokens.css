@@ -17,7 +17,7 @@
     --gala-card-title-size: 1.25rem;
     --gala-chip-pad: 0.28rem 0.65rem;
     --gala-color-accent: #2b59ff;
-    --gala-color-accent-2: #00a3a3;
+    --gala-color-accent-2: #007c7c;
     --gala-color-border: #e2e6ec;
     --gala-color-btn-panel: #ffffff;
     --gala-color-btn-panel-text: #2b59ff;
@@ -88,7 +88,7 @@
       #dfe7ff 0%,
       transparent 62%
     );
-    --gala-paint-panel: linear-gradient(135deg, #1d3fc4, #2b59ff 55%, #00a3a3);
+    --gala-paint-panel: linear-gradient(135deg, #1d3fc4, #2b59ff 55%, #007c7c);
     --gala-prose-leading: 1.75;
     --gala-prose-size: 1.125rem;
     --gala-quote-align: start;
@@ -270,7 +270,7 @@
     --gala-card-title-size: 1.25rem;
     --gala-chip-pad: 0.28rem 0.65rem;
     --gala-color-accent: #2b59ff;
-    --gala-color-accent-2: #00a3a3;
+    --gala-color-accent-2: #007c7c;
     --gala-color-border: #e2e6ec;
     --gala-color-btn-panel: #ffffff;
     --gala-color-btn-panel-text: #2b59ff;
@@ -341,7 +341,7 @@
       #dfe7ff 0%,
       transparent 62%
     );
-    --gala-paint-panel: linear-gradient(135deg, #1d3fc4, #2b59ff 55%, #00a3a3);
+    --gala-paint-panel: linear-gradient(135deg, #1d3fc4, #2b59ff 55%, #007c7c);
     --gala-prose-leading: 1.75;
     --gala-prose-size: 1.125rem;
     --gala-quote-align: start;
