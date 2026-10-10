@@ -101,6 +101,7 @@
       "group": "@rathnasgala2",
       "version": "0.4.0",
       "bom-ref": "@rathnasgala2/theme-tooling@0.4.0",
+      "description": "Shared dev/test/SBOM/release tooling (theme contract 3) for the five @rathnasgala2/theme-* packages (theme-default, theme-minimal, theme-amaze, theme-flashy, theme-zebra). Not yet published (OWNER-DECISION); consumed today via the GALA_THEME_TOOLING_DIR override documented in README.md.",
       "licenses": [
         {
           "license": {
@@ -110,7 +111,32 @@
         }
       ],
       "purl": "pkg:npm/%40rathnasgala2/theme-tooling@0.4.0",
+      "externalReferences": [
+        {
+          "url": "git+https://github.com/rathnasgala2/theme-tooling.git",
+          "type": "vcs",
+          "comment": "as detected from PackageJson property \"repository.url\""
+        },
+        {
+          "url": "https://github.com/rathnasgala2/theme-tooling#readme",
+          "type": "website",
+          "comment": "as detected from PackageJson property \"homepage\""
+        },
+        {
+          "url": "https://github.com/rathnasgala2/theme-tooling/issues",
+          "type": "issue-tracker",
+          "comment": "as detected from PackageJson property \"bugs.url\""
+        }
+      ],
       "properties": [
+        {
+          "name": "cdx:npm:package:constraint:engine:node",
+          "value": "24.18.0"
+        },
+        {
+          "name": "cdx:npm:package:constraint:engine:npm",
+          "value": "11.16.0"
+        },
         {
           "name": "cdx:npm:package:path",
           "value": ""
