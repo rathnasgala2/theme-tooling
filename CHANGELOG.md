@@ -31,6 +31,9 @@ All notable changes to `@rathnasgala2/theme-tooling` are documented here.
   scroll-reveal frame.
 - Template-4 rendering checks run for contract-4 themes and explicitly skip
   the tooling package's archived contract-3 standalone fixture.
+- Theme consumers now run the same expiry-bound dependency-audit policy as
+  this package's own verification instead of bypassing its reviewed
+  allowlist with a raw `npm audit` invocation.
 
 ## [0.4.0] - 2026-10-10
 

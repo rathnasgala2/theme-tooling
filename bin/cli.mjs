@@ -136,13 +136,8 @@ const COMMANDS = {
     runScript('generate-theme-sbom.mjs', process.argv.slice(3)),
   'sbom:check': () => runScript('check-sbom-current.mjs'),
   // The theme's own `tooling/package.json` has no dependencies to audit;
-  // the real dependency tree is this shared package's own.
-  audit: () =>
-    spawnSync('npm', ['audit', '--audit-level=high'], {
-      stdio: 'inherit',
-      cwd: PACKAGE_DIR,
-      env: process.env,
-    }).status ?? 1,
+  // apply this shared package's expiry-bound audit policy to its real tree.
+  audit: () => runScript('npm-audit.mjs'),
   'workflows:check': () => runScript('check-workflow-pins.mjs'),
   'workflows:drift': () => runScript('check-workflow-drift.mjs'),
   // THD-M10: deliberately not in VERIFY_SEQUENCE — this is the one gate
