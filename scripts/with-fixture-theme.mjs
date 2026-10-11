@@ -1,9 +1,10 @@
 /**
  * Run a command with `THEME_ROOT` defaulted to this repository's own
  * contract-3 theme fixture (`test/fixtures/theme-default-contract-3`) and
- * `GALA_TEMPLATE_DIR` defaulted to the sibling `template` checkout, so the
- * suite verifies itself without a theme repository checkout. Either variable
- * already set (CI, or a developer pointing at a real theme) wins.
+ * suite verifies its archived contract-3 behavior independently from the
+ * mandatory installed generation-4 package matrix. Schema and Template resolve
+ * from this package's integrity-checked vendored dependencies unless a caller
+ * supplies an explicit development override.
  *
  * Usage: `node scripts/with-fixture-theme.mjs <command> [args...]`.
  */
@@ -25,9 +26,6 @@ if (!env.THEME_ROOT) {
     'fixtures',
     'theme-default-contract-3',
   );
-}
-if (!env.GALA_TEMPLATE_DIR && !env.WORKSPACE_ROOT) {
-  env.GALA_TEMPLATE_DIR = path.resolve(packageDir, '..', 'template');
 }
 const result = spawnSync(command, args, { stdio: 'inherit', env });
 process.exit(result.status ?? 1);

@@ -2,6 +2,36 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [0.5.0] - 2026-10-11
+
+### Changed
+
+- Contract-4 schema coverage now exercises the exact Default/Newsletter,
+  Amaze/Editorial, Flashy/Visual, Minimal/Personal, Zebra/Developer, and
+  Editorial/Editorial package compositions, including absent, invalid, and
+  cross-profile rejection cases.
+- Added an integrity-checked source-only package set for Schema 3.8.0,
+  Template 4.0.0, and all six generation-4 themes. CI verifies authoritative
+  archive digests before `npm ci`; package and lock metadata cannot resolve a
+  sibling checkout or mutable registry version.
+- Replaced the skip-on-missing sibling-workspace matrix with a mandatory
+  installed-package matrix that verifies every theme's identity, exact
+  composition, schema, tokens, package shape, CSS hooks/grammar, contrast,
+  budgets, passive file set, and digest chain.
+- Schema and Template default resolution now uses the installed vendored
+  packages. Explicit environment paths remain development overrides only.
+- Dispatcher coverage now includes the local-only Editorial theme. Release
+  workflow coverage remains limited to the five repositories that already
+  carry workflow files; no npm publication is introduced.
+- Release workflow checks require local `npm pack` artifacts and reject npm
+  publication authority, registry setup, and identity-token writes.
+- Concurrent theme verification now derives every scratch path from its own
+  temporary root. Visual verification resolves caller paths before changing
+  cwd and scans the stable reduced-motion state instead of an offscreen
+  scroll-reveal frame.
+- Template-4 rendering checks run for contract-4 themes and explicitly skip
+  the tooling package's archived contract-3 standalone fixture.
+
 ## [0.4.0] - 2026-10-10
 
 ### Changed

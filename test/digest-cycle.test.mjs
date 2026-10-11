@@ -77,11 +77,8 @@ test('generate-theme-digests.mjs produces byte-identical theme.json for the same
   const themeRoot = resolveThemeRoot();
   const scratchRootA = await buildScratchThemeCopy(themeRoot);
   const scratchRootBParent = await buildScratchThemeCopy(themeRoot);
-  const scratchRootB = path.join(
-    path.dirname(scratchRootBParent),
-    'a-differently-shaped-and-much-longer-absolute-path-segment',
-    'nested',
-  );
+  const scratchRootBContainer = `${scratchRootBParent}-a-differently-shaped-and-much-longer-absolute-path-segment`;
+  const scratchRootB = path.join(scratchRootBContainer, 'nested');
   try {
     await mkdir(scratchRootB, { recursive: true });
     await execFileAsync('cp', ['-R', `${scratchRootBParent}/.`, scratchRootB]);
@@ -124,16 +121,7 @@ test('generate-theme-digests.mjs produces byte-identical theme.json for the same
   } finally {
     await rm(scratchRootA, { recursive: true, force: true });
     await rm(scratchRootBParent, { recursive: true, force: true });
-    await rm(
-      path.join(
-        path.dirname(scratchRootBParent),
-        'a-differently-shaped-and-much-longer-absolute-path-segment',
-      ),
-      {
-        recursive: true,
-        force: true,
-      },
-    );
+    await rm(scratchRootBContainer, { recursive: true, force: true });
   }
 });
 

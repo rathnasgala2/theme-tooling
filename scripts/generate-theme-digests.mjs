@@ -25,6 +25,7 @@ import * as prettier from 'prettier';
 import { compareUtf8, domainDigest, sha256Tagged } from './digest.mjs';
 import { canonicalizeJcsBytes } from './jcs.mjs';
 import { loadPackedFileSet } from './packed-files.mjs';
+import { resolveSchemaDir } from './resolve-schema-dir.mjs';
 import { resolveTemplateDir } from './resolve-template-dir.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
 import { runIfMain } from './run-if-main.mjs';
@@ -37,6 +38,7 @@ import { buildScratchThemeCopy } from './scratch-theme.mjs';
 // under a disconnected `/tmp` path where the usual relative default
 // cannot reach it.
 const TEMPLATE_DIR = resolveTemplateDir();
+const SCHEMA_DIR = resolveSchemaDir();
 
 const run = promisify(execFile);
 
@@ -53,12 +55,7 @@ const PRETTIER_CONFIG_PATH = path.join(
  *
  * @type {readonly {runnerId: string, fixtureId: string, script: string}[]}
  */
-const LOCAL_RUNNERS = [
-  {
-    runnerId: 'schema',
-    fixtureId: 'fixture-schema-structural',
-    script: 'check-theme-schema.mjs',
-  },
+const SHARED_LOCAL_RUNNERS = [
   {
     runnerId: 'semantic',
     fixtureId: 'fixture-token-catalog-contrast',
@@ -80,6 +77,28 @@ const LOCAL_RUNNERS = [
     script: 'check-forbidden-constructs.mjs',
   },
 ];
+
+/**
+ * Keep contract 3's schema runner byte-for-byte stable for archived v3
+ * packages. Contract 4 uses the dual dispatcher, whose source and output are
+ * independently bound into its own fixture release.
+ *
+ * @param {string} contractVersion theme contract version
+ * @returns {readonly {runnerId: string, fixtureId: string, script: string}[]}
+ */
+function localRunnersFor(contractVersion) {
+  const schemaScript = /^3\./u.test(contractVersion)
+    ? 'check-theme-schema-contract-3.mjs'
+    : 'check-theme-schema.mjs';
+  return [
+    {
+      runnerId: 'schema',
+      fixtureId: 'fixture-schema-structural',
+      script: schemaScript,
+    },
+    ...SHARED_LOCAL_RUNNERS,
+  ];
+}
 
 /** @type {string} this repository's own fixed, package-content-independent
  * fixture release identity. */
@@ -162,6 +181,7 @@ async function runLocalCheck(themeRoot, script) {
         env: {
           ...process.env,
           THEME_ROOT: themeRoot,
+          GALA_SCHEMA_DIR: SCHEMA_DIR,
           GALA_TEMPLATE_DIR: TEMPLATE_DIR,
         },
       },
@@ -186,12 +206,14 @@ async function scriptDigest(script) {
 
 /**
  * @param {Record<string, unknown>} theme parsed `theme.json`
+ * @param {readonly {runnerId: string, fixtureId: string, script: string}[]} localRunners
+ *   contract-version-specific local runners
  * @returns {Promise<Record<string, unknown>>} the fixed, package-content
  *   -independent local fixture-release record, with `fixtureDigest` set
  */
-async function buildFixtureRelease(theme) {
+async function buildFixtureRelease(theme, localRunners) {
   const runners = await Promise.all(
-    [...LOCAL_RUNNERS]
+    [...localRunners]
       .sort((a, b) => compareUtf8(a.runnerId, b.runnerId))
       .map(async (runner) => ({
         runnerId: runner.runnerId,
@@ -199,7 +221,7 @@ async function buildFixtureRelease(theme) {
         executableDigest: await scriptDigest(runner.script),
       })),
   );
-  const fixtures = [...LOCAL_RUNNERS]
+  const fixtures = [...localRunners]
     .sort((a, b) => compareUtf8(a.fixtureId, b.fixtureId))
     .map((runner) => {
       const inputDigest = sha256Tagged(
@@ -219,7 +241,7 @@ async function buildFixtureRelease(theme) {
   const releaseWithoutDigest = {
     profile: 'gala-theme-fixture-release-v2',
     fixtureReleaseId: FIXTURE_RELEASE_ID,
-    contractVersion: '3.0.0',
+    contractVersion: theme.contractVersion,
     // THD-L6: not a typo. `@rathnasgala2/schemas`'s
     // `theme-contract.schema.json` fixes this exact string as a `const`
     // for `browserPolicyRef`, so it is a real, schema-mandated policy
@@ -279,6 +301,8 @@ export function computeObservedEvidenceDigest({
  * @param {Record<string, unknown>} fixtureRelease this repository's own
  *   local fixture release
  * @param {string} themeConformanceInputDigest the pre-finalization digest
+ * @param {readonly {runnerId: string, fixtureId: string, script: string}[]} localRunners
+ *   contract-version-specific local runners
  * @returns {Promise<Record<string, unknown>>} the completed result, with
  *   `evidenceDigest` set
  */
@@ -286,11 +310,12 @@ async function buildConformanceResult(
   themeRoot,
   fixtureRelease,
   themeConformanceInputDigest,
+  localRunners,
 ) {
   const fixtures = /** @type {any[]} */ (fixtureRelease.fixtures);
   const results = await Promise.all(
     fixtures.map(async (definition) => {
-      const runner = LOCAL_RUNNERS.find(
+      const runner = localRunners.find(
         (candidate) => candidate.fixtureId === definition.fixtureId,
       );
       if (!runner)
@@ -358,7 +383,8 @@ async function generate(themeRoot) {
   }
   await writeThemeJson(themeRoot, theme);
 
-  const fixtureRelease = await buildFixtureRelease(theme);
+  const localRunners = localRunnersFor(String(theme.contractVersion));
+  const fixtureRelease = await buildFixtureRelease(theme, localRunners);
   theme.fixtureDigest = fixtureRelease.fixtureDigest;
   await writeThemeJson(themeRoot, theme);
 
@@ -375,6 +401,7 @@ async function generate(themeRoot) {
     themeRoot,
     fixtureRelease,
     themeConformanceInputDigest,
+    localRunners,
   );
   if (conformanceResult.overallState !== 'pass') {
     throw new Error(

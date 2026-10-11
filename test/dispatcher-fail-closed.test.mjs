@@ -1,6 +1,6 @@
 /**
  * Each theme repository's own `tooling/run.mjs` (identical across all
- * five, THD-M6) is the one file that is *not* shared: it resolves
+ * six) is the one file that is *not* shared: it resolves
  * `GALA_THEME_TOOLING_DIR` and dispatches into this package's `bin/cli.mjs`,
  * or fails closed with the exact fix when the variable is unset. This test
  * spawns each sibling theme's real `run.mjs` with that one variable
@@ -23,6 +23,7 @@ const THEME_NAMES = [
   'theme-amaze',
   'theme-flashy',
   'theme-zebra',
+  'theme-editorial',
 ];
 
 /**

@@ -30,9 +30,16 @@ const { renderPublication } = await import(
 );
 
 // The theme under test, identified by process.cwd() (this package is
-// shared across five theme repositories; see bin/cli.mjs), not by this
+// shared across six theme repositories; see bin/cli.mjs), not by this
 // test file's own location.
 const THEME_DIRECTORY = resolveThemeRoot();
+const THEME_CONTRACT_VERSION = JSON.parse(
+  await readFile(path.join(THEME_DIRECTORY, 'theme.json'), 'utf8'),
+).contractVersion;
+const TEMPLATE_CONFORMANCE_SKIP =
+  THEME_CONTRACT_VERSION === '4.0.0'
+    ? false
+    : `template 4 conformance requires a contract-4 theme; the standalone fixture is archived contract ${THEME_CONTRACT_VERSION}`;
 
 /**
  * @param {string} directory absolute directory
@@ -62,106 +69,111 @@ async function listFilesSorted(directory) {
   return results.sort();
 }
 
-test('renderPublication with options.themeDirectory pointing at this package renders successfully and links the theme stylesheets', async () => {
-  const buildInput = await buildFixture();
-  const { outputDirectory, workDirectory, sourceDirectory, cleanup } =
-    await createRenderDirectories('theme-default-conformance-');
-  try {
-    const { manifest } = await renderPublication(buildInput, {
-      outputDirectory,
-      workDirectory,
-      sourceDirectory,
-      themeDirectory: THEME_DIRECTORY,
-      provenance: testProvenance(),
-    });
-    for (const stylesheet of ['tokens.css', 'components.css', 'print.css']) {
-      assert.ok(
-        manifest.assets.some((asset) =>
-          asset.path.endsWith(`assets/theme/${stylesheet}`),
-        ),
-        `manifest must record a theme asset row for ${stylesheet}`,
+test(
+  'renderPublication with options.themeDirectory pointing at this package renders successfully and links the theme stylesheets',
+  { skip: TEMPLATE_CONFORMANCE_SKIP },
+  async () => {
+    const buildInput = await buildFixture();
+    const { outputDirectory, workDirectory, sourceDirectory, cleanup } =
+      await createRenderDirectories('theme-default-conformance-');
+    try {
+      const { manifest } = await renderPublication(buildInput, {
+        outputDirectory,
+        workDirectory,
+        sourceDirectory,
+        themeDirectory: THEME_DIRECTORY,
+        provenance: testProvenance(),
+      });
+      for (const stylesheet of ['tokens.css', 'components.css', 'print.css']) {
+        assert.ok(
+          manifest.assets.some((asset) =>
+            asset.path.endsWith(`assets/theme/${stylesheet}`),
+          ),
+          `manifest must record a theme asset row for ${stylesheet}`,
+        );
+      }
+      const htmlRoute = manifest.routes.find(
+        (route) => route.routeClass === 'html',
       );
+      assert.ok(htmlRoute, 'the render must produce at least one html route');
+      const html = await readFile(
+        path.join(outputDirectory, htmlRoute.path),
+        'utf8',
+      );
+      assert.ok(html.includes('assets/theme/tokens.css'));
+      assert.ok(html.includes('assets/theme/components.css'));
+      assert.ok(html.includes('assets/theme/print.css'));
+      assert.ok(html.includes('g-card') || html.includes('g-wrap'));
+      const tokensAsset = manifest.assets.find((asset) =>
+        asset.path.endsWith('assets/theme/tokens.css'),
+      );
+      const tokens = await readFile(
+        path.join(outputDirectory, tokensAsset.path),
+        'utf8',
+      );
+      assert.ok(tokens.includes('--gala-paint-panel:'));
+    } finally {
+      await cleanup();
     }
-    const htmlRoute = manifest.routes.find(
-      (route) => route.routeClass === 'html',
-    );
-    assert.ok(htmlRoute, 'the render must produce at least one html route');
-    const html = await readFile(
-      path.join(outputDirectory, htmlRoute.path),
-      'utf8',
-    );
-    assert.ok(html.includes('assets/theme/tokens.css'));
-    assert.ok(html.includes('assets/theme/components.css'));
-    assert.ok(html.includes('assets/theme/print.css'));
-    // Contract 3: the template's base layer owns layout, so the page is
-    // styled by token-driven `.g-*` hooks, and the theme's tokens.css
-    // reaches the output unchanged.
-    assert.ok(html.includes('g-card') || html.includes('g-wrap'));
-    const tokensAsset = manifest.assets.find((asset) =>
-      asset.path.endsWith('assets/theme/tokens.css'),
-    );
-    const tokens = await readFile(
-      path.join(outputDirectory, tokensAsset.path),
-      'utf8',
-    );
-    assert.ok(tokens.includes('--gala-paint-panel:'));
-  } finally {
-    await cleanup();
-  }
-});
+  },
+);
 
-test('two independent builds of the same pinned inputs against this theme are byte-identical (determinism)', async () => {
-  const buildInputA = await buildFixture();
-  const buildInputB = await buildFixture();
-  const first = await createRenderDirectories('theme-default-conformance-');
-  const second = await createRenderDirectories('theme-default-conformance-');
-  try {
-    const [{ manifest: manifestA }, { manifest: manifestB }] =
-      await Promise.all([
-        renderPublication(buildInputA, {
-          outputDirectory: first.outputDirectory,
-          workDirectory: first.workDirectory,
-          sourceDirectory: first.sourceDirectory,
-          themeDirectory: THEME_DIRECTORY,
-          provenance: testProvenance(),
-        }),
-        renderPublication(buildInputB, {
-          outputDirectory: second.outputDirectory,
-          workDirectory: second.workDirectory,
-          sourceDirectory: second.sourceDirectory,
-          themeDirectory: THEME_DIRECTORY,
-          provenance: testProvenance(),
-        }),
-      ]);
+test(
+  'two independent builds of the same pinned inputs against this theme are byte-identical (determinism)',
+  { skip: TEMPLATE_CONFORMANCE_SKIP },
+  async () => {
+    const buildInputA = await buildFixture();
+    const buildInputB = await buildFixture();
+    const first = await createRenderDirectories('theme-default-conformance-');
+    const second = await createRenderDirectories('theme-default-conformance-');
+    try {
+      const [{ manifest: manifestA }, { manifest: manifestB }] =
+        await Promise.all([
+          renderPublication(buildInputA, {
+            outputDirectory: first.outputDirectory,
+            workDirectory: first.workDirectory,
+            sourceDirectory: first.sourceDirectory,
+            themeDirectory: THEME_DIRECTORY,
+            provenance: testProvenance(),
+          }),
+          renderPublication(buildInputB, {
+            outputDirectory: second.outputDirectory,
+            workDirectory: second.workDirectory,
+            sourceDirectory: second.sourceDirectory,
+            themeDirectory: THEME_DIRECTORY,
+            provenance: testProvenance(),
+          }),
+        ]);
 
-    const filesA = await listFilesSorted(first.outputDirectory);
-    const filesB = await listFilesSorted(second.outputDirectory);
-    assert.deepEqual(
-      filesA,
-      filesB,
-      'both builds must produce the exact same file list',
-    );
+      const filesA = await listFilesSorted(first.outputDirectory);
+      const filesB = await listFilesSorted(second.outputDirectory);
+      assert.deepEqual(
+        filesA,
+        filesB,
+        'both builds must produce the exact same file list',
+      );
 
-    for (const relativePath of filesA) {
-      const bytesA = await readFile(
-        path.join(first.outputDirectory, relativePath),
+      for (const relativePath of filesA) {
+        const bytesA = await readFile(
+          path.join(first.outputDirectory, relativePath),
+        );
+        const bytesB = await readFile(
+          path.join(second.outputDirectory, relativePath),
+        );
+        assert.ok(
+          bytesA.equals(bytesB),
+          `${relativePath} must be byte-identical across both builds`,
+        );
+      }
+
+      assert.equal(
+        manifestA.assets.length,
+        manifestB.assets.length,
+        'both manifests must record the same number of assets',
       );
-      const bytesB = await readFile(
-        path.join(second.outputDirectory, relativePath),
-      );
-      assert.ok(
-        bytesA.equals(bytesB),
-        `${relativePath} must be byte-identical across both builds`,
-      );
+    } finally {
+      await first.cleanup();
+      await second.cleanup();
     }
-
-    assert.equal(
-      manifestA.assets.length,
-      manifestB.assets.length,
-      'both manifests must record the same number of assets',
-    );
-  } finally {
-    await first.cleanup();
-    await second.cleanup();
-  }
-});
+  },
+);

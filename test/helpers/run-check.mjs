@@ -10,16 +10,17 @@ const run = promisify(execFile);
  * combined output (for assertion messages on failure).
  *
  * The theme under test is identified by `process.cwd()`, not by this test
- * file's own location: this package is shared across five theme
+ * file's own location: this package is shared across six theme
  * repositories, invoked with the calling theme's `tooling/` directory as
  * cwd (see `theme-tooling/bin/cli.mjs`), so `resolveThemeRoot()`'s
  * cwd-relative default resolves correctly without every call site having
  * to pass `THEME_ROOT` explicitly.
  *
  * @param {string} script script basename under `scripts/`
- * @param {{env?: Record<string, string>}} [options] `env` merges
- *   additional environment variables (e.g. `THEME_ROOT`, DEC-015 name) into
- *   the child process's inherited `process.env`
+ * @param {{args?: string[], env?: Record<string, string>}} [options] `env`
+ *   merges additional environment variables (e.g. `THEME_ROOT`, DEC-015
+ *   name) into the child process's inherited `process.env`; `args` are
+ *   forwarded after the script path
  * @returns {Promise<{passed: boolean, output: string}>} the outcome
  */
 export async function runCheckScript(script, options = {}) {
@@ -28,10 +29,14 @@ export async function runCheckScript(script, options = {}) {
   const toolingPackageDir = path.join(import.meta.dirname, '..', '..');
   const scriptPath = path.join(toolingPackageDir, 'scripts', script);
   try {
-    const { stdout, stderr } = await run(process.execPath, [scriptPath], {
-      cwd: process.cwd(),
-      env: options.env ? { ...process.env, ...options.env } : process.env,
-    });
+    const { stdout, stderr } = await run(
+      process.execPath,
+      [scriptPath, ...(options.args ?? [])],
+      {
+        cwd: process.cwd(),
+        env: options.env ? { ...process.env, ...options.env } : process.env,
+      },
+    );
     return { passed: true, output: `${stdout}${stderr}` };
   } catch (error) {
     return {

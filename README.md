@@ -1,8 +1,7 @@
 # `@rathnasgala2/theme-tooling`
 
-Shared dev/test/SBOM/release tooling for the five `@rathnasgala2/theme-*`
-packages (`theme-default`, `theme-minimal`, `theme-amaze`, `theme-flashy`,
-`theme-zebra`).
+Shared dev/test/SBOM/release tooling for all six generation-4
+`@rathnasgala2/theme-*` packages, with archived contract-3 validation.
 
 ## Why this exists
 
@@ -12,12 +11,12 @@ packed file list independently hardcoded in three of those scripts (and
 the stylesheet list a fourth and fifth time) — five copies to keep in
 sync by hand, guarded only by a drift test that never ran in CI (2026-09-25
 code-discipline review, THD-M6/THD-H3). This package is the single
-implementation; the five theme repositories depend on it instead of
+implementation; the six theme repositories depend on it instead of
 carrying their own copy.
 
 ## Status: versioned, not on npm
 
-This package is versioned (`0.1.0`, tagged `v0.1.0`) but **not published to
+This package is versioned but **not published to
 the npm registry** — publishing it there is a separate owner decision (see
 the parent review's THD-M6 remediation) and has not been made. No theme
 repository can add it as an ordinary pinned `devDependency` (`npm ci`
@@ -25,8 +24,8 @@ cannot install a version that does not exist on the registry, and a
 `file:` specifier is not acceptable for CI — it resolves to a path that
 does not exist on a fresh checkout).
 
-It is versioned 0.1.0 and consumed by the theme repos via a pinned
-checkout, not from npm. Every theme repository therefore resolves this
+It is consumed by the theme repos via an explicit sibling checkout, not from
+npm. Every theme repository therefore resolves this
 package **only** through `GALA_THEME_TOOLING_DIR`, an environment variable
 pointing at a checkout of this repository, via each theme's
 `tooling/run.mjs`:
@@ -40,19 +39,17 @@ naming exactly what to set it to — it does not fall back to a relative
 default or to `node_modules`, because until publication there is nothing
 reliable to fall back to.
 
-In CI, every theme's `.github/workflows/{ci.yml,release.yaml,nightly.yml}`
+Where a theme retains CI, its `.github/workflows/{ci.yml,release.yaml,nightly.yml}`
 checks out this repository to a pinned commit alongside the theme's own
-checkout (the same pattern already used for the `@rathnasgala2/template`
-sibling checkout), installs its dependencies once, and sets
-`GALA_THEME_TOOLING_DIR` for the rest of the job.
+checkout, installs this package once, and sets `GALA_THEME_TOOLING_DIR` for
+the rest of the job.
 
-**Once this package is published** (owner decision, together with the
-version to publish), each theme's `tooling/package.json` should add it as
-a normal pinned `devDependency`, `tooling/run.mjs` should resolve it via
-the installed `node_modules` copy by default, and `GALA_THEME_TOOLING_DIR`
-should become a local-dev-only override for iterating on this package
-against a theme before a new tooling version is cut. That change is not
-made in this pass, so today's only path is the override.
+Registry publication is deliberately outside this delivery. Theme tooling
+itself is consumed through `GALA_THEME_TOOLING_DIR`; its exact Schema 3.8.0,
+Template 4.0.0, and six Theme 4.0.0 inputs are committed under `vendor/` and
+installed through lockfile-bound `file:vendor/*.tgz` dependencies. Explicit
+`GALA_SCHEMA_DIR` and `GALA_TEMPLATE_DIR` overrides remain development-only;
+CI does not use sibling checkouts or the npm registry for those packages.
 
 ## What a theme repository looks like on top of this package
 
@@ -87,6 +84,10 @@ whichever theme's `tooling/` directory it was invoked from
   package (the `@rathnasgala2/schemas` `default-3.0.json` Default values,
   `tokens.css` emitted from them). `npm test` here runs against it (see
   "Contract 3" below), so the suite needs no theme repository checkout.
+- `vendor/` — the exact Schema, Template, and six Theme archives used by
+  standalone CI. `scripts/check-vendored-packages.mjs` binds their authoritative
+  SHA-256 values, identities, required files, dependency specifiers, and
+  lockfile SHA-512 integrity before `npm ci` runs.
 - `test/` — the corresponding `node:test` suites, parametrized by
   `process.cwd()` (the calling theme), not by this package's own location.
   `tooling-drift.test.mjs` does not exist here: THD-H3's drift gate is
@@ -121,7 +122,7 @@ runner's captured output). A change to this package's tooling — even a
 formatting-only one, such as the `check-package-file-set.mjs` reformat that
 fixed its Prettier drift — changes those bytes and therefore the digest
 chain every theme's committed `theme.json` was generated against. Each of
-the five theme repositories must run `digest:generate` and commit the
+the six theme repositories must run `digest:generate` and commit the
 resulting `theme.json` after picking up a new commit of this package, or
 its own `digest:check` will fail; this is the responsibility of that
 theme's own maintenance pass, not something this repository does on the
@@ -150,14 +151,23 @@ different absolute paths regenerate byte-identical `theme.json` output
 (`test/digest-cycle.test.mjs`'s "path independence" case; also verified
 locally by running that case in a 30-iteration loop with zero failures).
 
-## Contract 3 (token catalog, `tokens:check`)
+## Archived contract 3 and generation-4 compositions (`tokens:check`)
 
-This tooling checks theme contract 3 only (`theme.json.contractVersion`
-3.x; no dual support, earlier-contract themes are rejected by
-`schema:check`). Contract 3 fixes a 116-token catalog (sorted by key, each
-with a type: color, paint, border, shadow, length, box, number, duration,
-easing, font-family, font-weight, keyword) and a 256-hook cap on
-`slotHooks`; the template publishes 178 hooks in styling contract 3.0.0.
+`schema:check` dispatches by `theme.json.contractVersion`: 3.x and 4.0.0
+documents use the installed, integrity-checked Schema 3.8.0 package by
+default; `GALA_SCHEMA_DIR` can select an explicit development checkout. Other
+contract versions are rejected. The contract-3 schema runner is preserved
+byte-for-byte under a versioned filename so existing theme fixture/evidence
+digests remain reproducible.
+
+Both supported generations use the same ordered 116-token catalog (each key
+has a type: color, paint, border, shadow, length, box, number, duration,
+easing, font-family, font-weight, keyword) and a 256-hook cap on `slotHooks`.
+Contract 4 additionally requires one complete, closed composition. The
+supported package matrix is Default/Newsletter, Amaze/Editorial,
+Flashy/Visual, Minimal/Personal, Zebra/Developer, and Editorial/Editorial;
+cross-profile mixtures are rejected even when every individual literal is
+otherwise recognized.
 
 - **Catalog source.** `scripts/theme-token-catalog.mjs` is a verbatim
   mirror of the schema repository's `theme-token-grammar.js` (the published
@@ -177,9 +187,10 @@ easing, font-family, font-weight, keyword) and a 256-hook cap on
   source of token values.
 - **Running this repository's own suite.** `npm test` goes through
   `scripts/with-fixture-theme.mjs`, which defaults `THEME_ROOT` to the
-  fixture theme and `GALA_TEMPLATE_DIR` to the sibling `template` checkout
-  (which must have `@rathnasgala2/schemas` 3.0.0 installed, and be at
-  template 3.0.0). Set either variable to test against a real theme.
+  archived fixture theme. Schema and Template resolve from the vendored
+  installed packages. The generation-4 matrix separately resolves every
+  installed theme package and runs all ten non-browser conformance gates;
+  an absent archive or installed package fails instead of skipping.
 - **Budgets.** A contract-3 `tokens.css` is about 19 KB (116 tokens in four
   scopes), so a theme's `theme.json.budgets` must allow at least that per
   file; the fixture declares 32768 bytes per file and 98304 in total.
@@ -275,6 +286,15 @@ silently imposing that install step on every local `npm run verify`.
 
 ## Verify sequence
 
+This package's own `verify` begins with `vendor:check`, then runs formatting,
+lint, the complete test suite (including the mandatory six-theme matrix),
+duplication, SBOM currency, and the expiry-bound vulnerability audit. CI also
+runs `vendor:check` before `npm ci`, so edited or missing source archives fail
+before dependency installation.
+
+When the shared CLI is invoked from a theme repository, its theme release
+`verify` sequence is:
+
 `verify` runs, in order: `format:check`, `lint`, `schema:check`,
 `tokens:check`, `package-identity:check`,
 `css:check`, `grammar:check`, `contrast:check`, `budgets:check`,
@@ -313,7 +333,8 @@ Two separate SBOMs exist, on purpose:
 
 ```sh
 source ~/.nvm/nvm.sh && nvm use 24.18.0
-npm install
+npm run vendor:check
+npm ci
 npm run verify
 ```
 

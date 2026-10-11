@@ -51,12 +51,18 @@ test('check-css-hooks.mjs fails when theme.json.slotHooks declares a hook the CS
 test('check-css-hooks.mjs fails when the CSS uses a hook theme.json.slotHooks does not declare', async () => {
   await withScratchTheme(async (scratchRoot) => {
     const theme = await readThemeJson(scratchRoot);
-    assert.ok(
-      theme.slotHooks.includes('prose-strong'),
-      'fixture assumption: prose-strong must already be declared and used',
+    const declaredHook = theme.slotHooks[0];
+    assert.equal(
+      typeof declaredHook,
+      'string',
+      'fixture assumption: at least one used hook must be declared',
     );
-    theme.slotHooks = theme.slotHooks.filter((id) => id !== 'prose-strong');
+    theme.slotHooks = theme.slotHooks.filter((id) => id !== declaredHook);
     const output = await expectCssHooksFailure(scratchRoot, theme);
-    assert.match(output, /does not declare:.*prose-strong/, output);
+    assert.match(
+      output,
+      new RegExp(`does not declare:.*${declaredHook}`),
+      output,
+    );
   });
 });

@@ -1,83 +1,52 @@
 /**
- * Unit tests for `resolve-template-dir.mjs`: the fixed relative default,
- * the `GALA_TEMPLATE_DIR` override, and the `WORKSPACE_ROOT` (DEC-015
- * name) override, plus their precedence.
+ * Unit tests for `resolve-template-dir.mjs`: the exact installed package
+ * default and the explicit `GALA_TEMPLATE_DIR` development override.
  */
 
 import { strict as assert } from 'node:assert';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { resolveTemplateDir } from '../scripts/resolve-template-dir.mjs';
 
-// resolveTemplateDir()'s fixed relative default resolves against the
-// process's current working directory (the calling theme's `tooling/`
-// directory), not this test file's own location — this package is shared
-// across five theme repositories (see `bin/cli.mjs`).
-const EXPECTED_DEFAULT_TEMPLATE_DIR = path.resolve(
-  process.cwd(),
-  '../../template',
+const EXPECTED_INSTALLED_TEMPLATE_DIR = path.dirname(
+  fileURLToPath(import.meta.resolve('@rathnasgala2/template/package.json')),
 );
 
 /**
- * Run `fn` with `GALA_TEMPLATE_DIR`/`WORKSPACE_ROOT` set to `env`'s values
- * (or unset when a key is absent from `env`), restoring both to their
- * prior values afterward regardless of outcome.
+ * Run `fn` with `GALA_TEMPLATE_DIR` set to `env`'s value (or unset when
+ * absent), restoring it afterward regardless of outcome.
  *
- * @param {{GALA_TEMPLATE_DIR?: string, WORKSPACE_ROOT?: string}} env
+ * @param {{GALA_TEMPLATE_DIR?: string}} env
  * @param {() => void} fn
  */
 function withEnv(env, fn) {
-  const previous = {
-    GALA_TEMPLATE_DIR: process.env.GALA_TEMPLATE_DIR,
-    WORKSPACE_ROOT: process.env.WORKSPACE_ROOT,
-  };
+  const previous = process.env.GALA_TEMPLATE_DIR;
   try {
-    for (const key of /** @type {const} */ ([
-      'GALA_TEMPLATE_DIR',
-      'WORKSPACE_ROOT',
-    ])) {
-      if (env[key] === undefined) delete process.env[key];
-      else process.env[key] = env[key];
+    if (env.GALA_TEMPLATE_DIR === undefined) {
+      delete process.env.GALA_TEMPLATE_DIR;
+    } else {
+      process.env.GALA_TEMPLATE_DIR = env.GALA_TEMPLATE_DIR;
     }
     fn();
   } finally {
-    for (const key of /** @type {const} */ ([
-      'GALA_TEMPLATE_DIR',
-      'WORKSPACE_ROOT',
-    ])) {
-      if (previous[key] === undefined) delete process.env[key];
-      else process.env[key] = previous[key];
-    }
+    if (previous === undefined) delete process.env.GALA_TEMPLATE_DIR;
+    else process.env.GALA_TEMPLATE_DIR = previous;
   }
 }
 
-test('resolveTemplateDir: falls back to the fixed relative default when neither override is set', () => {
+test('resolveTemplateDir: resolves the installed vendored package by default', () => {
   withEnv({}, () => {
-    assert.equal(resolveTemplateDir(), EXPECTED_DEFAULT_TEMPLATE_DIR);
+    assert.equal(resolveTemplateDir(), EXPECTED_INSTALLED_TEMPLATE_DIR);
   });
 });
 
-test('resolveTemplateDir: WORKSPACE_ROOT resolves <WORKSPACE_ROOT>/template', () => {
-  withEnv({ WORKSPACE_ROOT: '/tmp/some-workspace' }, () => {
+test('resolveTemplateDir: GALA_TEMPLATE_DIR overrides the installed package', () => {
+  withEnv({ GALA_TEMPLATE_DIR: '/tmp/explicit-template-dir' }, () => {
     assert.equal(
       resolveTemplateDir(),
-      path.resolve('/tmp/some-workspace', 'template'),
+      path.resolve('/tmp/explicit-template-dir'),
     );
   });
-});
-
-test('resolveTemplateDir: GALA_TEMPLATE_DIR takes precedence over WORKSPACE_ROOT when both are set', () => {
-  withEnv(
-    {
-      GALA_TEMPLATE_DIR: '/tmp/explicit-template-dir',
-      WORKSPACE_ROOT: '/tmp/some-workspace',
-    },
-    () => {
-      assert.equal(
-        resolveTemplateDir(),
-        path.resolve('/tmp/explicit-template-dir'),
-      );
-    },
-  );
 });

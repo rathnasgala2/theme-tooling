@@ -6,15 +6,20 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { test } from 'node:test';
 
+import { resolveTemplateDir } from '../scripts/resolve-template-dir.mjs';
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
+import {
+  buildVisualScenarios,
+  themeCssFailures,
+} from '../scripts/visual-check.mjs';
 
 const run = promisify(execFile);
 // `SCRIPT_PATH` always lives in *this* checkout's `scripts/` directory —
 // that part is safe to resolve from `import.meta.dirname` regardless of
 // how this suite is invoked.
 //
-// The theme root under test is a different thing entirely, and must not
-// be derived from `import.meta.dirname`: when this suite runs as part of
+// The theme and template roots under test are different things entirely,
+// and must not be derived from `import.meta.dirname`: when this suite runs as part of
 // a theme's own `verify` (THEME_ROOT unset, cwd = the theme's `tooling/`
 // directory, this checkout reached only via `GALA_THEME_TOOLING_DIR`),
 // `import.meta.dirname` still points at *this* package's own `test/`
@@ -25,20 +30,25 @@ const run = promisify(execFile);
 // invocation (standalone with `THEME_ROOT` set, or from a theme's
 // `tooling/` with it unset) — so this test resolves it once, up front,
 // in the parent process, and hands the child that resolved absolute path
-// explicitly via the `THEME_ROOT` env var. The child's own
-// `resolveThemeRoot()` then reads that override rather than
-// recomputing anything from its own cwd, and the whole thing no longer
-// depends on the child's cwd matching any particular directory.
+// explicitly via absolute `THEME_ROOT` and `GALA_TEMPLATE_DIR` env vars.
+// Their child resolvers then read those overrides rather than recomputing
+// cwd-relative values from the tooling checkout.
 const TOOLING_ROOT = path.join(import.meta.dirname, '..');
 const SCRIPT_PATH = path.join(TOOLING_ROOT, 'scripts', 'visual-check.mjs');
 const RESOLVED_THEME_ROOT = resolveThemeRoot();
+const RESOLVED_TEMPLATE_DIR = resolveTemplateDir();
+const THEME_CONTRACT_VERSION = JSON.parse(
+  await readFile(path.join(RESOLVED_THEME_ROOT, 'theme.json'), 'utf8'),
+).contractVersion;
+const TEMPLATE_CONFORMANCE_SKIP =
+  THEME_CONTRACT_VERSION === '4.0.0'
+    ? false
+    : `template 4 visual conformance requires a contract-4 theme; the standalone fixture is archived contract ${THEME_CONTRACT_VERSION}`;
 
 /**
- * THD-M10: `visual-check.mjs` is deliberately not exercised end-to-end by
- * `npm test` (unlike every other gate, it requires
- * `npx playwright install chromium`, a separate explicit download — see
- * README "Visual/accessibility check"). This suite covers the one thing
- * that does not need a browser: `--out` argument validation.
+ * THD-M10: the end-to-end case runs when a Chromium binary is present and
+ * skips otherwise (`npx playwright install chromium` is a separate explicit
+ * download). Argument validation always runs without a browser.
  */
 
 test('fails closed with a usage message when --out is missing', async () => {
@@ -57,32 +67,73 @@ test('fails closed with a usage message when --out is missing', async () => {
   assert.match(stderr, /requires --out <directory>/);
 });
 
+test('scenario plan covers article palettes and widths plus bounded home, author and listing checks', () => {
+  const scenarios = buildVisualScenarios({
+    home: 'site/index.html',
+    article: 'site/article/index.html',
+    author: 'site/authors/writer/index.html',
+    listing: 'site/tags/topic/index.html',
+  });
+  assert.equal(scenarios.length, 12);
+  assert.deepEqual(
+    scenarios.filter((scenario) => scenario.routeKind === 'article'),
+    ['light', 'dark'].flatMap((palette) =>
+      [320, 768, 1440].map((width) => ({
+        routeKind: 'article',
+        routePath: 'site/article/index.html',
+        palette,
+        width,
+      })),
+    ),
+  );
+  for (const routeKind of ['home', 'author', 'listing']) {
+    assert.deepEqual(
+      scenarios
+        .filter((scenario) => scenario.routeKind === routeKind)
+        .map(({ palette, width }) => ({ palette, width })),
+      [
+        { palette: 'light', width: 320 },
+        { palette: 'light', width: 1440 },
+      ],
+    );
+  }
+});
+
+test('theme CSS evidence fails closed when expected theme stylesheets are absent', () => {
+  const failures = themeCssFailures({
+    expectedStylesheets: ['tokens.css', 'components.css'],
+    stylesheetStatuses: new Map(),
+    expectedTokenValue: '#123456',
+    computedTokenValue: '',
+  });
+  assert.equal(failures.length, 3);
+  assert.match(failures.join('\n'), /tokens\.css.*did not resolve/u);
+  assert.match(failures.join('\n'), /components\.css.*did not resolve/u);
+  assert.match(failures.join('\n'), /expected theme token #123456/u);
+});
+
 test(
-  'end-to-end: renders the fixture and writes a screenshot for each palette/width combination',
-  { skip: await chromiumUnavailable() },
+  'end-to-end: checks article palettes and widths plus bounded home, author and listing scenarios',
+  { skip: TEMPLATE_CONFORMANCE_SKIP || (await chromiumUnavailable()) },
   async () => {
-    // Deliberately does not assert the run exits 0: this drives the real
-    // theme under test, and a genuine axe/overflow finding against it is
-    // this harness working correctly, not a bug in the test. What this
-    // asserts is the harness's own contract — it renders, drives all six
-    // combinations, and writes a screenshot for each one regardless of
-    // whether any of them find a violation.
     const outDirectory = await mkdtemp(
       path.join(tmpdir(), 'visual-check-out-'),
     );
     try {
-      const { stdout } = await new Promise((resolve) => {
+      const { exitCode, stdout, stderr } = await new Promise((resolve) => {
         execFile(
           process.execPath,
           [SCRIPT_PATH, '--out', outDirectory],
           {
             cwd: TOOLING_ROOT,
-            // THD-M10: pass the theme root this process already resolved
-            // explicitly, rather than relying on the child inheriting a
-            // cwd that happens to put its own `resolveThemeRoot()`
-            // default in the right place — see the comment above
-            // `RESOLVED_THEME_ROOT`.
-            env: { ...process.env, THEME_ROOT: RESOLVED_THEME_ROOT },
+            // THD-M10: pass the absolute theme and template roots resolved
+            // before changing the child cwd; relative caller overrides are
+            // otherwise reinterpreted from the tooling checkout.
+            env: {
+              ...process.env,
+              THEME_ROOT: RESOLVED_THEME_ROOT,
+              GALA_TEMPLATE_DIR: RESOLVED_TEMPLATE_DIR,
+            },
           },
           (error, stdoutResult, stderrResult) => {
             resolve({
@@ -98,12 +149,23 @@ test(
       );
       assert.equal(
         files.length,
-        6,
-        `expected 6 screenshots, got: ${files.join(', ')}`,
+        12,
+        `expected 12 screenshots, got: ${files.join(', ')}; ` +
+          `visual-check exit=${exitCode}, stderr=${stderr}`,
+      );
+      assert.equal(
+        exitCode,
+        0,
+        `visual-check must pass its own accessibility, overflow and theme-CSS gates: ${stderr}`,
       );
       for (const palette of ['light', 'dark']) {
         for (const width of [320, 768, 1440]) {
-          assert.match(stdout, new RegExp(`${palette} ${width}px:`));
+          assert.match(stdout, new RegExp(`article ${palette} ${width}px:`));
+        }
+      }
+      for (const routeKind of ['home', 'author', 'listing']) {
+        for (const width of [320, 1440]) {
+          assert.match(stdout, new RegExp(`${routeKind} light ${width}px:`));
         }
       }
 
@@ -118,10 +180,13 @@ test(
       // against this test's own run's screenshot files, so a change to
       // the script's internal assertions cannot silently stop proving it.
       const lightBytes = await readFile(
-        path.join(outDirectory, findScreenshot(files, 'light', 1440)),
+        path.join(
+          outDirectory,
+          findScreenshot(files, 'article', 'light', 1440),
+        ),
       );
       const darkBytes = await readFile(
-        path.join(outDirectory, findScreenshot(files, 'dark', 1440)),
+        path.join(outDirectory, findScreenshot(files, 'article', 'dark', 1440)),
       );
       assert.ok(
         !lightBytes.equals(darkBytes),
@@ -136,15 +201,18 @@ test(
 
 /**
  * @param {string[]} files screenshot basenames from the run's `--out` dir
+ * @param {'home'|'article'|'author'|'listing'} routeKind
  * @param {'light'|'dark'} palette
  * @param {number} width
  * @returns {string} the matching screenshot's basename
  */
-function findScreenshot(files, palette, width) {
-  const match = files.find((name) => name.includes(`-${palette}-${width}.png`));
+function findScreenshot(files, routeKind, palette, width) {
+  const match = files.find((name) =>
+    name.includes(`-${routeKind}-${palette}-${width}.png`),
+  );
   if (!match) {
     throw new Error(
-      `no ${palette} ${width}px screenshot among: ${files.join(', ')}`,
+      `no ${routeKind} ${palette} ${width}px screenshot among: ${files.join(', ')}`,
     );
   }
   return match;

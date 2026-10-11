@@ -18,26 +18,10 @@ jobs:
     name: Verify (format, lint, test, duplication, SBOM, audit)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    env:
-      WORKSPACE_ROOT: ${{ github.workspace }}
-      GALA_TEMPLATE_DIR: ${{ github.workspace }}/template
     steps:
       - name: Check out this repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          persist-credentials: false
-
-      # Pinned to the commit of @rathnasgala2/template 3.0.0 (styling
-      # contract 3.0.0). This package's own test suite reads it by path and
-      # runs against its own contract-3 theme fixture
-      # (test/fixtures/theme-default-contract-3), so no theme repository
-      # checkout is needed.
-      - name: Check out the template sibling repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          repository: rathnasgala2/template
-          ref: 9692eda8f003f7bfbe01a452e8ad9de04a0e7ec1 # 3.0.1
-          path: template
           persist-credentials: false
 
       - name: Install the pinned Node.js distribution
@@ -54,9 +38,8 @@ jobs:
           test "$(node --version)" = "v24.18.0"
           test "$(npm --version)" = "11.16.0"
 
-      - name: Install the template sibling repository's dependencies
-        working-directory: template
-        run: npm ci
+      - name: Verify the committed source-only package set
+        run: node scripts/check-vendored-packages.mjs
 
       - name: Install this package's own dependencies
         run: npm ci

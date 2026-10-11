@@ -32,9 +32,9 @@ const hasPseudoClassCatalog = (contract.pseudoClasses ?? []).length > 0;
 
 /**
  * @param {string} extraRule a rule to append to a scratch copy's
- *   components.css, expected to use the `prose-list-item` hook (`li`, an
- *   atom already declared and used elsewhere in every reference theme) so
- *   no unrelated slotHooks drift is introduced
+ *   components.css. The scratch contract explicitly declares the
+ *   `prose-list-item` hook so this fixture does not depend on whether the
+ *   theme under test happens to style list items already.
  * @returns {Promise<{passed: boolean, output: string}>} check-css-hooks.mjs's outcome
  */
 async function checkWithExtraRule(extraRule) {
@@ -44,6 +44,12 @@ async function checkWithExtraRule(extraRule) {
     // theme it was copied from, so a failure below is attributable to
     // `extraRule` alone.
     await normalizeSlotHooks(scratchRoot);
+    const themePath = path.join(scratchRoot, 'theme.json');
+    const theme = JSON.parse(await readFile(themePath, 'utf8'));
+    theme.slotHooks = [
+      ...new Set([...theme.slotHooks, 'prose-list-item']),
+    ].sort();
+    await writeFile(themePath, JSON.stringify(theme, null, 2), 'utf8');
     const componentsPath = path.join(scratchRoot, 'components.css');
     const components = await readFile(componentsPath, 'utf8');
     await writeFile(componentsPath, `${components}\n${extraRule}\n`, 'utf8');
@@ -128,6 +134,10 @@ test(
       await normalizeSlotHooks(scratchRoot);
       const themePath = path.join(scratchRoot, 'theme.json');
       const theme = JSON.parse(await readFile(themePath, 'utf8'));
+      theme.slotHooks = [
+        ...new Set([...theme.slotHooks, 'prose-list-item']),
+      ].sort();
+      await writeFile(themePath, JSON.stringify(theme, null, 2), 'utf8');
       assert.ok(
         theme.slotHooks.includes('prose-list-item'),
         'fixture assumption: prose-list-item must already be declared',

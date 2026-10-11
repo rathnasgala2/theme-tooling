@@ -23,6 +23,7 @@
  * `appearance.colorMode.default`.
  */
 
+import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
@@ -64,6 +65,15 @@ const answer = 42;
 ###### Heading six
 `;
 
+export const VISUAL_FIXTURE_HERO_PATH = 'assets/visual-check-cover.png';
+export const VISUAL_FIXTURE_HERO_BYTES = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+  'base64',
+);
+const VISUAL_FIXTURE_HERO_DIGEST = `sha256:${createHash('sha256')
+  .update(VISUAL_FIXTURE_HERO_BYTES)
+  .digest('hex')}`;
+
 /**
  * @returns {Promise<Record<string, unknown>>} a fresh, render-ready
  *   `build-input:2.0.0` instance
@@ -90,6 +100,16 @@ export async function buildVisualCheckFixture() {
     record.renderPolicy = { ...identity };
     record.body = normalizedBody;
     record.bodyDigest = bodyDigest;
+    if (record.frontmatter.kind === 'article') {
+      record.frontmatter.hero = {
+        file: {
+          path: VISUAL_FIXTURE_HERO_PATH,
+          sourceDigest: VISUAL_FIXTURE_HERO_DIGEST,
+        },
+        alt: 'A black visual-check fixture image',
+        role: 'informative',
+      };
+    }
   }
   buildInput.appearance.fontAssets = [];
   buildInput.appearance.colorMode = {
