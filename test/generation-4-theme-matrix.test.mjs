@@ -8,6 +8,7 @@ import { runCheckScript } from './helpers/run-check.mjs';
 
 const CONFORMANCE_CHECKS = [
   ['check-theme-schema.mjs', []],
+  ['check-theme-palette.mjs', []],
   ['check-token-values.mjs', []],
   ['check-package-identity.mjs', []],
   ['check-css-hooks.mjs', []],
@@ -50,9 +51,9 @@ for (const definition of GENERATION_4_THEMES) {
       }
       throw error;
     }
-    assert.equal(packageDefinition.version, '4.0.0');
+    assert.equal(packageDefinition.version, '4.1.0');
     assert.equal(theme.contractVersion, '4.0.0');
-    assert.equal(theme.templateRange, '^4.0.0');
+    assert.equal(theme.templateRange, '^4.1.0');
     assert.equal(
       theme.package,
       `${packageDefinition.name}@${packageDefinition.version}`,
