@@ -9,7 +9,7 @@
  * emphasis/strong/a link, ordered and unordered lists, a blockquote,
  * inline and fenced code, a divider).
  *
- * Rendered once (`appearance.colorMode` allows both `light` and `dark`);
+ * Rendered once (`appearance.colorMode` allows `light`, `dark` and `system`);
  * `visual-check.mjs` selects the palette per page load through Playwright's
  * `colorScheme` context option instead of a second render. The
  * server-rendered `<html>` always carries `data-gala-resolved-color-mode=
@@ -18,9 +18,9 @@
  * before first paint — reads `prefers-color-scheme` on a fresh session
  * (no stored selection) and corrects the attribute before anything is
  * painted, which is exactly what a real visitor's OS-level preference
- * would do. Forcing the resolved mode at build time cannot be done at all:
- * the renderer computes it unconditionally, independent of
- * `appearance.colorMode.default`.
+ * would do. The fixture's `colorMode.default` is `system` so that the
+ * bootstrap follows the OS preference (template 4.1.0 honours an author's
+ * `light` or `dark` default over `prefers-color-scheme`).
  */
 
 import { createHash } from 'node:crypto';
@@ -113,8 +113,8 @@ export async function buildVisualCheckFixture() {
   }
   buildInput.appearance.fontAssets = [];
   buildInput.appearance.colorMode = {
-    allowed: ['light', 'dark'],
-    default: 'light',
+    allowed: ['light', 'dark', 'system'],
+    default: 'system',
   };
 
   return buildInput;

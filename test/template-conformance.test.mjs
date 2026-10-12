@@ -111,7 +111,14 @@ test(
         path.join(outputDirectory, tokensAsset.path),
         'utf8',
       );
-      assert.ok(tokens.includes('--gala-paint-panel:'));
+      // Palette-bound tokens are written by the palette sheet, not tokens.css.
+      const paletteAsset = manifest.assets.find((asset) =>
+        /assets\/gala-palette-[0-9a-f]+\.css$/u.test(asset.path),
+      );
+      const paletteSheet = paletteAsset
+        ? await readFile(path.join(outputDirectory, paletteAsset.path), 'utf8')
+        : '';
+      assert.ok(`${tokens}\n${paletteSheet}`.includes('--gala-paint-panel:'));
     } finally {
       await cleanup();
     }

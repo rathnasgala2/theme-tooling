@@ -114,10 +114,25 @@ test('the no-JS fallback palette (bare-root and its dark media override) clears 
     'expected a prefers-color-scheme: dark override of the bare root',
   );
 
-  for (const [label, tokens] of [
-    ['fallback light (bare root)', bareRoot],
-    ['fallback dark (prefers-color-scheme)', mediaDark],
+  // Palette-bound tokens are absent from tokens.css (the palette sheet is
+  // their only source); the theme's own literals stand in for them here.
+  const theme = JSON.parse(
+    await readFile(path.join(resolveThemeRoot(), 'theme.json'), 'utf8'),
+  );
+  const literal = (
+    /** @type {string} */ key,
+    /** @type {'light'|'dark'} */ mode,
+  ) =>
+    theme.tokens.find(
+      (/** @type {{key: string}} */ token) => token.key === key,
+    )?.[mode];
+  for (const [label, tokens, mode] of [
+    ['fallback light (bare root)', bareRoot, 'light'],
+    ['fallback dark (prefers-color-scheme)', mediaDark, 'dark'],
   ]) {
+    for (const key of ['color-text', 'color-canvas']) {
+      tokens[key] ??= literal(key, mode);
+    }
     const ratio = wcagContrastRatio(
       tokens['color-text'],
       tokens['color-canvas'],
