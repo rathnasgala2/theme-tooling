@@ -1,8 +1,8 @@
 {
   "name": "@rathnasgala2/theme-tooling",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "license": "Apache-2.0",
-  "description": "Shared dev/test/SBOM/release tooling for all six generation-4 @rathnasgala2/theme-* packages, with an integrity-checked source-only validation set and archived contract-3 validation.",
+  "description": "Shared dev/test/SBOM/release tooling for all six generation-4 @rathnasgala2/theme-* packages, with an registry-resolved validation set and archived contract-3 validation.",
   "repository": {
     "type": "git",
     "url": "https://github.com/rathnasgala2/theme-tooling.git"
@@ -21,21 +21,14 @@
     "sbom:generate": "node scripts/generate-own-sbom.mjs",
     "sbom:check": "node scripts/check-own-sbom-current.mjs",
     "audit": "node scripts/npm-audit.mjs",
-    "vendor:check": "node scripts/check-vendored-packages.mjs",
-    "verify": "npm run vendor:check && npm run format:check && npm run lint && npm test && npm run duplication && npm run sbom:check && npm run audit",
+    "verify": "npm run format:check && npm run lint && npm test && npm run duplication && npm run sbom:check && npm run audit",
     "tokens:generate": "node scripts/with-fixture-theme.mjs node scripts/emit-tokens-css.mjs"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.1",
     "@eslint/js": "10.0.1",
-    "@rathnasgala2/schemas": "file:vendor/rathnasgala2-schemas-3.8.0.tgz",
-    "@rathnasgala2/template": "file:vendor/rathnasgala2-template-4.0.0.tgz",
-    "@rathnasgala2/theme-amaze": "file:vendor/rathnasgala2-theme-amaze-4.0.0.tgz",
-    "@rathnasgala2/theme-default": "file:vendor/rathnasgala2-theme-default-4.0.0.tgz",
-    "@rathnasgala2/theme-editorial": "file:vendor/rathnasgala2-theme-editorial-4.0.0.tgz",
-    "@rathnasgala2/theme-flashy": "file:vendor/rathnasgala2-theme-flashy-4.0.0.tgz",
-    "@rathnasgala2/theme-minimal": "file:vendor/rathnasgala2-theme-minimal-4.0.0.tgz",
-    "@rathnasgala2/theme-zebra": "file:vendor/rathnasgala2-theme-zebra-4.0.0.tgz",
+    "@rathnasgala2/schemas": "3.8.0",
+    "@rathnasgala2/template": "4.0.0",
     "axe-core": "4.13.0",
     "eslint": "10.10.0",
     "globals": "17.12.0",

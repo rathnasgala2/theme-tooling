@@ -36,7 +36,7 @@ function withEnv(env, fn) {
   }
 }
 
-test('resolveTemplateDir: resolves the installed vendored package by default', () => {
+test('resolveTemplateDir: resolves the installed registry package by default', () => {
   withEnv({}, () => {
     assert.equal(resolveTemplateDir(), EXPECTED_INSTALLED_TEMPLATE_DIR);
   });

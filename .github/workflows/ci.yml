@@ -38,9 +38,6 @@ jobs:
           test "$(node --version)" = "v24.18.0"
           test "$(npm --version)" = "11.16.0"
 
-      - name: Verify the committed source-only package set
-        run: node scripts/check-vendored-packages.mjs
-
       - name: Install this package's own dependencies
         run: npm ci
 

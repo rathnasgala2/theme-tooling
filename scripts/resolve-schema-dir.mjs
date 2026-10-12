@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 /**
  * Resolve the exact Schema package used for contract-4 validation.
  * `GALA_SCHEMA_DIR` remains an explicit development override. Otherwise the
- * package comes from the integrity-checked archive installed from `vendor/`;
- * no sibling checkout or registry resolution participates in the result.
+ * package comes from the exact registry version pinned in `package.json`;
+ * no sibling checkout participates in the result.
  *
  * @returns {string} absolute schema checkout path
  */

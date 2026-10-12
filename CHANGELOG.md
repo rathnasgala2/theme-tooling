@@ -2,6 +2,30 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [0.5.1] - 2026-10-12
+
+### Fixed
+
+- 0.5.0 removed the npm publish job from the theme release workflows and
+  forbade it in the release-workflow shape tests. That was wrong: the themes
+  are published to the registry from their `release.yaml` (environment `npm`,
+  OIDC `id-token: write`, `registry-url`, the already-published check,
+  `npm publish --access public --provenance`). The shape tests now require
+  that job and its ordering (already-published check, verify, clean working
+  tree, pack and artifact upload, provenance dry run, publish) instead of
+  forbidding it.
+- 0.5.0 vendored Schema, Template, and all six themes as `file:` tarballs.
+  Schema 3.8.0 and Template 4.0.0 are now exact registry dev dependencies and
+  the themes are no longer dependencies at all; the generation-4 matrix
+  verifies the theme checkouts in the workspace (an absent sibling skips). The
+  `vendor/` directory, `vendor:check`, and its tests are removed. Theme
+  workflows still check out no Template sibling.
+
+### Unchanged
+
+- All generation-4 capabilities: contract 4 checks, compositions, gradient
+  contrast, and the shared audit policy.
+
 ## [0.5.0] - 2026-10-11
 
 ### Changed

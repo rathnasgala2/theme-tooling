@@ -2,8 +2,8 @@
  * Run a command with `THEME_ROOT` defaulted to this repository's own
  * contract-3 theme fixture (`test/fixtures/theme-default-contract-3`) and
  * suite verifies its archived contract-3 behavior independently from the
- * mandatory installed generation-4 package matrix. Schema and Template resolve
- * from this package's integrity-checked vendored dependencies unless a caller
+ * generation-4 theme-checkout matrix. Schema and Template resolve
+ * from this package's exact registry dependencies unless a caller
  * supplies an explicit development override.
  *
  * Usage: `node scripts/with-fixture-theme.mjs <command> [args...]`.

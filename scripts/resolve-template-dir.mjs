@@ -2,14 +2,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
- * Resolve the exact installed `@rathnasgala2/template` package this
- * repository vendors for source-only CI. Consumers may still provide an
- * explicit checkout while developing Template itself, but no implicit
- * sibling path or mutable workspace fallback is accepted.
+ * Resolve the exact installed `@rathnasgala2/template` package, pinned to a
+ * registry version in `package.json`. Consumers may still provide an explicit
+ * checkout while developing Template itself, but no implicit sibling path or
+ * mutable workspace fallback is accepted.
  *
  * `GALA_TEMPLATE_DIR` is an absolute or cwd-relative path directly to a
- * Template checkout. With no override, Node resolves the package installed
- * from the integrity-checked archive declared in `vendor/manifest.json`.
+ * Template checkout. With no override, Node resolves the installed package.
  *
  * @returns {string} the absolute, resolved template checkout directory
  */

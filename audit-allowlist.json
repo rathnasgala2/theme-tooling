@@ -9,7 +9,7 @@
       "@11ty/eleventy",
       "@rathnasgala2/template"
     ],
-    "reason": "braces stack exhaustion is reachable only through file-watching dependencies of the vendored Template used by this development-only conformance suite; the suite never enables watch mode, and npm offers no non-breaking patched Eleventy line. Revisit when Eleventy 3.x adopts patched watcher dependencies.",
+    "reason": "braces stack exhaustion is reachable only through file-watching dependencies of the registry Template used by this development-only conformance suite; the suite never enables watch mode, and npm offers no non-breaking patched Eleventy line. Revisit when Eleventy 3.x adopts patched watcher dependencies.",
     "expires": "2026-11-04"
   },
   {
@@ -22,7 +22,7 @@
       "@11ty/eleventy",
       "@rathnasgala2/template"
     ],
-    "reason": "sprintf-js precision denial of service is reachable only through argparse in js-yaml's command-line interface; the vendored Template conformance suite calls js-yaml as a library and never exposes that CLI. Revisit when gray-matter or js-yaml removes argparse 1.x.",
+    "reason": "sprintf-js precision denial of service is reachable only through argparse in js-yaml's command-line interface; the registry Template conformance suite calls js-yaml as a library and never exposes that CLI. Revisit when gray-matter or js-yaml removes argparse 1.x.",
     "expires": "2026-11-04"
   }
 ]

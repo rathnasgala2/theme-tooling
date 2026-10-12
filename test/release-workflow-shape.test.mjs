@@ -2,8 +2,8 @@
  * Workflow shape gates across all six generation-4 theme repositories. None
  * of these properties can be checked by a Node conformance script run *inside*
  * one theme's own `verify`, since the defect is in the workflow YAML itself.
- * The source-only dependency gate reads all three workflows; the artifact
- * gates read each sibling theme's `.github/workflows/release.yaml` directly
+ * The registry-Template gate reads all three workflows; the publish and
+ * artifact gates read each sibling theme's `.github/workflows/release.yaml` directly
  * off disk and assert on its text/step order, as THD-H2/H4/H5/H6 require.
  *
  * `WORKSPACE_ROOT` is either the current repository root in GitHub Actions or
@@ -138,7 +138,7 @@ test('current theme workflow absence fails instead of skipping', async () => {
 });
 
 for (const themeName of THEME_NAMES) {
-  test(`${themeName}: workflows use the Template vendored by theme-tooling`, async (t) => {
+  test(`${themeName}: workflows use the registry Template installed by theme-tooling`, async (t) => {
     const workflows = await Promise.all(
       WORKFLOW_NAMES.map((workflowName) =>
         readOptionalSiblingWorkflow(themeName, workflowName),
@@ -167,7 +167,7 @@ for (const themeName of THEME_NAMES) {
       assert.doesNotMatch(
         yaml,
         /^\s*GALA_TEMPLATE_DIR\s*:/mu,
-        `${filePath} must not override the vendored Template`,
+        `${filePath} must not override the registry Template`,
       );
       assert.doesNotMatch(
         yaml,
@@ -177,7 +177,7 @@ for (const themeName of THEME_NAMES) {
     }
   });
 
-  test(`${themeName}/.github/workflows/release.yaml: carries no npm publication authority`, async (t) => {
+  test(`${themeName}/.github/workflows/release.yaml: carries the npm publish job (environment npm, OIDC, provenance)`, async (t) => {
     const [filePath, yaml] = await readOptionalSiblingWorkflow(
       themeName,
       'release.yaml',
@@ -186,14 +186,62 @@ for (const themeName of THEME_NAMES) {
       t.skip(`${filePath} not present on disk`);
       return;
     }
-    assert.doesNotMatch(
+    assert.match(
       yaml,
-      /npm publish|npm view|registry-url:|id-token:\s*write|environment:\s*npm/u,
-      'generation-4 workflows must only build local artifacts',
+      /^\s*environment:\s*npm\s*$/mu,
+      'expected environment: npm',
+    );
+    assert.match(
+      yaml,
+      /^\s*id-token:\s*write\s*$/mu,
+      'expected id-token: write',
+    );
+    assert.match(
+      yaml,
+      /^\s*registry-url:\s*https:\/\/registry\.npmjs\.org\s*$/mu,
+      'expected registry-url for setup-node',
+    );
+    assert.match(
+      yaml,
+      /npm publish --access public --provenance(?!\s+--dry-run)/u,
+      'expected a real `npm publish --access public --provenance` step',
+    );
+    assert.match(
+      yaml,
+      /npm publish --access public --provenance --dry-run/u,
+      'expected a provenance dry run before publishing (THD-H6)',
     );
   });
 
-  test(`${themeName}/.github/workflows/release.yaml: git diff --exit-code runs after verify and before npm pack (THD-H4)`, async (t) => {
+  test(`${themeName}/.github/workflows/release.yaml: fails if the version is already published, before verify (THD-H5)`, async (t) => {
+    const [filePath, yaml] = await readOptionalSiblingWorkflow(
+      themeName,
+      'release.yaml',
+    );
+    if (yaml === undefined) {
+      t.skip(`${filePath} not present on disk`);
+      return;
+    }
+    const viewIndex = yaml.indexOf('npm view ');
+    const verifyIndex = yaml.indexOf('npm run verify');
+    const publishIndex = yaml.lastIndexOf('npm publish --access public');
+    assert.notEqual(
+      viewIndex,
+      -1,
+      'expected an `npm view` already-published check',
+    );
+    assert.match(
+      yaml,
+      /already published/u,
+      'expected the already-published error',
+    );
+    assert.ok(
+      viewIndex < verifyIndex && verifyIndex < publishIndex,
+      'expected order: npm view check, npm run verify, npm publish',
+    );
+  });
+
+  test(`${themeName}/.github/workflows/release.yaml: git diff --exit-code runs after verify and before npm pack and publish (THD-H4)`, async (t) => {
     const [filePath, yaml] = await readOptionalSiblingWorkflow(
       themeName,
       'release.yaml',
@@ -205,16 +253,19 @@ for (const themeName of THEME_NAMES) {
     const verifyIndex = yaml.indexOf('npm run verify');
     const diffIndex = yaml.indexOf('git diff --exit-code');
     const packIndex = yaml.indexOf('npm pack');
+    const publishIndex = yaml.lastIndexOf('npm publish --access public');
     assert.notEqual(verifyIndex, -1, 'expected a "npm run verify" step');
     assert.notEqual(diffIndex, -1, 'expected a "git diff --exit-code" step');
     assert.notEqual(packIndex, -1, 'expected an "npm pack" step');
     assert.ok(
-      verifyIndex < diffIndex && diffIndex < packIndex,
-      'expected order: npm run verify, then git diff --exit-code, then npm pack',
+      verifyIndex < diffIndex &&
+        diffIndex < packIndex &&
+        diffIndex < publishIndex,
+      'expected order: npm run verify, then git diff --exit-code, then npm pack and npm publish',
     );
   });
 
-  test(`${themeName}/.github/workflows/release.yaml: builds and uploads a package artifact without publishing`, async (t) => {
+  test(`${themeName}/.github/workflows/release.yaml: builds and uploads a package artifact before publishing`, async (t) => {
     const [filePath, yaml] = await readOptionalSiblingWorkflow(
       themeName,
       'release.yaml',
@@ -233,6 +284,10 @@ for (const themeName of THEME_NAMES) {
     assert.ok(
       packIndex < packageUploadIndex,
       'the package must be built before its artifact upload declaration',
+    );
+    assert.ok(
+      packageUploadIndex < yaml.lastIndexOf('npm publish --access public'),
+      'the reviewed artifact must be uploaded before the publish step',
     );
   });
 

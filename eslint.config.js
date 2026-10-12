@@ -17,8 +17,8 @@ export default [
     },
   },
   {
-    // Installed dependencies, generated SBOM output, and opaque vendored
-    // package archives are not this package's lint surface.
-    ignores: ['node_modules/**', 'dist/**', 'vendor/**'],
+    // Installed dependencies and generated SBOM output are not this
+    // package's lint surface.
+    ignores: ['node_modules/**', 'dist/**'],
   },
 ];

@@ -44,12 +44,13 @@ checks out this repository to a pinned commit alongside the theme's own
 checkout, installs this package once, and sets `GALA_THEME_TOOLING_DIR` for
 the rest of the job.
 
-Registry publication is deliberately outside this delivery. Theme tooling
-itself is consumed through `GALA_THEME_TOOLING_DIR`; its exact Schema 3.8.0,
-Template 4.0.0, and six Theme 4.0.0 inputs are committed under `vendor/` and
-installed through lockfile-bound `file:vendor/*.tgz` dependencies. Explicit
-`GALA_SCHEMA_DIR` and `GALA_TEMPLATE_DIR` overrides remain development-only;
-CI does not use sibling checkouts or the npm registry for those packages.
+Registry publication of this package is deliberately outside this delivery.
+Theme tooling itself is consumed through `GALA_THEME_TOOLING_DIR`; its exact
+`@rathnasgala2/schemas` 3.8.0 and `@rathnasgala2/template` 4.0.0 dev
+dependencies are installed from the npm registry. The themes themselves are
+not dependencies: the tooling verifies the theme checkout it is pointed at.
+Explicit `GALA_SCHEMA_DIR` and `GALA_TEMPLATE_DIR` overrides remain
+development-only.
 
 ## What a theme repository looks like on top of this package
 
@@ -84,10 +85,6 @@ whichever theme's `tooling/` directory it was invoked from
   package (the `@rathnasgala2/schemas` `default-3.0.json` Default values,
   `tokens.css` emitted from them). `npm test` here runs against it (see
   "Contract 3" below), so the suite needs no theme repository checkout.
-- `vendor/` — the exact Schema, Template, and six Theme archives used by
-  standalone CI. `scripts/check-vendored-packages.mjs` binds their authoritative
-  SHA-256 values, identities, required files, dependency specifiers, and
-  lockfile SHA-512 integrity before `npm ci` runs.
 - `test/` — the corresponding `node:test` suites, parametrized by
   `process.cwd()` (the calling theme), not by this package's own location.
   `tooling-drift.test.mjs` does not exist here: THD-H3's drift gate is
@@ -187,10 +184,11 @@ otherwise recognized.
   source of token values.
 - **Running this repository's own suite.** `npm test` goes through
   `scripts/with-fixture-theme.mjs`, which defaults `THEME_ROOT` to the
-  archived fixture theme. Schema and Template resolve from the vendored
-  installed packages. The generation-4 matrix separately resolves every
-  installed theme package and runs all ten non-browser conformance gates;
-  an absent archive or installed package fails instead of skipping.
+  archived fixture theme. Schema and Template resolve from the exact
+  registry versions installed here. The generation-4 matrix runs all ten
+  non-browser conformance gates against each sibling theme checkout in the
+  workspace (an absent sibling skips; the theme repository's own checkout
+  is required).
 - **Budgets.** A contract-3 `tokens.css` is about 19 KB (116 tokens in four
   scopes), so a theme's `theme.json.budgets` must allow at least that per
   file; the fixture declares 32768 bytes per file and 98304 in total.
@@ -286,11 +284,9 @@ silently imposing that install step on every local `npm run verify`.
 
 ## Verify sequence
 
-This package's own `verify` begins with `vendor:check`, then runs formatting,
+This package's own `verify` begins with formatting,
 lint, the complete test suite (including the mandatory six-theme matrix),
-duplication, SBOM currency, and the expiry-bound vulnerability audit. CI also
-runs `vendor:check` before `npm ci`, so edited or missing source archives fail
-before dependency installation.
+duplication, SBOM currency, and the expiry-bound vulnerability audit.
 
 When the shared CLI is invoked from a theme repository, its theme release
 `verify` sequence is:
@@ -333,7 +329,6 @@ Two separate SBOMs exist, on purpose:
 
 ```sh
 source ~/.nvm/nvm.sh && nvm use 24.18.0
-npm run vendor:check
 npm ci
 npm run verify
 ```
