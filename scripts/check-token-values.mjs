@@ -17,6 +17,7 @@ import path from 'node:path';
 import postcss from 'postcss';
 
 import { normalizeCssValue } from './lib/css-value.mjs';
+import { boundKeysOf } from './lib/palette-binding.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
 import {
   MODE_VARIANT_TYPES,
@@ -95,6 +96,7 @@ async function main() {
     await readFile(path.join(themeRoot, 'theme.json'), 'utf8'),
   );
   const tokens = Array.isArray(theme.tokens) ? theme.tokens : [];
+  const bound = boundKeysOf(theme);
 
   if (tokens.length !== THEME_TOKEN_CATALOG.length) {
     problems.push(
@@ -139,7 +141,13 @@ async function main() {
     }
     for (const [key] of THEME_TOKEN_CATALOG) {
       const expected = byKey.get(key)?.[scope.mode];
-      if (!(key in declared)) {
+      if (bound.has(key)) {
+        if (key in declared) {
+          problems.push(
+            `tokens.css "${scope.label}" declares --gala-${key}, which palette.follow binds (the palette sheet is its only source; run tokens:generate)`,
+          );
+        }
+      } else if (!(key in declared)) {
         problems.push(`tokens.css "${scope.label}" is missing --gala-${key}`);
       } else if (declared[key] !== expected) {
         problems.push(
@@ -162,7 +170,7 @@ async function main() {
     return;
   }
   console.log(
-    `all ${THEME_TOKEN_CATALOG.length} tokens are catalog-conformant and tokens.css matches theme.json in all four scopes.`,
+    `all ${THEME_TOKEN_CATALOG.length} tokens are catalog-conformant and tokens.css matches theme.json in all four scopes${bound.size > 0 ? ` (${bound.size} palette-bound tokens absent as expected)` : ''}.`,
   );
 }
 

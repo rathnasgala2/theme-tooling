@@ -46,7 +46,7 @@ the rest of the job.
 
 Registry publication of this package is deliberately outside this delivery.
 Theme tooling itself is consumed through `GALA_THEME_TOOLING_DIR`; its exact
-`@rathnasgala2/schemas` 3.8.0 and `@rathnasgala2/template` 4.0.0 dev
+`@rathnasgala2/schemas` 3.10.0 and `@rathnasgala2/template` 4.1.0 dev
 dependencies are installed from the npm registry. The themes themselves are
 not dependencies: the tooling verifies the theme checkout it is pointed at.
 Explicit `GALA_SCHEMA_DIR` and `GALA_TEMPLATE_DIR` overrides remain
@@ -151,7 +151,7 @@ locally by running that case in a 30-iteration loop with zero failures).
 ## Archived contract 3 and generation-4 compositions (`tokens:check`)
 
 `schema:check` dispatches by `theme.json.contractVersion`: 3.x and 4.0.0
-documents use the installed, integrity-checked Schema 3.8.0 package by
+documents use the installed, integrity-checked Schema 3.10.0 package by
 default; `GALA_SCHEMA_DIR` can select an explicit development checkout. Other
 contract versions are rejected. The contract-3 schema runner is preserved
 byte-for-byte under a versioned filename so existing theme fixture/evidence
@@ -182,6 +182,11 @@ otherwise recognized.
 - **`tokens:generate`** (`emit-tokens-css.mjs`, local dev only) writes
   `tokens.css` from `theme.json`, so `theme.json` is the one hand-edited
   source of token values.
+- **Palette-bound tokens.** A theme with a `palette` block (template 4.1.0)
+  gets the keys in `palette.follow` from the template's palette sheet only.
+  `tokens:generate` leaves them out of `tokens.css` and `tokens:check` fails if
+  a bound key is there; they stay in `theme.json.tokens` as the default
+  palette.
 - **Running this repository's own suite.** `npm test` goes through
   `scripts/with-fixture-theme.mjs`, which defaults `THEME_ROOT` to the
   archived fixture theme. Schema and Template resolve from the exact
@@ -282,6 +287,30 @@ upgrading. A theme's CI runs `visual:check` as its own job — install
 Chromium, then run the script — rather than folding it into `verify` and
 silently imposing that install step on every local `npm run verify`.
 
+## Palette conformance (`palette:check`)
+
+`palette:check` (`check-theme-palette.mjs`) imports
+`@rathnasgala2/schemas/palette`, the module the template, the App and this
+package share. It fails when:
+
+- `palette` is missing or invalid (`THEME_PALETTE_MISSING`,
+  `THEME_PALETTE_INVALID`: wrong profile, a key that is not palette-drivable
+  or is bound twice, a `follow` list whose length differs from the colour
+  count of that mode's value), or `color-accent`, `color-canvas` or
+  `color-text` is not bound;
+- the theme's default palette (`derivePalette(theme, {})`) fails a pair in
+  either mode (the message names the pair, the mode and the ratio);
+- `components.css` or `print.css` sets `--gala-<bound key>`;
+- `tokens.css` declares a bound key;
+- a palette in the schema stress corpus or a golden-vector input does not
+  derive through the bindings, or a rejected pick is not refused by
+  `checkPickedColours`.
+
+To move a theme to template 4.1.0 (in order): add the `palette` block to
+`theme.json` and set `templateRange` to `^4.1.0`; run `tokens:generate` to
+regenerate `tokens.css` without the bound tokens; run `digest:generate`; run
+`verify`; move the theme CI's tooling pin to this package's commit.
+
 ## Verify sequence
 
 This package's own `verify` begins with formatting,
@@ -292,7 +321,7 @@ When the shared CLI is invoked from a theme repository, its theme release
 `verify` sequence is:
 
 `verify` runs, in order: `format:check`, `lint`, `schema:check`,
-`tokens:check`, `package-identity:check`,
+`tokens:check`, `palette:check`, `package-identity:check`,
 `css:check`, `grammar:check`, `contrast:check`, `budgets:check`,
 `package:check`, `absence:check`, `schema-pin:check`, `digest:check`,
 `test`, `duplication`, `sbom:check`, `audit`, `workflows:check`. This list

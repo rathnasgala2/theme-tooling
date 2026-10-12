@@ -85,6 +85,7 @@ const COMMANDS = {
       'run.mjs',
     ]),
   'schema:check': () => runScript('check-theme-schema.mjs'),
+  'palette:check': () => runScript('check-theme-palette.mjs'),
   'package-identity:check': () => runScript('check-package-identity.mjs'),
   'tokens:check': () => runScript('check-token-values.mjs'),
   // Rewrites tokens.css from theme.json's `tokens` (local dev only).
@@ -109,7 +110,7 @@ const COMMANDS = {
       ),
     ]),
   duplication: () =>
-    // `tokens.css` is deliberately excluded: its light/dark palette blocks
+    // `tokens.css` is deliberately excluded: its light/dark blocks
     // repeat the same 116 custom-property names by design (only the
     // values differ), which is not the kind of duplication this gate
     // exists to catch.
@@ -156,6 +157,7 @@ const VERIFY_SEQUENCE = [
   'lint',
   'schema:check',
   'tokens:check',
+  'palette:check',
   'package-identity:check',
   'css:check',
   'grammar:check',

@@ -2,6 +2,29 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [0.6.0] - 2026-10-12
+
+### Added
+
+- `palette:check` (`scripts/check-theme-palette.mjs`), part of `verify` after
+  `tokens:check`. It requires a valid `palette` block (the schema package's own
+  `validateThemePalette`) that binds the three seed tokens; the theme's default
+  palette to pass every pair in both modes (each failing pair and mode is
+  reported); `components.css` and `print.css` to set no bound token's custom
+  property; `tokens.css` to declare no bound token; every palette in the schema
+  stress corpus and every golden-vector input to derive through the theme's
+  bindings; and every rejected pick to be refused by `checkPickedColours`.
+
+### Changed
+
+- `tokens:generate` omits every key in `palette.follow` from `tokens.css`, and
+  `tokens:check` fails when a bound key is present there and expects it absent.
+  The theme's `tokens` entries for bound keys stay in `theme.json` (they are
+  the default palette and the digest input). A theme without `palette` is
+  unaffected.
+- Schema 3.10.0 (adds `@rathnasgala2/schemas/palette`) and Template 4.1.0 are the exact dev
+  dependencies.
+
 ## [0.5.1] - 2026-10-12
 
 ### Fixed

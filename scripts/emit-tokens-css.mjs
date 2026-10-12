@@ -19,6 +19,7 @@ import path from 'node:path';
 
 import * as prettier from 'prettier';
 
+import { boundKeysOf } from './lib/palette-binding.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
 import { runIfMain } from './run-if-main.mjs';
 
@@ -43,11 +44,14 @@ function declarations(tokens, mode) {
 
 /**
  * @param {{key: string, light: string, dark: string}[]} tokens theme tokens
+ * @param {ReadonlySet<string>} [boundKeys] keys `palette.follow` binds; the
+ *   template's palette sheet is their only source, so they are not emitted
  * @returns {Promise<string>} the Prettier-formatted `tokens.css` text
  */
-export async function renderTokensCss(tokens) {
-  const light = declarations(tokens, 'light');
-  const dark = declarations(tokens, 'dark');
+export async function renderTokensCss(tokens, boundKeys = new Set()) {
+  const emitted = tokens.filter((token) => !boundKeys.has(token.key));
+  const light = declarations(emitted, 'light');
+  const dark = declarations(emitted, 'dark');
   const source =
     `@layer gala-tokens {` +
     `/* Bare-root light values and their prefers-color-scheme dark override\n` +
@@ -74,10 +78,12 @@ async function main() {
   );
   await writeFile(
     path.join(themeRoot, 'tokens.css'),
-    await renderTokensCss(theme.tokens),
+    await renderTokensCss(theme.tokens, boundKeysOf(theme)),
     'utf8',
   );
-  console.log('tokens.css written from theme.json tokens.');
+  console.log(
+    'tokens.css written from theme.json tokens (palette-bound tokens omitted).',
+  );
 }
 
 await runIfMain(import.meta.url, main);
