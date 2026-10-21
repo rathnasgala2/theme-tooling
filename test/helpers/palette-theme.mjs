@@ -41,7 +41,7 @@ export async function readPaletteFixture() {
 export function withPaletteTheme(fn) {
   return withScratchDir('palette-theme-', async (root) => {
     const { tokens, palette } = await readPaletteFixture();
-    await writeThemeJson(root, { contractVersion: '4.0.0', tokens, palette });
+    await writeThemeJson(root, { contractVersion: '4.1.0', tokens, palette });
     await rewriteTokensCss(root);
     await writeFile(path.join(root, 'components.css'), COMPONENTS_CSS, 'utf8');
     await writeFile(path.join(root, 'print.css'), COMPONENTS_CSS, 'utf8');

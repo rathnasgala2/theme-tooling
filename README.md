@@ -46,7 +46,7 @@ the rest of the job.
 
 Registry publication of this package is deliberately outside this delivery.
 Theme tooling itself is consumed through `GALA_THEME_TOOLING_DIR`; its exact
-`@rathnasgala2/schemas` 3.10.0 and `@rathnasgala2/template` 4.1.0 dev
+`@rathnasgala2/schemas` 3.16.0 and `@rathnasgala2/template` 4.4.0 dev
 dependencies are installed from the npm registry. The themes themselves are
 not dependencies: the tooling verifies the theme checkout it is pointed at.
 Explicit `GALA_SCHEMA_DIR` and `GALA_TEMPLATE_DIR` overrides remain
@@ -150,10 +150,14 @@ locally by running that case in a 30-iteration loop with zero failures).
 
 ## Archived contract 3 and generation-4 compositions (`tokens:check`)
 
-`schema:check` dispatches by `theme.json.contractVersion`: 3.x and 4.0.0
-documents use the installed, integrity-checked Schema 3.10.0 package by
+`schema:check` dispatches by `theme.json.contractVersion`: 3.x, 4.0.0 and
+4.1.0 documents use the installed, integrity-checked Schema 3.16.0 package by
 default; `GALA_SCHEMA_DIR` can select an explicit development checkout. Other
-contract versions are rejected. The contract-3 schema runner is preserved
+contract versions are rejected. Contract 4.1.0 is the contract of Template
+4.4.0: it requires `templateRange` `^4.4.0` and a `stylingContractDigest`
+equal to that Template's `contracts/theme-styling-contract.jcs`
+`catalogDigest` (Template 4.4.0 refuses every contract-4.0.0 theme with
+`THEME_CONTRACT_VERSION_MISMATCH`). The contract-3 schema runner is preserved
 byte-for-byte under a versioned filename so existing theme fixture/evidence
 digests remain reproducible.
 
@@ -190,10 +194,16 @@ otherwise recognized.
 - **Running this repository's own suite.** `npm test` goes through
   `scripts/with-fixture-theme.mjs`, which defaults `THEME_ROOT` to the
   archived fixture theme. Schema and Template resolve from the exact
-  registry versions installed here. The generation-4 matrix runs all ten
+  registry versions installed here. The generation-4 matrix runs all eleven
   non-browser conformance gates against each sibling theme checkout in the
   workspace (an absent sibling skips; the theme repository's own checkout
-  is required).
+  is required). The matrix expects every theme at 4.2.0 on contract 4.1.0,
+  `templateRange` `^4.4.0` and the installed Template's own
+  `catalogDigest`. It reads `theme-*` checkouts from the parent directory of
+  this checkout, or from `WORKSPACE_ROOT` when that names another directory
+  of `theme-*` checkouts, so a local run sees a theme that has not yet moved
+  to 4.2.0 as a failure. This repository's CI checks out no theme, so the
+  matrix skips there.
 - **Budgets.** A contract-3 `tokens.css` is about 19 KB (116 tokens in four
   scopes), so a theme's `theme.json.budgets` must allow at least that per
   file; the fixture declares 32768 bytes per file and 98304 in total.
@@ -306,15 +316,20 @@ package share. It fails when:
   derive through the bindings, or a rejected pick is not refused by
   `checkPickedColours`.
 
-To move a theme to template 4.1.0 (in order): add the `palette` block to
-`theme.json` and set `templateRange` to `^4.1.0`; run `tokens:generate` to
-regenerate `tokens.css` without the bound tokens; run `digest:generate`; run
-`verify`; move the theme CI's tooling pin to this package's commit.
+To move a theme to template 4.4.0 (in order): set `contractVersion` to
+`4.1.0` and `templateRange` to `^4.4.0`; set `stylingContractDigest` to the
+`catalogDigest` in the installed Template's
+`contracts/theme-styling-contract.jcs`; raise the version in `package.json`
+and the `package` field of `theme.json` together; run `tokens:generate` if
+tokens changed; run `digest:generate`; run `verify`; move the theme CI's
+tooling pin to this package's commit. (A theme gains its `palette` block at
+template 4.1.0; without it `palette:check` fails.)
 
 ## Verify sequence
 
 This package's own `verify` begins with formatting,
-lint, the complete test suite (including the mandatory six-theme matrix),
+lint, the complete test suite (including the six-theme matrix, which runs
+for every theme checkout present next to this one),
 duplication, SBOM currency, and the expiry-bound vulnerability audit.
 
 When the shared CLI is invoked from a theme repository, its theme release

@@ -19,8 +19,8 @@
  * (no stored selection) and corrects the attribute before anything is
  * painted, which is exactly what a real visitor's OS-level preference
  * would do. The fixture's `colorMode.default` is `system` so that the
- * bootstrap follows the OS preference (template 4.1.0 honours an author's
- * `light` or `dark` default over `prefers-color-scheme`).
+ * bootstrap follows the OS preference (template 4.1.0 and later honour an
+ * author's `light` or `dark` default over `prefers-color-scheme`).
  */
 
 import { createHash } from 'node:crypto';

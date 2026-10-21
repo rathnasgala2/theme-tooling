@@ -5,6 +5,7 @@ import { test } from 'node:test';
 
 import { GENERATION_4_THEMES } from './fixtures/generation-4-themes.mjs';
 import { runCheckScript } from './helpers/run-check.mjs';
+import { readTemplateStylingContract } from './helpers/template-contract.mjs';
 
 const CONFORMANCE_CHECKS = [
   ['check-theme-schema.mjs', []],
@@ -25,6 +26,10 @@ const CONFORMANCE_CHECKS = [
  * root is that theme (GitHub Actions), otherwise the sibling directory of the
  * local multi-repository workspace. Themes are not dependencies of the
  * tooling, so an absent sibling skips; any other read error fails.
+ *
+ * `WORKSPACE_ROOT` (a directory holding `theme-*` checkouts) points the matrix
+ * at another set of checkouts, for example while a theme release is prepared
+ * outside the workspace.
  */
 function themeRoot(themeName) {
   const workspaceRoot =
@@ -51,9 +56,15 @@ for (const definition of GENERATION_4_THEMES) {
       }
       throw error;
     }
-    assert.equal(packageDefinition.version, '4.1.0');
-    assert.equal(theme.contractVersion, '4.0.0');
-    assert.equal(theme.templateRange, '^4.1.0');
+    // Template 4.4.0 refuses every contract-4.0.0 theme, so the matrix
+    // expects the 4.2.0 generation: contract 4.1.0 on the installed
+    // Template's own styling-contract digest.
+    const stylingContract = await readTemplateStylingContract();
+    assert.equal(packageDefinition.version, '4.2.0');
+    assert.equal(theme.contractVersion, stylingContract.contractVersion);
+    assert.equal(theme.contractVersion, '4.1.0');
+    assert.equal(theme.templateRange, '^4.4.0');
+    assert.equal(theme.stylingContractDigest, stylingContract.catalogDigest);
     assert.equal(
       theme.package,
       `${packageDefinition.name}@${packageDefinition.version}`,

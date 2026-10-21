@@ -12,6 +12,7 @@ import {
   buildVisualScenarios,
   themeCssFailures,
 } from '../scripts/visual-check.mjs';
+import { CONTRACT_4_VERSIONS } from './helpers/template-contract.mjs';
 
 const run = promisify(execFile);
 // `SCRIPT_PATH` always lives in *this* checkout's `scripts/` directory —
@@ -40,10 +41,11 @@ const RESOLVED_TEMPLATE_DIR = resolveTemplateDir();
 const THEME_CONTRACT_VERSION = JSON.parse(
   await readFile(path.join(RESOLVED_THEME_ROOT, 'theme.json'), 'utf8'),
 ).contractVersion;
-const TEMPLATE_CONFORMANCE_SKIP =
-  THEME_CONTRACT_VERSION === '4.0.0'
-    ? false
-    : `template 4 visual conformance requires a contract-4 theme; the standalone fixture is archived contract ${THEME_CONTRACT_VERSION}`;
+const TEMPLATE_CONFORMANCE_SKIP = CONTRACT_4_VERSIONS.includes(
+  THEME_CONTRACT_VERSION,
+)
+  ? false
+  : `template 4 visual conformance requires a contract-4 theme; the standalone fixture is archived contract ${THEME_CONTRACT_VERSION}`;
 
 /**
  * THD-M10: the end-to-end case runs when a Chromium binary is present and

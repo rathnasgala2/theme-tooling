@@ -1,6 +1,6 @@
 {
   "name": "@rathnasgala2/theme-tooling",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "license": "Apache-2.0",
   "description": "Shared dev/test/SBOM/release tooling for all six generation-4 @rathnasgala2/theme-* packages, with an registry-resolved validation set and archived contract-3 validation.",
   "repository": {
@@ -27,8 +27,8 @@
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.1",
     "@eslint/js": "10.0.1",
-    "@rathnasgala2/schemas": "3.10.0",
-    "@rathnasgala2/template": "4.1.0",
+    "@rathnasgala2/schemas": "3.16.0",
+    "@rathnasgala2/template": "4.4.0",
     "axe-core": "4.13.0",
     "eslint": "10.10.0",
     "globals": "17.12.0",

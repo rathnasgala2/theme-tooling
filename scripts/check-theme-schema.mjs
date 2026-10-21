@@ -9,10 +9,14 @@ import { resolveThemeRoot } from './resolve-theme-root.mjs';
 
 const THEME_SCHEMA_ID = 'urn:gala:schema:theme-contract:2.0.0';
 
+/** Generation-4 contract versions this check admits (4.1.0 needs template 4.4.0). */
+const CONTRACT_4_VERSIONS = ['4.0.0', '4.1.0'];
+
 /**
- * Contract 4 is consumed from the sibling schema checkout. Import that
- * checkout's public entry point rather than reaching into generated validator
- * internals or weakening contract-3's archived registry pin.
+ * Contract 4 (4.0.0 and 4.1.0) is validated by the resolved Schema package
+ * (the exact installed registry version, or `GALA_SCHEMA_DIR` while developing
+ * Schema). Import its public entry point rather than reaching into generated
+ * validator internals or weakening contract-3's archived registry pin.
  *
  * @returns {Promise<typeof validateContract3Document>} contract-4 validator
  */
@@ -37,12 +41,12 @@ async function main() {
   if (/^3\./u.test(contractVersion)) {
     schemaId = THEME_SCHEMA_ID;
     validateGalaDocument = validateContract3Document;
-  } else if (contractVersion === '4.0.0') {
+  } else if (CONTRACT_4_VERSIONS.includes(contractVersion)) {
     schemaId = THEME_SCHEMA_ID;
     validateGalaDocument = await loadContract4Validator();
   } else {
     console.error(
-      `theme.json declares unsupported contractVersion "${theme.contractVersion}"; supported versions are 3.x and 4.0.0.`,
+      `theme.json declares unsupported contractVersion "${theme.contractVersion}"; supported versions are 3.x, 4.0.0 and 4.1.0.`,
     );
     process.exitCode = 1;
     return;

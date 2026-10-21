@@ -21,6 +21,7 @@ import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import { buildFixture } from './fixtures/rich-build-input.mjs';
 import { testProvenance } from './fixtures/test-provenance.mjs';
 import { createRenderDirectories } from './helpers/render-directories.mjs';
+import { CONTRACT_4_VERSIONS } from './helpers/template-contract.mjs';
 
 // `@rathnasgala2/template` is consumed *by path*, not as an npm
 // dependency (independent-review finding on S2-T13). See
@@ -36,10 +37,11 @@ const THEME_DIRECTORY = resolveThemeRoot();
 const THEME_CONTRACT_VERSION = JSON.parse(
   await readFile(path.join(THEME_DIRECTORY, 'theme.json'), 'utf8'),
 ).contractVersion;
-const TEMPLATE_CONFORMANCE_SKIP =
-  THEME_CONTRACT_VERSION === '4.0.0'
-    ? false
-    : `template 4 conformance requires a contract-4 theme; the standalone fixture is archived contract ${THEME_CONTRACT_VERSION}`;
+const TEMPLATE_CONFORMANCE_SKIP = CONTRACT_4_VERSIONS.includes(
+  THEME_CONTRACT_VERSION,
+)
+  ? false
+  : `template 4 conformance requires a contract-4 theme; the standalone fixture is archived contract ${THEME_CONTRACT_VERSION}`;
 
 /**
  * @param {string} directory absolute directory

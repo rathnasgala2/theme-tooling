@@ -2,6 +2,39 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [0.7.0] - 2026-10-21
+
+### Added
+
+- `schema:check` admits theme contract 4.1.0 (Template 4.4.0's styling
+  contract, `templateRange` `^4.4.0`) alongside 4.0.0, through the same
+  contract-4 validator path. The conformance and visual tests run for any
+  contract-4 theme (4.0.0 or 4.1.0) and never skip a 4.1.0 theme.
+- `test/helpers/template-contract.mjs` reads the installed Template's styling
+  contract, so no test types its `catalogDigest`.
+
+### Changed
+
+- Schema 3.16.0 (admits contract 4.1.0) and Template 4.4.0 (styling contract
+  4.1.0, 225 public hooks) are the exact dev dependencies.
+- The unsupported-contract message names 3.x, 4.0.0 and 4.1.0.
+- The generation-4 theme matrix expects theme 4.2.0, contract 4.1.0,
+  `templateRange` `^4.4.0` and a `stylingContractDigest` equal to the installed
+  Template's `catalogDigest`. A theme checkout still at 4.1.0 fails it until it
+  is rebuilt as 4.2.0; `WORKSPACE_ROOT` points the matrix at another set of
+  `theme-*` checkouts. The archived contract-3 fixture is unchanged.
+- The schema tests' contract-4 package is built as 4.1.0 and also cover the
+  still-admitted 4.0.0, the `^4.4.0` requirement and the rejection of a later
+  contract version; the palette test helper declares contract 4.1.0.
+- `check-theme-schema.mjs` changed, so every theme's runner digests change:
+  each theme must run `digest:generate` after picking up this release.
+- `audit-allowlist.json` accepts four newly published advisories (markdown-it
+  GHSA-r7fv-28h4-cvq7 and GHSA-gfr2-rv44-r23c, sanitize-html
+  GHSA-x3q4-9hxx-gx8m and GHSA-cv27-6wvh-8x7j) until 2026-11-04. Template 4.4.0
+  pins markdown-it 14.3.1 and sanitize-html 2.17.7 exactly; the suite only
+  renders its own fixed fixtures. Remove the entries once the Template
+  releases with markdown-it 14.3.3 and sanitize-html 2.18.0 or later.
+
 ## [0.6.0] - 2026-10-12
 
 ### Added
