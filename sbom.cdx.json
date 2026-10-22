@@ -14224,8 +14224,8 @@
     {
       "type": "library",
       "name": "ip-address",
-      "version": "10.7.2",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|ip-address@10.7.2",
+      "version": "10.7.4",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|ip-address@10.7.4",
       "scope": "optional",
       "licenses": [
         {
@@ -14235,15 +14235,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/ip-address@10.7.2",
+      "purl": "pkg:npm/ip-address@10.7.4",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/ip-address/-/ip-address-10.7.2.tgz",
+          "url": "https://registry.npmjs.org/ip-address/-/ip-address-10.7.4.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "ec7ff68054888adc5cd211b79ce2358254bc40ba3f10704514b93cbc45235d8ff1bb401d2fc8d9f54d48cced8f526d1dd83fe87d070089f6f483a38192df14ef"
+              "content": "0d604c2b278cdb90fbd27ac889392042d879f7f1be9da28e4dea7a86e17d8fe1a678adc3303eb466fc60e5de6a427cfedfc007828bba79a9f62c4097fa5aca0e"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -17317,7 +17317,7 @@
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|socks@2.8.10",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|ip-address@10.7.2",
+        "@rathnasgala2/theme-tooling@0.7.0|ip-address@10.7.4",
         "@rathnasgala2/theme-tooling@0.7.0|smart-buffer@4.2.0"
       ]
     },
@@ -17385,7 +17385,7 @@
       "ref": "@rathnasgala2/theme-tooling@0.7.0|dom-serializer@1.4.1|entities@2.2.0"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|ip-address@10.7.2"
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|ip-address@10.7.4"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|smart-buffer@4.2.0"

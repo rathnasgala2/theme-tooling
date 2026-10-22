@@ -13,51 +13,26 @@
     "expires": "2026-11-04"
   },
   {
-    "advisory": "GHSA-hp3w-g68c-fv3c",
-    "packages": [
-      "sprintf-js",
-      "argparse",
-      "js-yaml",
-      "gray-matter",
-      "@11ty/eleventy",
-      "@rathnasgala2/template"
-    ],
-    "reason": "sprintf-js precision denial of service is reachable only through argparse in js-yaml's command-line interface; the registry Template conformance suite calls js-yaml as a library and never exposes that CLI. Revisit when gray-matter or js-yaml removes argparse 1.x.",
-    "expires": "2026-11-04"
-  },
-  {
     "advisory": "GHSA-r7fv-28h4-cvq7",
-    "packages": [
-      "markdown-it",
-      "@rathnasgala2/template"
-    ],
+    "packages": ["markdown-it", "@rathnasgala2/template"],
     "reason": "markdown-it 14.3.1 is an exact runtime pin of @rathnasgala2/template 4.4.0 (fixed in markdown-it 14.3.3). It is reachable here only through the Template's markdown renderer, which this development-only suite runs on its own fixed fixture content, never on untrusted input. Revisit when the Template releases with markdown-it >= 14.3.3; remove then.",
     "expires": "2026-11-04"
   },
   {
     "advisory": "GHSA-gfr2-rv44-r23c",
-    "packages": [
-      "markdown-it",
-      "@rathnasgala2/template"
-    ],
+    "packages": ["markdown-it", "@rathnasgala2/template"],
     "reason": "markdown-it 14.3.1 is an exact runtime pin of @rathnasgala2/template 4.4.0 (fixed in markdown-it 14.3.3). It is reachable here only through the Template's markdown renderer, which this development-only suite runs on its own fixed fixture content, never on untrusted input. Revisit when the Template releases with markdown-it >= 14.3.3; remove then.",
     "expires": "2026-11-04"
   },
   {
     "advisory": "GHSA-x3q4-9hxx-gx8m",
-    "packages": [
-      "sanitize-html",
-      "@rathnasgala2/template"
-    ],
+    "packages": ["sanitize-html", "@rathnasgala2/template"],
     "reason": "sanitize-html 2.17.7 is an exact runtime pin of @rathnasgala2/template 4.4.0 (fixed in sanitize-html 2.18.0). It is reachable here only through the Template's sanitizer, which this development-only suite runs on its own fixed fixture content, never on untrusted input. Revisit when the Template releases with sanitize-html >= 2.18.0; remove then.",
     "expires": "2026-11-04"
   },
   {
     "advisory": "GHSA-cv27-6wvh-8x7j",
-    "packages": [
-      "sanitize-html",
-      "@rathnasgala2/template"
-    ],
+    "packages": ["sanitize-html", "@rathnasgala2/template"],
     "reason": "sanitize-html 2.17.7 is an exact runtime pin of @rathnasgala2/template 4.4.0 (fixed in sanitize-html 2.18.0). It is reachable here only through the Template's sanitizer, which this development-only suite runs on its own fixed fixture content, never on untrusted input. Revisit when the Template releases with sanitize-html >= 2.18.0; remove then.",
     "expires": "2026-11-04"
   }
