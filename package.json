@@ -1,6 +1,7 @@
 {
   "name": "@rathnasgala2/theme-tooling",
   "version": "0.7.0",
+  "private": true,
   "license": "Apache-2.0",
   "description": "Shared dev/test/SBOM/release tooling for all six generation-4 @rathnasgala2/theme-* packages, with an registry-resolved validation set and archived contract-3 validation.",
   "repository": {

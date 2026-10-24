@@ -138,6 +138,10 @@
           "value": "11.16.0"
         },
         {
+          "name": "cdx:npm:package:private",
+          "value": "true"
+        },
+        {
           "name": "cdx:npm:package:path",
           "value": ""
         }
