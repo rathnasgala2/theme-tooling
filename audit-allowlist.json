@@ -1,18 +1,5 @@
 [
   {
-    "advisory": "GHSA-vfj7-8cjw-p6xm",
-    "packages": [
-      "braces",
-      "chokidar",
-      "nunjucks",
-      "@11ty/eleventy-dev-server",
-      "@11ty/eleventy",
-      "@rathnasgala2/template"
-    ],
-    "reason": "braces stack exhaustion is reachable only through file-watching dependencies of the registry Template used by this development-only conformance suite; the suite never enables watch mode, and npm offers no non-breaking patched Eleventy line. Revisit when Eleventy 3.x adopts patched watcher dependencies.",
-    "expires": "2026-11-04"
-  },
-  {
     "advisory": "GHSA-r7fv-28h4-cvq7",
     "packages": ["markdown-it", "@rathnasgala2/template"],
     "reason": "markdown-it 14.3.1 is an exact runtime pin of @rathnasgala2/template 4.4.0 (fixed in markdown-it 14.3.3). It is reachable here only through the Template's markdown renderer, which this development-only suite runs on its own fixed fixture content, never on untrusted input. Revisit when the Template releases with markdown-it >= 14.3.3; remove then.",
