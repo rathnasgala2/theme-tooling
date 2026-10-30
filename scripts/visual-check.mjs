@@ -592,7 +592,8 @@ async function main() {
   console.log(
     '\nvisual:check passed: 18 bounded Home/Article/Author/Listing ' +
       'scenario(s), no serious/critical axe violations, no horizontal overflow, ' +
-      'no painted card with text closer than 12px to its left, right or bottom edge.',
+      'no painted card with text closer than 12px to its left, right or bottom edge, ' +
+      'no flat card whose text is out of line with its stacked media.',
   );
 }
 

@@ -12,6 +12,7 @@ import {
   CARD_SELECTORS,
   cardInsetFailures,
   collectCardInsets,
+  minInsets,
 } from '../scripts/card-inset.mjs';
 import {
   buildVisualScenarios,
@@ -114,17 +115,45 @@ const CARD_CONTEXT = {
   width: 390,
   route: 'index.html',
 };
-const card = (painted, insets, selector = '.g-card') => ({
+const box = (left, right, top, bottom) => ({ left, right, top, bottom });
+/**
+ * A collected card record. `surfaces` are the painted boxes that govern text
+ * lines (with their min insets); `paintsBox` says whether the card paints a
+ * box at all (a bottom rule alone does not).
+ */
+const record = ({
+  selector = '.g-card',
+  painted = [],
+  paintsBox = painted.length > 0,
+  surfaces = [],
+  lines = [],
+  media = null,
+  direction = 'ltr',
+} = {}) => ({
   selector,
   index: 0,
   painted,
-  insets,
+  paintsBox,
+  surfaces,
+  lines,
+  media,
+  direction,
+});
+const surface = (label, left, right, bottom, bottomOnly = false) => ({
+  label,
+  bottomOnly,
+  insets: { left, right, bottom },
 });
 
 test('card inset: a painted card with flush text fails and names theme, palette, width, route, edge and px', () => {
   const failures = cardInsetFailures({
     ...CARD_CONTEXT,
-    cards: [card(['background'], { left: 0, right: 0, bottom: 8.1 })],
+    cards: [
+      record({
+        painted: ['background'],
+        surfaces: [surface('background', 0, 0, 8.1)],
+      }),
+    ],
   });
   assert.equal(failures.length, 3);
   const text = failures.join('\n');
@@ -140,10 +169,9 @@ test('card inset: a painted card with text 12px or more inside every edge passes
     cardInsetFailures({
       ...CARD_CONTEXT,
       cards: [
-        card(['background', 'border', 'shadow'], {
-          left: 12,
-          right: 12.5,
-          bottom: 40,
+        record({
+          painted: ['background', 'border', 'shadow'],
+          surfaces: [surface('background+border+shadow', 12, 12.5, 40)],
         }),
       ],
     }),
@@ -151,11 +179,15 @@ test('card inset: a painted card with text 12px or more inside every edge passes
   );
 });
 
-test('card inset: a card that paints nothing is unconstrained', () => {
+test('card inset: a card that paints nothing, or has no text, is unconstrained', () => {
+  assert.deepEqual(
+    cardInsetFailures({ ...CARD_CONTEXT, cards: [record()] }),
+    [],
+  );
   assert.deepEqual(
     cardInsetFailures({
       ...CARD_CONTEXT,
-      cards: [card([], { left: 0, right: 0, bottom: 0 })],
+      cards: [record({ painted: ['background'], surfaces: [] })],
     }),
     [],
   );
@@ -164,7 +196,12 @@ test('card inset: a card that paints nothing is unconstrained', () => {
 test('card inset: a border alone counts as painted', () => {
   const failures = cardInsetFailures({
     ...CARD_CONTEXT,
-    cards: [card(['border'], { left: 1, right: 30, bottom: 30 })],
+    cards: [
+      record({
+        painted: ['border'],
+        surfaces: [surface('border', 1, 30, 30)],
+      }),
+    ],
   });
   assert.equal(failures.length, 1);
   assert.match(
@@ -173,13 +210,32 @@ test('card inset: a border alone counts as painted', () => {
   );
 });
 
-test('card inset: a card without visible text has nothing to measure', () => {
+test('card inset: a top or bottom rule constrains the bottom edge only', () => {
   assert.deepEqual(
     cardInsetFailures({
       ...CARD_CONTEXT,
-      cards: [card(['background'], null)],
+      cards: [
+        record({
+          painted: ['rule'],
+          paintsBox: false,
+          surfaces: [surface('rule', 0, 0, 40, true)],
+        }),
+      ],
     }),
     [],
+  );
+  assert.equal(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        record({
+          painted: ['rule'],
+          paintsBox: false,
+          surfaces: [surface('rule', 0, 0, 4, true)],
+        }),
+      ],
+    }).length,
+    1,
   );
 });
 
@@ -187,61 +243,236 @@ test('card inset: failures of one selector and edge collapse to the worst card',
   const failures = cardInsetFailures({
     ...CARD_CONTEXT,
     cards: [
-      card(['background'], { left: 5, right: 20, bottom: 20 }),
-      card(['background'], { left: 2, right: 20, bottom: 20 }),
+      record({
+        painted: ['background'],
+        surfaces: [surface('background', 5, 20, 20)],
+      }),
+      record({
+        painted: ['background'],
+        surfaces: [surface('background', 2, 20, 20)],
+      }),
     ],
   });
   assert.equal(failures.length, 1);
   assert.match(failures[0], /2\.0px from the left edge .*2 card\(s\)/u);
 });
 
+test('card inset: a painted descendant or pseudo-element is reported under its own label', () => {
+  const failures = cardInsetFailures({
+    ...CARD_CONTEXT,
+    cards: [
+      record({
+        painted: ['background(div.g-card-body)'],
+        surfaces: [surface('background(div.g-card-body)', 0, 0, 20)],
+      }),
+      record({
+        painted: ['background(::before)'],
+        surfaces: [surface('background(::before)', 0, 0, 20)],
+      }),
+    ],
+  });
+  const text = failures.join('\n');
+  assert.match(text, /paints background\(div\.g-card-body\) but/u);
+  assert.match(text, /paints background\(::before\) but/u);
+});
+
+const FLAT_LINES = (left) => [
+  box(left, left + 200, 120, 140),
+  box(left, left + 150, 150, 170),
+];
+const STACKED_MEDIA = box(10, 310, 0, 100);
+
+test('flat card: text aligned with the stacked media passes; 0.5px off still passes', () => {
+  for (const left of [10, 10.5, 9.5]) {
+    assert.deepEqual(
+      cardInsetFailures({
+        ...CARD_CONTEXT,
+        cards: [record({ lines: FLAT_LINES(left), media: STACKED_MEDIA })],
+      }),
+      [],
+    );
+  }
+});
+
+test('flat card: text 16px right of the stacked media fails and says so', () => {
+  const failures = cardInsetFailures({
+    ...CARD_CONTEXT,
+    cards: [record({ lines: FLAT_LINES(26), media: STACKED_MEDIA })],
+  });
+  assert.equal(failures.length, 1);
+  assert.match(
+    failures[0],
+    /@scope\/theme-x index\.html dark 390px: \.g-card paints nothing and its media is stacked above the text, but its text starts 16\.0px from the media's start edge/u,
+  );
+});
+
+test('flat card: side-by-side media, no media, and painted cards are out of scope', () => {
+  // media to the left of the text: some text sits beside it, not below it
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        record({
+          lines: [box(120, 300, 10, 30)],
+          media: box(0, 100, 0, 100),
+        }),
+      ],
+    }),
+    [],
+  );
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [record({ lines: FLAT_LINES(26), media: null })],
+    }),
+    [],
+  );
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        record({
+          painted: ['background'],
+          surfaces: [surface('background', 16, 16, 16)],
+          lines: FLAT_LINES(26),
+          media: STACKED_MEDIA,
+        }),
+      ],
+    }),
+    [],
+  );
+});
+
+test('flat card: RTL aligns the right edges; a right-justified item on an aligned row passes', () => {
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        record({
+          direction: 'rtl',
+          lines: [box(110, 310, 120, 140)],
+          media: STACKED_MEDIA,
+        }),
+      ],
+    }),
+    [],
+  );
+  assert.equal(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        record({
+          direction: 'rtl',
+          lines: [box(110, 294, 120, 140)],
+          media: STACKED_MEDIA,
+        }),
+      ],
+    }).length,
+    1,
+  );
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        record({
+          lines: [box(10, 90, 120, 140), box(250, 310, 122, 138)],
+          media: STACKED_MEDIA,
+        }),
+      ],
+    }),
+    [],
+  );
+});
+
 test(
-  'card inset collector: measures text nodes, ignores hidden text and media, and reads paint',
+  'card collector: measures text nodes, ignores hidden text, media and narrow boxes, and reads paint on descendants and pseudo-elements',
   { skip: await chromiumUnavailable() },
   async () => {
     const { chromium } = await import('playwright');
     const browser = await chromium.launch();
     try {
       const page = await browser.newPage({
-        viewport: { width: 400, height: 600 },
+        viewport: { width: 400, height: 900 },
       });
       await page.setContent(`<!doctype html><style>
         body { margin: 0; background: rgb(255, 255, 255); }
         .box { width: 300px; margin: 20px 0 0 20px; }
         .hidden-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-        .g-card-media { margin: 0; }
+        .g-card-media { margin: 0; height: 40px; background: rgb(200, 200, 200); }
+        #pseudo { position: relative; }
+        #pseudo::before { content: ""; position: absolute; inset: 0; background: rgb(240, 240, 240); z-index: -1; }
+        #pseudo { isolation: isolate; }
+        .chip { background: rgb(230, 230, 230); padding: 2px 6px; }
+        .accent { border-left: 3px solid rgb(0, 0, 0); }
       </style>
       <div id="flush" class="g-card box" style="background: rgb(240, 240, 240)">Flush text</div>
       <div id="padded" class="g-card box" style="background: rgb(240, 240, 240); padding: 16px">Padded text</div>
       <div id="flat" class="g-card box">Flat, paints nothing</div>
       <div id="border" class="g-card box" style="border: 1px solid rgb(0, 0, 0)">Border only</div>
+      <div id="rule" class="g-card box" style="border-bottom: 1px solid rgb(0, 0, 0); padding-bottom: 20px">Rule only</div>
       <div id="shadow" class="g-card box" style="box-shadow: 0 2px 4px rgb(0 0 0 / 0.3); padding: 12px">Shadow card</div>
       <div id="hidden" class="g-card box" style="background: rgb(240, 240, 240); padding: 16px">
         Visible <span class="hidden-text">Screen reader only, no inset</span>
         <figure class="g-card-media"><svg width="300" height="20"><text x="0" y="14">media label</text></svg></figure>
-      </div>`);
+      </div>
+      <div id="body" class="g-card box"><div class="g-card-body" style="background: rgb(240, 240, 240)">Painted body, flush</div></div>
+      <div id="pseudo" class="g-card box">Pseudo slab, flush</div>
+      <div id="chip" class="g-card box"><span class="chip">chip</span> text</div>
+      <div id="accent" class="g-card box"><div class="accent" style="padding-left: 0">accent only</div></div>
+      <div id="stacked-bad" class="g-card box"><figure class="g-card-media"></figure><div class="g-card-body" style="padding: 16px 16px 0">Misaligned</div></div>
+      <div id="stacked-ok" class="g-card box"><figure class="g-card-media"></figure><div class="g-card-body" style="padding: 16px 0 0">Aligned</div></div>`);
       const records = await page.evaluate(collectCardInsets, CARD_SELECTORS);
-      const byId = new Map();
       /* eslint-disable no-undef -- runs in the browser. */
       const ids = await page.evaluate(() =>
         Array.from(document.querySelectorAll('.g-card')).map((el) => el.id),
       );
       /* eslint-enable no-undef */
-      records.forEach((record, i) => byId.set(ids[i], record));
+      const byId = new Map(records.map((r, i) => [ids[i], r]));
+      const insets = (id) => minInsets(byId.get(id));
+      const failuresOf = (id) =>
+        cardInsetFailures({ ...CARD_CONTEXT, cards: [byId.get(id)] });
+
       assert.deepEqual(byId.get('flush').painted, ['background']);
-      assert.equal(byId.get('flush').insets.left, 0);
-      assert.equal(byId.get('flush').insets.right > 12, true);
-      assert.deepEqual(byId.get('padded').painted, ['background']);
-      assert.equal(byId.get('padded').insets.left, 16);
-      assert.equal(byId.get('padded').insets.right > 16, true);
+      assert.equal(insets('flush').left, 0);
+      assert.equal(insets('padded').left, 16);
       assert.deepEqual(byId.get('flat').painted, []);
+      assert.equal(insets('flat'), null);
       assert.deepEqual(byId.get('border').painted, ['border']);
-      assert.equal(byId.get('border').insets.left, 1);
+      assert.equal(insets('border').left, 1);
+      // a bottom rule is not a box: no left/right constraint, bottom still checked
+      assert.deepEqual(byId.get('rule').painted, ['rule']);
+      assert.equal(byId.get('rule').paintsBox, false);
+      assert.deepEqual(failuresOf('rule'), []);
       assert.deepEqual(byId.get('shadow').painted, ['shadow']);
-      assert.equal(byId.get('shadow').insets.left, 12);
-      // The clipped screen-reader span and the svg media label are ignored.
-      assert.equal(byId.get('hidden').textLines, 1);
-      assert.equal(byId.get('hidden').insets.left, 16);
+      assert.equal(insets('shadow').left, 12);
+      // hidden text and the svg media label are ignored
+      assert.equal(byId.get('hidden').lines.length, 1);
+      assert.equal(insets('hidden').left, 16);
+
+      // paint on a descendant: the wide body governs the text
+      assert.deepEqual(byId.get('body').painted, [
+        'background(div.g-card-body)',
+      ]);
+      assert.equal(insets('body').left, 0);
+      assert.equal(failuresOf('body').length, 2); // left and bottom
+      // paint on a pseudo-element
+      assert.deepEqual(byId.get('pseudo').painted, ['background(::before)']);
+      assert.equal(insets('pseudo').left, 0);
+      assert.match(
+        failuresOf('pseudo').join('\n'),
+        /paints background\(::before\)/u,
+      );
+      // a narrow painted descendant (chip) and a one-sided accent are not surfaces
+      assert.deepEqual(byId.get('chip').painted, []);
+      assert.deepEqual(byId.get('accent').painted, []);
+
+      // flat alignment, driven by the collected geometry
+      assert.equal(failuresOf('stacked-bad').length, 1);
+      assert.match(
+        failuresOf('stacked-bad')[0],
+        /text starts 16\.0px from the media's start edge/u,
+      );
+      assert.deepEqual(failuresOf('stacked-ok'), []);
     } finally {
       await browser.close();
     }

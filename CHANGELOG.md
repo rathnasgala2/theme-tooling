@@ -20,6 +20,22 @@ All notable changes to `@rathnasgala2/theme-tooling` are documented here.
   The one-article fixture never rendered a grid card, which is how a
   surface-coloured card with flush text passed the harness.
 
+- Card rule 2, flat cards: a card that paints no box and has media stacked
+  above its text keeps the start edge of every text row within 1px of the
+  media's start edge (the right edge in RTL). Side-by-side media and cards
+  without media are out of scope. This catches a flat card whose body keeps
+  side padding after the slab it was designed for is gone.
+- Card rule 1 now reads paint on descendants and pseudo-elements: each text
+  line is measured against the nearest painted box between it and the card
+  (the card, a descendant at least 90% of the card's width, or the `::before`
+  or `::after` of either). Narrow painted boxes (chips) and one- or two-sided
+  accent borders on descendants are not card surfaces; a top or bottom border
+  on the card is a rule that constrains the bottom edge only.
+- The measured set adds `.g-interactions`, `.g-listen-list`, `.g-consent`,
+  `.g-pager-link` and `.g-toc-mobile`. The fixture renders the pager links and
+  the mobile TOC; the other three need modules the fixture does not configure.
+  `.g-search-hit` stays out: search hits are menu rows, not cards.
+
 ### Changed
 
 - The bounded scenario plan is 18 (was 12): Home, Author and Listing are

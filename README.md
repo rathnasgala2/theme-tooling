@@ -281,7 +281,15 @@ text line at least 12px inside its left, right and bottom edges. Painted means
 a computed background that differs from the effective background behind the
 card, any visible border side, or a box-shadow other than `none`; a card that
 paints nothing is unconstrained. It covers `.g-card`, `.g-card-row`,
-`.g-panel`, `.g-author-card`, `.g-series-card` and `.g-series-box`. A theme
+`.g-panel`, `.g-author-card`, `.g-series-card`, `.g-series-box`,
+`.g-interactions`, `.g-listen-list`, `.g-consent`, `.g-pager-link` and
+`.g-toc-mobile`. Paint on a wide descendant or a `::before`/`::after` counts:
+each text line is measured against the nearest painted box around it. A top or
+bottom border alone is a rule and constrains the bottom edge only.
+
+**Flat card alignment**: a card that paints no box and stacks its media above
+the text keeps every text row's start edge within 1px of the media's start edge
+(right edge in RTL); side-by-side media and cards without media are exempt. A theme
 that fails either pads the card (its `card-pad` token or a skin rule) or makes
 it paint nothing (`background: transparent` and no border or shadow in its
 `components.css`).
