@@ -43,6 +43,8 @@ All notable changes to `@rathnasgala2/theme-tooling` are documented here.
   palette.
 - The dated-rows check asserts one visible date stamp per row (was: one in the
   whole listing).
+- The generation-4 theme matrix accepts any 4.2 patch release of a sibling
+  theme (was: exactly 4.2.0), so theme-amaze and theme-editorial 4.2.1 pass.
 
 ## [0.7.0] - 2026-10-21
 

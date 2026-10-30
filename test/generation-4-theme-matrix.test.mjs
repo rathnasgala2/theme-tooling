@@ -57,10 +57,10 @@ for (const definition of GENERATION_4_THEMES) {
       throw error;
     }
     // Template 4.4.0 refuses every contract-4.0.0 theme, so the matrix
-    // expects the 4.2.0 generation: contract 4.1.0 on the installed
-    // Template's own styling-contract digest.
+    // expects the 4.2 generation (any patch release of it): contract 4.1.0
+    // on the installed Template's own styling-contract digest.
     const stylingContract = await readTemplateStylingContract();
-    assert.equal(packageDefinition.version, '4.2.0');
+    assert.match(packageDefinition.version, /^4\.2\.\d+$/);
     assert.equal(theme.contractVersion, stylingContract.contractVersion);
     assert.equal(theme.contractVersion, '4.1.0');
     assert.equal(theme.templateRange, '^4.4.0');
