@@ -2,6 +2,32 @@
 
 All notable changes to `@rathnasgala2/theme-tooling` are documented here.
 
+## [Unreleased]
+
+### Added
+
+- `visual:check` enforces the card inset rule (`scripts/card-inset.mjs`): a
+  painted card (a background that differs from what is behind it, any visible
+  border side, or a box-shadow) keeps every line of its text at least 12px
+  inside its left, right and bottom edges. A card that paints nothing is
+  unconstrained. Text is measured from text-node client rects (Range), never
+  element boxes; visually hidden or clipped text and media are ignored. The
+  failure names theme, palette, width, route, selector, edge and px.
+  `cardInsetFailures` is a pure function with `node --test` coverage; the
+  browser collector has a Chromium test.
+- The shared fixture now renders seven articles (three in one series), so the
+  home latest grid, related cards, the series card and the series box exist.
+  The one-article fixture never rendered a grid card, which is how a
+  surface-coloured card with flush text passed the harness.
+
+### Changed
+
+- The bounded scenario plan is 18 (was 12): Home, Author and Listing are
+  checked at 320 and 1440px in both palettes, since card paint depends on the
+  palette.
+- The dated-rows check asserts one visible date stamp per row (was: one in the
+  whole listing).
+
 ## [0.7.0] - 2026-10-21
 
 ### Added

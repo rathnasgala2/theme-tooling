@@ -272,8 +272,19 @@ per palette (light/dark, selected through Playwright's `colorScheme`
 context option — the template's pre-paint bootstrap script resolves
 `prefers-color-scheme` the same way for a real visitor). At each of the
 six combinations it runs an axe-core scan (failing on any `serious`/
-`critical` violation), asserts there is no horizontal overflow, and writes
-a full-page screenshot.
+`critical` violation), asserts there is no horizontal overflow, asserts the
+card inset rule below, and writes a full-page screenshot. Home, Author and
+Listing are checked at 320 and 1440px in both palettes (18 scenarios).
+
+**Card inset rule** (`scripts/card-inset.mjs`): a painted card keeps every
+text line at least 12px inside its left, right and bottom edges. Painted means
+a computed background that differs from the effective background behind the
+card, any visible border side, or a box-shadow other than `none`; a card that
+paints nothing is unconstrained. It covers `.g-card`, `.g-card-row`,
+`.g-panel`, `.g-author-card`, `.g-series-card` and `.g-series-box`. A theme
+that fails either pads the card (its `card-pad` token or a skin rule) or makes
+it paint nothing (`background: transparent` and no border or shadow in its
+`components.css`).
 
 Usage: `node bin/cli.mjs visual:check -- --out <directory>` (from a
 theme's `tooling/`, via `run.mjs`) or directly,

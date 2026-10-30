@@ -15,8 +15,8 @@
  * context option, which the template's own pre-paint bootstrap script
  * resolves through `prefers-color-scheme` exactly as it would for a real
  * visitor's OS-level preference. The Article receives the full two-palette,
- * three-width matrix. Home, Author and Listing each receive light-palette
- * phone and desktop checks, keeping the gate bounded at twelve scenarios:
+ * three-width matrix. Home, Author and Listing each receive both-palette
+ * phone and desktop checks, keeping the gate bounded at eighteen scenarios:
  *
  * - asserts every declared non-print theme stylesheet resolved with HTTP
  *   200 and that a computed custom property equals the theme contract's
@@ -24,6 +24,8 @@
  * - runs an axe-core accessibility scan, failing on any `serious` or
  *   `critical` violation;
  * - asserts the page has no horizontal overflow at that width;
+ * - asserts the card inset rule (`card-inset.mjs`): a painted card keeps
+ *   its text at least 12px inside its left, right and bottom edges;
  * - writes a full-page screenshot to the caller-named `--out` directory,
  *   and asserts the light and dark screenshots at a given width differ
  *   (proof the two palettes actually render differently).
@@ -45,6 +47,11 @@ import { pathToFileURL } from 'node:url';
 
 import { chromium } from 'playwright';
 
+import {
+  CARD_SELECTORS,
+  cardInsetFailures,
+  collectCardInsets,
+} from './card-inset.mjs';
 import { buildFixtureProvenance } from './fixture-provenance.mjs';
 import { resolveTemplateDir } from './resolve-template-dir.mjs';
 import { resolveThemeRoot } from './resolve-theme-root.mjs';
@@ -67,7 +74,8 @@ const ROUTE_KINDS = ['home', 'article', 'author', 'listing'];
 
 /**
  * Keep the exhaustive palette/width matrix on the content-dense Article and
- * add only phone/desktop light checks for the other composition surfaces.
+ * add phone/desktop checks in both palettes for the other composition surfaces
+ * (card paint depends on the palette, so the card inset rule needs both).
  *
  * @param {Record<'home'|'article'|'author'|'listing', string>} routePaths
  * @returns {{routeKind: 'home'|'article'|'author'|'listing', routePath: string, palette: 'light'|'dark', width: number}[]}
@@ -82,12 +90,14 @@ export function buildVisualScenarios(routePaths) {
     })),
   );
   const supporting = ['home', 'author', 'listing'].flatMap((routeKind) =>
-    [320, 1440].map((width) => ({
-      routeKind: /** @type {'home'|'author'|'listing'} */ (routeKind),
-      routePath: routePaths[routeKind],
-      palette: /** @type {const} */ ('light'),
-      width,
-    })),
+    PALETTES.flatMap((palette) =>
+      [320, 1440].map((width) => ({
+        routeKind: /** @type {'home'|'author'|'listing'} */ (routeKind),
+        routePath: routePaths[routeKind],
+        palette,
+        width,
+      })),
+    ),
   );
   return [...article, ...supporting];
 }
@@ -422,11 +432,13 @@ async function main() {
               '.g-grid > .g-card:nth-child(3n + 1) .g-card-media',
             ),
             datedRowDates: Array.from(
-              document.querySelectorAll('.g-dated-row time'),
-            ).map((element) => ({
-              className: element.className,
-              visible: getComputedStyle(element).display !== 'none',
-            })),
+              document.querySelectorAll('.g-dated-row'),
+            ).map((row) =>
+              Array.from(row.querySelectorAll('time')).map((element) => ({
+                className: element.className,
+                visible: getComputedStyle(element).display !== 'none',
+              })),
+            ),
           };
         });
         /* eslint-enable no-undef */
@@ -479,18 +491,18 @@ async function main() {
           routeKind === 'listing' &&
           compositionGeometry.listingLayout === 'dated-rows'
         ) {
-          const visibleDates = compositionGeometry.datedRowDates.filter(
-            (date) => date.visible,
-          );
-          if (
-            visibleDates.length !== 1 ||
-            visibleDates[0].className !== 'g-date-stamp'
-          ) {
-            console.error(
-              `${themeName} listing ${palette} ${width}px: dated rows ` +
-                `must expose one visible date stamp (${JSON.stringify(compositionGeometry.datedRowDates)})`,
-            );
-            failed = true;
+          for (const row of compositionGeometry.datedRowDates) {
+            const visibleDates = row.filter((date) => date.visible);
+            if (
+              visibleDates.length !== 1 ||
+              visibleDates[0].className !== 'g-date-stamp'
+            ) {
+              console.error(
+                `${themeName} listing ${palette} ${width}px: dated rows ` +
+                  `must expose one visible date stamp (${JSON.stringify(row)})`,
+              );
+              failed = true;
+            }
           }
         }
 
@@ -508,6 +520,20 @@ async function main() {
           );
           failed = true;
         }
+
+        const cardRecords = await page.evaluate(
+          collectCardInsets,
+          CARD_SELECTORS,
+        );
+        const cardFailures = cardInsetFailures({
+          theme: themeName,
+          palette,
+          width,
+          route: routePath,
+          cards: cardRecords,
+        });
+        for (const cardFailure of cardFailures) console.error(cardFailure);
+        if (cardFailures.length > 0) failed = true;
 
         const { violations } = await runAxe(page, axeSource);
         const failingViolations = violations.filter((violation) =>
@@ -564,8 +590,9 @@ async function main() {
     return;
   }
   console.log(
-    '\nvisual:check passed: 12 bounded Home/Article/Author/Listing ' +
-      'scenario(s), no serious/critical axe violations, no horizontal overflow.',
+    '\nvisual:check passed: 18 bounded Home/Article/Author/Listing ' +
+      'scenario(s), no serious/critical axe violations, no horizontal overflow, ' +
+      'no painted card with text closer than 12px to its left, right or bottom edge.',
   );
 }
 

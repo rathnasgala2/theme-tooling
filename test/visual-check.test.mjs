@@ -9,6 +9,11 @@ import { test } from 'node:test';
 import { resolveTemplateDir } from '../scripts/resolve-template-dir.mjs';
 import { resolveThemeRoot } from '../scripts/resolve-theme-root.mjs';
 import {
+  CARD_SELECTORS,
+  cardInsetFailures,
+  collectCardInsets,
+} from '../scripts/card-inset.mjs';
+import {
   buildVisualScenarios,
   themeCssFailures,
 } from '../scripts/visual-check.mjs';
@@ -76,7 +81,7 @@ test('scenario plan covers article palettes and widths plus bounded home, author
     author: 'site/authors/writer/index.html',
     listing: 'site/tags/topic/index.html',
   });
-  assert.equal(scenarios.length, 12);
+  assert.equal(scenarios.length, 18);
   assert.deepEqual(
     scenarios.filter((scenario) => scenario.routeKind === 'article'),
     ['light', 'dark'].flatMap((palette) =>
@@ -96,10 +101,152 @@ test('scenario plan covers article palettes and widths plus bounded home, author
       [
         { palette: 'light', width: 320 },
         { palette: 'light', width: 1440 },
+        { palette: 'dark', width: 320 },
+        { palette: 'dark', width: 1440 },
       ],
     );
   }
 });
+
+const CARD_CONTEXT = {
+  theme: '@scope/theme-x',
+  palette: 'dark',
+  width: 390,
+  route: 'index.html',
+};
+const card = (painted, insets, selector = '.g-card') => ({
+  selector,
+  index: 0,
+  painted,
+  insets,
+});
+
+test('card inset: a painted card with flush text fails and names theme, palette, width, route, edge and px', () => {
+  const failures = cardInsetFailures({
+    ...CARD_CONTEXT,
+    cards: [card(['background'], { left: 0, right: 0, bottom: 8.1 })],
+  });
+  assert.equal(failures.length, 3);
+  const text = failures.join('\n');
+  assert.match(text, /@scope\/theme-x index\.html dark 390px/u);
+  assert.match(text, /\.g-card paints background/u);
+  assert.match(text, /0\.0px from the left edge/u);
+  assert.match(text, /0\.0px from the right edge/u);
+  assert.match(text, /8\.1px from the bottom edge/u);
+});
+
+test('card inset: a painted card with text 12px or more inside every edge passes', () => {
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [
+        card(['background', 'border', 'shadow'], {
+          left: 12,
+          right: 12.5,
+          bottom: 40,
+        }),
+      ],
+    }),
+    [],
+  );
+});
+
+test('card inset: a card that paints nothing is unconstrained', () => {
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [card([], { left: 0, right: 0, bottom: 0 })],
+    }),
+    [],
+  );
+});
+
+test('card inset: a border alone counts as painted', () => {
+  const failures = cardInsetFailures({
+    ...CARD_CONTEXT,
+    cards: [card(['border'], { left: 1, right: 30, bottom: 30 })],
+  });
+  assert.equal(failures.length, 1);
+  assert.match(
+    failures[0],
+    /paints border but its text is 1\.0px from the left/u,
+  );
+});
+
+test('card inset: a card without visible text has nothing to measure', () => {
+  assert.deepEqual(
+    cardInsetFailures({
+      ...CARD_CONTEXT,
+      cards: [card(['background'], null)],
+    }),
+    [],
+  );
+});
+
+test('card inset: failures of one selector and edge collapse to the worst card', () => {
+  const failures = cardInsetFailures({
+    ...CARD_CONTEXT,
+    cards: [
+      card(['background'], { left: 5, right: 20, bottom: 20 }),
+      card(['background'], { left: 2, right: 20, bottom: 20 }),
+    ],
+  });
+  assert.equal(failures.length, 1);
+  assert.match(failures[0], /2\.0px from the left edge .*2 card\(s\)/u);
+});
+
+test(
+  'card inset collector: measures text nodes, ignores hidden text and media, and reads paint',
+  { skip: await chromiumUnavailable() },
+  async () => {
+    const { chromium } = await import('playwright');
+    const browser = await chromium.launch();
+    try {
+      const page = await browser.newPage({
+        viewport: { width: 400, height: 600 },
+      });
+      await page.setContent(`<!doctype html><style>
+        body { margin: 0; background: rgb(255, 255, 255); }
+        .box { width: 300px; margin: 20px 0 0 20px; }
+        .hidden-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .g-card-media { margin: 0; }
+      </style>
+      <div id="flush" class="g-card box" style="background: rgb(240, 240, 240)">Flush text</div>
+      <div id="padded" class="g-card box" style="background: rgb(240, 240, 240); padding: 16px">Padded text</div>
+      <div id="flat" class="g-card box">Flat, paints nothing</div>
+      <div id="border" class="g-card box" style="border: 1px solid rgb(0, 0, 0)">Border only</div>
+      <div id="shadow" class="g-card box" style="box-shadow: 0 2px 4px rgb(0 0 0 / 0.3); padding: 12px">Shadow card</div>
+      <div id="hidden" class="g-card box" style="background: rgb(240, 240, 240); padding: 16px">
+        Visible <span class="hidden-text">Screen reader only, no inset</span>
+        <figure class="g-card-media"><svg width="300" height="20"><text x="0" y="14">media label</text></svg></figure>
+      </div>`);
+      const records = await page.evaluate(collectCardInsets, CARD_SELECTORS);
+      const byId = new Map();
+      /* eslint-disable no-undef -- runs in the browser. */
+      const ids = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('.g-card')).map((el) => el.id),
+      );
+      /* eslint-enable no-undef */
+      records.forEach((record, i) => byId.set(ids[i], record));
+      assert.deepEqual(byId.get('flush').painted, ['background']);
+      assert.equal(byId.get('flush').insets.left, 0);
+      assert.equal(byId.get('flush').insets.right > 12, true);
+      assert.deepEqual(byId.get('padded').painted, ['background']);
+      assert.equal(byId.get('padded').insets.left, 16);
+      assert.equal(byId.get('padded').insets.right > 16, true);
+      assert.deepEqual(byId.get('flat').painted, []);
+      assert.deepEqual(byId.get('border').painted, ['border']);
+      assert.equal(byId.get('border').insets.left, 1);
+      assert.deepEqual(byId.get('shadow').painted, ['shadow']);
+      assert.equal(byId.get('shadow').insets.left, 12);
+      // The clipped screen-reader span and the svg media label are ignored.
+      assert.equal(byId.get('hidden').textLines, 1);
+      assert.equal(byId.get('hidden').insets.left, 16);
+    } finally {
+      await browser.close();
+    }
+  },
+);
 
 test('theme CSS evidence fails closed when expected theme stylesheets are absent', () => {
   const failures = themeCssFailures({
@@ -151,8 +298,8 @@ test(
       );
       assert.equal(
         files.length,
-        12,
-        `expected 12 screenshots, got: ${files.join(', ')}; ` +
+        18,
+        `expected 18 screenshots, got: ${files.join(', ')}; ` +
           `visual-check exit=${exitCode}, stderr=${stderr}`,
       );
       assert.equal(
@@ -166,8 +313,13 @@ test(
         }
       }
       for (const routeKind of ['home', 'author', 'listing']) {
-        for (const width of [320, 1440]) {
-          assert.match(stdout, new RegExp(`${routeKind} light ${width}px:`));
+        for (const palette of ['light', 'dark']) {
+          for (const width of [320, 1440]) {
+            assert.match(
+              stdout,
+              new RegExp(`${routeKind} ${palette} ${width}px:`),
+            );
+          }
         }
       }
 
