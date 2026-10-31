@@ -1229,8 +1229,8 @@
     {
       "type": "library",
       "name": "markdown-it",
-      "version": "14.3.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1",
+      "version": "14.3.3",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3",
       "licenses": [
         {
           "license": {
@@ -1239,15 +1239,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/markdown-it@14.3.1",
+      "purl": "pkg:npm/markdown-it@14.3.3",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/markdown-it/-/markdown-it-14.3.1.tgz",
+          "url": "https://registry.npmjs.org/markdown-it/-/markdown-it-14.3.3.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "e048f8f5a6130c5210fae0647d7f0606f24671ca00471c4f7a9fbb6964ece79a336e3409a56f4cdba15ee77be71a0bcb795cef6bf6a6ce3410690bbdc34bcc84"
+              "content": "2fffed0c09234e324253aa4151205382cdca83822755a66e519a20fdbe95d7650a85c0d0ed2efcf3bee26db09a9d1131c0fb983f50990fb19dd9dc52cb519746"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -1268,7 +1268,7 @@
           "type": "library",
           "name": "entities",
           "version": "4.5.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1|entities@4.5.0",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3|entities@4.5.0",
           "licenses": [
             {
               "license": {
@@ -1307,8 +1307,8 @@
     {
       "type": "library",
       "name": "sanitize-html",
-      "version": "2.17.7",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7",
+      "version": "2.18.1",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1",
       "licenses": [
         {
           "license": {
@@ -1317,15 +1317,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/sanitize-html@2.17.7",
+      "purl": "pkg:npm/sanitize-html@2.18.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/sanitize-html/-/sanitize-html-2.17.7.tgz",
+          "url": "https://registry.npmjs.org/sanitize-html/-/sanitize-html-2.18.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "3c6b4491cf5c6e779d537b3d4e6cc36e9b19f30d3cea0ff443c93cfe820ed4d2cd5378b993dca7f37e42ae32526a3a7528c9a48ac6ced6a3d7c4d28edf07a502"
+              "content": "d97e650bc7d895af18693f20ef7363f8770b5976a7e5d2f20962e056f68e99fc3b248efc211b3236d203cad4c7767ee10506c89026a1ed96e67798da6f37838a"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -1346,7 +1346,7 @@
           "type": "library",
           "name": "htmlparser2",
           "version": "12.0.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|htmlparser2@12.0.0",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|htmlparser2@12.0.0",
           "licenses": [
             {
               "license": {
@@ -1384,7 +1384,7 @@
           "type": "library",
           "name": "domelementtype",
           "version": "3.0.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domelementtype@3.0.0",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domelementtype@3.0.0",
           "licenses": [
             {
               "license": {
@@ -1422,7 +1422,7 @@
           "type": "library",
           "name": "domhandler",
           "version": "6.0.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domhandler@6.0.1",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domhandler@6.0.1",
           "licenses": [
             {
               "license": {
@@ -1460,7 +1460,7 @@
           "type": "library",
           "name": "domutils",
           "version": "4.0.2",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domutils@4.0.2",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domutils@4.0.2",
           "licenses": [
             {
               "license": {
@@ -1498,7 +1498,7 @@
           "type": "library",
           "name": "entities",
           "version": "8.1.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|entities@8.1.0",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|entities@8.1.0",
           "licenses": [
             {
               "license": {
@@ -1536,7 +1536,7 @@
           "type": "library",
           "name": "dom-serializer",
           "version": "3.1.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|dom-serializer@3.1.1",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|dom-serializer@3.1.1",
           "licenses": [
             {
               "license": {
@@ -5769,44 +5769,6 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/uc.micro"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "deepmerge",
-      "version": "4.3.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|deepmerge@4.3.1",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/deepmerge@4.3.1",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/deepmerge/-/deepmerge-4.3.1.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "dec52a6cc11cefb5eaa5d34eec547246883e796de987e19809b8feacafae63244cbb0b15cb4acc895b4f9fe40994a16f58fff53d8a5aa6a627d0c7b6927167f8"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/deepmerge"
         }
       ]
     },
@@ -14164,8 +14126,8 @@
         "@rathnasgala2/theme-tooling@0.7.0|@11ty/eleventy@3.1.6",
         "@rathnasgala2/theme-tooling@0.7.0|@rathnasgala2/schemas@3.16.0",
         "@rathnasgala2/theme-tooling@0.7.0|jpeg-js@0.4.4",
-        "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7"
+        "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1"
       ]
     },
     {
@@ -14364,7 +14326,7 @@
         "@rathnasgala2/theme-tooling@0.7.0|kleur@4.1.5",
         "@rathnasgala2/theme-tooling@0.7.0|liquidjs@10.30.0",
         "@rathnasgala2/theme-tooling@0.7.0|luxon@3.7.2",
-        "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1",
+        "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3",
         "@rathnasgala2/theme-tooling@0.7.0|minimist@1.2.8",
         "@rathnasgala2/theme-tooling@0.7.0|@11ty/eleventy@3.1.6|moo@0.5.2",
         "@rathnasgala2/theme-tooling@0.7.0|node-retrieve-globals@6.0.1",
@@ -14385,10 +14347,10 @@
       "ref": "@rathnasgala2/theme-tooling@0.7.0|jpeg-js@0.4.4"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3",
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.7.0|argparse@2.0.1",
-        "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1|entities@4.5.0",
+        "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3|entities@4.5.0",
         "@rathnasgala2/theme-tooling@0.7.0|linkify-it@5.0.2",
         "@rathnasgala2/theme-tooling@0.7.0|mdurl@2.1.0",
         "@rathnasgala2/theme-tooling@0.7.0|punycode.js@2.3.1",
@@ -14396,14 +14358,13 @@
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.1|entities@4.5.0"
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|markdown-it@14.3.3|entities@4.5.0"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|deepmerge@4.3.1",
         "@rathnasgala2/theme-tooling@0.7.0|escape-string-regexp@4.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|htmlparser2@12.0.0",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|htmlparser2@12.0.0",
         "@rathnasgala2/theme-tooling@0.7.0|is-plain-object@5.1.0",
         "@rathnasgala2/theme-tooling@0.7.0|launder@1.7.2",
         "@rathnasgala2/theme-tooling@0.7.0|parse-srcset@1.0.2",
@@ -14411,40 +14372,40 @@
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|htmlparser2@12.0.0",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|htmlparser2@12.0.0",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domelementtype@3.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domhandler@6.0.1",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domutils@4.0.2",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|entities@8.1.0"
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domelementtype@3.0.0",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domhandler@6.0.1",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domutils@4.0.2",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|entities@8.1.0"
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domelementtype@3.0.0"
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domelementtype@3.0.0"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domhandler@6.0.1",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domhandler@6.0.1",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domelementtype@3.0.0"
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domelementtype@3.0.0"
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domutils@4.0.2",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domutils@4.0.2",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|dom-serializer@3.1.1",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domelementtype@3.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domhandler@6.0.1"
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|dom-serializer@3.1.1",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domelementtype@3.0.0",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domhandler@6.0.1"
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|entities@8.1.0"
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|entities@8.1.0"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|dom-serializer@3.1.1",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|dom-serializer@3.1.1",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domelementtype@3.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|domhandler@6.0.1",
-        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.17.7|entities@8.1.0"
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domelementtype@3.0.0",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|domhandler@6.0.1",
+        "@rathnasgala2/theme-tooling@0.7.0|sanitize-html@2.18.1|entities@8.1.0"
       ]
     },
     {
@@ -15015,9 +14976,6 @@
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|uc.micro@2.1.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|deepmerge@4.3.1"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|is-plain-object@5.1.0"
