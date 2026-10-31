@@ -2613,8 +2613,8 @@
     {
       "type": "library",
       "name": "minimatch",
-      "version": "10.2.6",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|minimatch@10.2.6",
+      "version": "11.0.3",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|minimatch@11.0.3",
       "licenses": [
         {
           "license": {
@@ -2623,15 +2623,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/minimatch@10.2.6",
+      "purl": "pkg:npm/minimatch@11.0.3",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.6.tgz",
+          "url": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.3.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "be92d012cf952c2af59d4d015d2d3b99a628170943007d209e042ebadb71230bad0c510c1ead9b957fbcbe98310dd2b72753f08c22627a9efb3a2b536782e5d4"
+              "content": "8a7cbfe343c41a4349439fcfbfacf79e6e856d101bcb7d86799463094264d969cd0db80f49371d23e0c3bcbaac801743e1c0f9b0cb4c85ea8f3e77a10826bc37"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -4580,122 +4580,6 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@11ty/recursive-copy"
-        }
-      ],
-      "components": [
-        {
-          "type": "library",
-          "name": "minimatch",
-          "version": "3.1.5",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|minimatch@3.1.5",
-          "licenses": [
-            {
-              "license": {
-                "id": "ISC",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/minimatch@3.1.5",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/minimatch/-/minimatch-3.1.5.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "5608d652c9e74fa9fe35493a799abbef37857695b62d60f33facc51ab09b1d789836e9790f3aa4d871d0e6e147d83356e576e9f3e8d5cda78db7de2cb04125e3"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/@11ty/recursive-copy/node_modules/minimatch"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "brace-expansion",
-          "version": "1.1.21",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|brace-expansion@1.1.21",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/brace-expansion@1.1.21",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.21.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "f73780f8a2d934dce0945d933ca450103cb1e986f2edd68092ecbc3223f3a573ec6035a2fc344cf239b0503c689108d8a81a6fe4380f8b00f88786594b2d548f"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/@11ty/recursive-copy/node_modules/brace-expansion"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "balanced-match",
-          "version": "1.0.2",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|balanced-match@1.0.2",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/balanced-match@1.0.2",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "de849e50ed13315ebb84dd4099b5ec2b8c9aa94eed8e21e56f144364ea47d0a5bdf82797e1b440697d009f1b74b71d8cae94695b041a3f02252121098585393f"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/@11ty/recursive-copy/node_modules/balanced-match"
-            }
-          ]
         }
       ]
     },
@@ -6764,6 +6648,45 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/is-extglob"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "nonrecursive-glob-match",
+      "group": "@isaacs",
+      "version": "1.0.3",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|@isaacs/nonrecursive-glob-match@1.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0",
+            "acknowledgement": "declared"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40isaacs/nonrecursive-glob-match@1.0.3",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@isaacs/nonrecursive-glob-match/-/nonrecursive-glob-match-1.0.3.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "488ee4c8a1eae175c3468cf0fabf4695166489ad59905ae92d6f7caf6202d81a6bf18905184ddfbe3ce6c421b4c7bf00fbeebd1e60cdac3bd23180599871a928"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:development",
+          "value": "true"
+        },
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@isaacs/nonrecursive-glob-match"
         }
       ]
     },
@@ -12368,26 +12291,26 @@
     {
       "type": "library",
       "name": "glob",
-      "version": "10.5.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0",
+      "version": "14.0.3",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|glob@14.0.3",
       "scope": "optional",
       "licenses": [
         {
           "license": {
-            "id": "ISC",
+            "id": "BlueOak-1.0.0",
             "acknowledgement": "declared"
           }
         }
       ],
-      "purl": "pkg:npm/glob@10.5.0",
+      "purl": "pkg:npm/glob@14.0.3",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/glob/-/glob-10.5.0.tgz",
+          "url": "https://registry.npmjs.org/glob/-/glob-14.0.3.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "0df5cdf037e127b347dce7bb7059aedcd0aed7029b911789f13a2bcd20056d22ab94d69048a7c8cea62a558f3395bb3634b05b5a9462539d865f63db68154d92"
+              "content": "035be32300b7aa9742b28e39230d76ee09e9eec3e1aa063c9544210eb02b22cf866e67da6953c5ba8cb2ed6c8b4fd10f642459ee3eda2ddc1485098759eb04a3"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -12401,125 +12324,6 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/glob"
-        }
-      ],
-      "components": [
-        {
-          "type": "library",
-          "name": "minimatch",
-          "version": "9.0.9",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|minimatch@9.0.9",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "ISC",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/minimatch@9.0.9",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/minimatch/-/minimatch-9.0.9.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "381c0137d00be1daa61139694b6cdab31faf4de59c956ce46e57d993b2930398f78de38e373fed4429d9a26532bcd83cdf02f966ff52b3a1cc2570202fc47662"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/glob/node_modules/minimatch"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "brace-expansion",
-          "version": "2.1.7",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|brace-expansion@2.1.7",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/brace-expansion@2.1.7",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.7.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "b996dec3536a7663c34cc27c6a1d72f9bfbd40426b7e45c593745c4d0c375f48d6ff1454bc52ac83509f41d49819d4db5d9584c6d53727771cc6d9dfc35162d2"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/glob/node_modules/brace-expansion"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "balanced-match",
-          "version": "1.0.2",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|balanced-match@1.0.2",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/balanced-match@1.0.2",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "de849e50ed13315ebb84dd4099b5ec2b8c9aa94eed8e21e56f144364ea47d0a5bdf82797e1b440697d009f1b74b71d8cae94695b041a3f02252121098585393f"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/glob/node_modules/balanced-match"
-            }
-          ]
         }
       ]
     },
@@ -13340,44 +13144,6 @@
     },
     {
       "type": "library",
-      "name": "concat-map",
-      "version": "0.0.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|concat-map@0.0.1",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/concat-map@0.0.1",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "fd2aefe1db30c903417e8846a73f68e986f71b3dd2ad40ea047e6b4ee84647b6a1b656d82a7571c366c214c4658da03b1171da5d9f30b07768745bdb9212a6aa"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/concat-map"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "to-regex-range",
       "version": "5.0.1",
       "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|to-regex-range@5.0.1",
@@ -13799,126 +13565,9 @@
     },
     {
       "type": "library",
-      "name": "foreground-child",
-      "version": "3.3.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|foreground-child@3.3.1",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "ISC",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/foreground-child@3.3.1",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/foreground-child/-/foreground-child-3.3.1.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "8085e32aab45b96120cc544903d58241e4892d90e380950e302333c6dbc5abfdfb2a88ccd41146b9faac0b2d2be2a4909982ec65831ec91ab321638cba9d37b3"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/foreground-child"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "jackspeak",
-      "version": "3.4.3",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|jackspeak@3.4.3",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "BlueOak-1.0.0",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/jackspeak@3.4.3",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/jackspeak/-/jackspeak-3.4.3.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "386959429cf6c9f6a103f45dd58f0277d48812caaf5e42d5a12c3f720c219e114c0dbb1015e658a0927b6c86414bd05c6a6516f7a6acabf9e93d6ba033e45007"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/jackspeak"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "package-json-from-dist",
-      "version": "1.0.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|package-json-from-dist@1.0.1",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "BlueOak-1.0.0",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/package-json-from-dist@1.0.1",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/package-json-from-dist/-/package-json-from-dist-1.0.1.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "5046484b7fdbcb8382f2f2f73f67535d1113a5e6cb236362239bc8ae3683ff952dae4157fed35bc234d2440182ffeec2028da921c05a4605a670104772c68223"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/package-json-from-dist"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "path-scurry",
-      "version": "1.11.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|path-scurry@1.11.1",
+      "version": "3.0.0",
+      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|path-scurry@3.0.0",
       "scope": "optional",
       "licenses": [
         {
@@ -13928,15 +13577,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/path-scurry@1.11.1",
+      "purl": "pkg:npm/path-scurry@3.0.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/path-scurry/-/path-scurry-1.11.1.tgz",
+          "url": "https://registry.npmjs.org/path-scurry/-/path-scurry-3.0.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "5dae0dc35ec54bd02940527dba62e2252e28ac68e6ed9cf052bc1a99c190b874b30f2b61f5ba0a0dac9c61d0dc643baa6004d7c381c55e06aa59372d5bfbf51c"
+              "content": "d694db42a1f5c08c0c8bf7a5790e657854d30a4cc5b0f7205cd8f0380f181865bf5b8fe41d3dddb2c13b67a347fb3baa34b3b3381d2e683eb5ca5edc01c56182"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -13950,6 +13599,47 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/path-scurry"
+        }
+      ],
+      "components": [
+        {
+          "type": "library",
+          "name": "lru-cache",
+          "version": "11.5.3",
+          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|path-scurry@3.0.0|lru-cache@11.5.3",
+          "scope": "optional",
+          "licenses": [
+            {
+              "license": {
+                "id": "BlueOak-1.0.0",
+                "acknowledgement": "declared"
+              }
+            }
+          ],
+          "purl": "pkg:npm/lru-cache@11.5.3",
+          "externalReferences": [
+            {
+              "url": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.3.tgz",
+              "type": "distribution",
+              "hashes": [
+                {
+                  "alg": "SHA-512",
+                  "content": "53837c160ce65b173c935547f0aafa950835f14ec58ef6f2eb05c75515ff659ec8c166d1320ad16cfd16adbe6ae4d5629ebca9e1241a9a91ca76fb5e708b7152"
+                }
+              ],
+              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+            }
+          ],
+          "properties": [
+            {
+              "name": "cdx:npm:package:development",
+              "value": "true"
+            },
+            {
+              "name": "cdx:npm:package:path",
+              "value": "node_modules/path-scurry/node_modules/lru-cache"
+            }
+          ]
         }
       ]
     },
@@ -14305,125 +13995,6 @@
     },
     {
       "type": "library",
-      "name": "signal-exit",
-      "version": "4.1.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|signal-exit@4.1.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "ISC",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/signal-exit@4.1.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/signal-exit/-/signal-exit-4.1.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "6f3c99d5ef3cc3d3b588d25b2a73a5bd84eb58f0e5e3a3b56c6d03dd7227bfef6d90faf1acdf235144e21650e4926296827d4ce827c8035dd2b86a8e6bd2a8af"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/signal-exit"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "cliui",
-      "group": "@isaacs",
-      "version": "8.0.2",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|@isaacs/cliui@8.0.2",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "ISC",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/%40isaacs/cliui@8.0.2",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "3bc8dc8da6d76a578e1bd0d0d3e0115d66414df9cfe16340ab3ba224aee5978e009b118abff2763384cf8f18d8df39c109fbc15c5cee726d6dc1dc85c9b16a10"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/@isaacs/cliui"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "parseargs",
-      "group": "@pkgjs",
-      "version": "0.11.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|@pkgjs/parseargs@0.11.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/%40pkgjs/parseargs@0.11.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "fb55648dd0f44012cfa1d1ab2547aa6ab1fc54022f40e0c86f087d5e93f94b28ac7fb628420b0928f345a2aa8b425bbe550fed552b21311ea5a0f327f14f9d3e"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/@pkgjs/parseargs"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "safer-buffer",
       "version": "2.1.2",
       "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|safer-buffer@2.1.2",
@@ -14538,870 +14109,6 @@
           "value": "node_modules/ieee754"
         }
       ]
-    },
-    {
-      "type": "library",
-      "name": "string-width",
-      "version": "4.2.3",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/string-width@4.2.3",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "c0ac90450a63274b08a7ad84ad265d1ac8cc256b1aa79a1136284786ee86ec954effd8c807a5327af2feb57b8eaab9e0f23fdcc4a4d6c96530bd24eb8a2673fe"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/string-width-cjs"
-        }
-      ],
-      "components": [
-        {
-          "type": "library",
-          "name": "emoji-regex",
-          "version": "8.0.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|emoji-regex@8.0.0",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/emoji-regex@8.0.0",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "3128d8cdc58d380d1ec001e9cf4331a5816fc20eb28f2d4d1b7c6d7a8ab3eb8e150a8fd13e09ebd7f186b7e89cde2253cd0f04bb74dd335e126b09d5526184e8"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/string-width-cjs/node_modules/emoji-regex"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "strip-ansi",
-          "version": "6.0.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|strip-ansi@6.0.1",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/strip-ansi@6.0.1",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "637f153d21dcaa416b0a916743dbee4979aabaebf9a1738aa46793e9a1abaf7a3719cf409556ba2417d448e0a76f1186645fbfd28a08ecaacfb944b3b54754e4"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/string-width-cjs/node_modules/strip-ansi"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "ansi-regex",
-          "version": "5.0.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|ansi-regex@5.0.1",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/ansi-regex@5.0.1",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "aae2505e54d25062f62c7f52517a3c570b18e2ca1a9e1828e8b3529bce04d4b05c13cb373b4c29762473c91f73fd9649325316bf7eea38e6fda5d26531410a15"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/string-width-cjs/node_modules/ansi-regex"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "string-width",
-      "version": "5.1.2",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@5.1.2",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/string-width@5.1.2",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/string-width/-/string-width-5.1.2.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "1e72ce091def8dc63c6dea0d2ed723679fe7c67d9a7e6304ea586b0eb79ba24a8c6a9f976de5bc9fd4d7a4f0cea9d18ae6a708de84f418a4d6eb00bb10c895a8"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/string-width"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "strip-ansi",
-      "version": "6.0.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@6.0.1",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/strip-ansi@6.0.1",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "637f153d21dcaa416b0a916743dbee4979aabaebf9a1738aa46793e9a1abaf7a3719cf409556ba2417d448e0a76f1186645fbfd28a08ecaacfb944b3b54754e4"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/strip-ansi-cjs"
-        }
-      ],
-      "components": [
-        {
-          "type": "library",
-          "name": "ansi-regex",
-          "version": "5.0.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@6.0.1|ansi-regex@5.0.1",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/ansi-regex@5.0.1",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "aae2505e54d25062f62c7f52517a3c570b18e2ca1a9e1828e8b3529bce04d4b05c13cb373b4c29762473c91f73fd9649325316bf7eea38e6fda5d26531410a15"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/strip-ansi-cjs/node_modules/ansi-regex"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "strip-ansi",
-      "version": "7.2.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@7.2.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/strip-ansi@7.2.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-7.2.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "c833cc363a785b27d80641e78c844b7dc6b58ba28cc860adb1582829eff3d7eeafba481a10d76018166df9998a3dce206afbc46793a01df1ddadace180dc86ef"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/strip-ansi"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "wrap-ansi",
-      "version": "7.0.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/wrap-ansi@7.0.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "6151888f691a98b493c70e8db198e80717d2c2c9f4c9c75eb26738a7e436d5ce733ee675a65f8d7f155dc4fb5d1ef98d54e43a5d2606e0052dcadfc58bb0f5e9"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/wrap-ansi-cjs"
-        }
-      ],
-      "components": [
-        {
-          "type": "library",
-          "name": "ansi-styles",
-          "version": "4.3.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|ansi-styles@4.3.0",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/ansi-styles@4.3.0",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "cdb07dac22404f5adb8e25436f686a2851cd60bc60b64f0d511c59dc86700f717a36dc5b5d94029e74a2d4b931f880e885d3e5169db6db05402c885e64941212"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/wrap-ansi-cjs/node_modules/ansi-styles"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "string-width",
-          "version": "4.2.3",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|string-width@4.2.3",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/string-width@4.2.3",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "c0ac90450a63274b08a7ad84ad265d1ac8cc256b1aa79a1136284786ee86ec954effd8c807a5327af2feb57b8eaab9e0f23fdcc4a4d6c96530bd24eb8a2673fe"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/wrap-ansi-cjs/node_modules/string-width"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "strip-ansi",
-          "version": "6.0.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|strip-ansi@6.0.1",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/strip-ansi@6.0.1",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "637f153d21dcaa416b0a916743dbee4979aabaebf9a1738aa46793e9a1abaf7a3719cf409556ba2417d448e0a76f1186645fbfd28a08ecaacfb944b3b54754e4"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/wrap-ansi-cjs/node_modules/strip-ansi"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "emoji-regex",
-          "version": "8.0.0",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|emoji-regex@8.0.0",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/emoji-regex@8.0.0",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "3128d8cdc58d380d1ec001e9cf4331a5816fc20eb28f2d4d1b7c6d7a8ab3eb8e150a8fd13e09ebd7f186b7e89cde2253cd0f04bb74dd335e126b09d5526184e8"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/wrap-ansi-cjs/node_modules/emoji-regex"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "ansi-regex",
-          "version": "5.0.1",
-          "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|ansi-regex@5.0.1",
-          "scope": "optional",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT",
-                "acknowledgement": "declared"
-              }
-            }
-          ],
-          "purl": "pkg:npm/ansi-regex@5.0.1",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "aae2505e54d25062f62c7f52517a3c570b18e2ca1a9e1828e8b3529bce04d4b05c13cb373b4c29762473c91f73fd9649325316bf7eea38e6fda5d26531410a15"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:development",
-              "value": "true"
-            },
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/wrap-ansi-cjs/node_modules/ansi-regex"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "wrap-ansi",
-      "version": "8.1.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@8.1.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/wrap-ansi@8.1.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-8.1.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "b22ed0588eb350cab9e9b11216f6a0b66ccc7463ada317d1f927b3d753286df73bb66f9591472493d6d6d9479f7d319551b3a4b31992c34000da0b3c83bd4d09"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/wrap-ansi"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "is-fullwidth-code-point",
-      "version": "3.0.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|is-fullwidth-code-point@3.0.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/is-fullwidth-code-point@3.0.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "cf29a6e7ebbeb02b125b20fda8d69e8d5dc316f84229c94a762cd868952e1c0f3744b8dbee74ae1a775d0871afd2193e298ec130096c59e2b851e83a115e9742"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/is-fullwidth-code-point"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "eastasianwidth",
-      "version": "0.2.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|eastasianwidth@0.2.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/eastasianwidth@0.2.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/eastasianwidth/-/eastasianwidth-0.2.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "23cf1361959cf578981d1438ff7739ae38df8248e12f25b696e18885e18445b350e8e63bc93c9b6a74a90d765af32ed550ff589837186be7b2ab871aee22ea58"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/eastasianwidth"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "emoji-regex",
-      "version": "9.2.2",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|emoji-regex@9.2.2",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/emoji-regex@9.2.2",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/emoji-regex/-/emoji-regex-9.2.2.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "2f5f03689b17494936fb8da9bfc98bb398c94f686a164144e23db5c0e9a06d4aac67684bef636c514efce60f515e0a37b3464d815978d93887a7766d3affd5ca"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/emoji-regex"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "ansi-regex",
-      "version": "6.3.0",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|ansi-regex@6.3.0",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/ansi-regex@6.3.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-6.3.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "5a90df2fb34eea3eed1fcf080c13557542710e1f67982b5e0155bd76c7a9f38e977701789da0812befed18b5f728981ca603115c21654ccda1286a0af45b1dad"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/ansi-regex"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "ansi-styles",
-      "version": "6.2.3",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|ansi-styles@6.2.3",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/ansi-styles@6.2.3",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-6.2.3.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "e038fa336f0907ea001fc9059132d4a3e6b68f038592ea9bdf2b9c53408035c45151bc52d1c3f49d96021a371cdc1357c1122c5159831a0cdac267bbcef247be"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/ansi-styles"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "color-convert",
-      "version": "2.0.1",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|color-convert@2.0.1",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/color-convert@2.0.1",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "4511023ec8fb8aeff16f9a0a61cb051d2a6914d9ec8ffe763954d129be333f9a275f0545df3566993a0d70e7c60be0910e97cafd4e7ce1f320dfc64709a12529"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/color-convert"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "color-name",
-      "version": "1.1.4",
-      "bom-ref": "@rathnasgala2/theme-tooling@0.7.0|color-name@1.1.4",
-      "scope": "optional",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/color-name@1.1.4",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "74ecbedc0b96ddadb035b64722e319a537208c6b8b53fb812ffb9b71917d3976c3a3c7dfe0ef32569e417f479f4bcb84a18a39ab8171edd63d3a04065e002c40"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/color-name"
-        }
-      ]
     }
   ],
   "dependencies": [
@@ -15494,7 +14201,7 @@
         "@rathnasgala2/theme-tooling@0.7.0|imurmurhash@0.1.4",
         "@rathnasgala2/theme-tooling@0.7.0|is-glob@4.0.3",
         "@rathnasgala2/theme-tooling@0.7.0|json-stable-stringify-without-jsonify@1.0.1",
-        "@rathnasgala2/theme-tooling@0.7.0|minimatch@10.2.6",
+        "@rathnasgala2/theme-tooling@0.7.0|minimatch@11.0.3",
         "@rathnasgala2/theme-tooling@0.7.0|natural-compare@1.4.0",
         "@rathnasgala2/theme-tooling@0.7.0|optionator@0.9.4"
       ]
@@ -15758,7 +14465,7 @@
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.7.0|@eslint/object-schema@3.0.5",
         "@rathnasgala2/theme-tooling@0.7.0|debug@4.4.3",
-        "@rathnasgala2/theme-tooling@0.7.0|minimatch@10.2.6"
+        "@rathnasgala2/theme-tooling@0.7.0|minimatch@11.0.3"
       ]
     },
     {
@@ -15881,8 +14588,9 @@
       "ref": "@rathnasgala2/theme-tooling@0.7.0|json-stable-stringify-without-jsonify@1.0.1"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|minimatch@10.2.6",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|minimatch@11.0.3",
       "dependsOn": [
+        "@rathnasgala2/theme-tooling@0.7.0|@isaacs/nonrecursive-glob-match@1.0.3",
         "@rathnasgala2/theme-tooling@0.7.0|brace-expansion@5.0.12"
       ]
     },
@@ -16146,25 +14854,9 @@
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.7.0|errno@1.0.0",
         "@rathnasgala2/theme-tooling@0.7.0|junk@3.1.0",
-        "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|minimatch@3.1.5",
+        "@rathnasgala2/theme-tooling@0.7.0|minimatch@11.0.3",
         "@rathnasgala2/theme-tooling@0.7.0|slash@3.0.0"
       ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|minimatch@3.1.5",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|brace-expansion@1.1.21"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|brace-expansion@1.1.21",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|balanced-match@1.0.2",
-        "@rathnasgala2/theme-tooling@0.7.0|concat-map@0.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|@11ty/recursive-copy@4.0.4|balanced-match@1.0.2"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|@sindresorhus/slugify@2.2.1",
@@ -16422,6 +15114,9 @@
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|is-extglob@2.1.1"
+    },
+    {
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|@isaacs/nonrecursive-glob-match@1.0.3"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|brace-expansion@5.0.12",
@@ -16834,7 +15529,7 @@
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.7.0|@npmcli/fs@4.0.0",
         "@rathnasgala2/theme-tooling@0.7.0|fs-minipass@3.0.3",
-        "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0",
+        "@rathnasgala2/theme-tooling@0.7.0|glob@14.0.3",
         "@rathnasgala2/theme-tooling@0.7.0|lru-cache@10.4.3",
         "@rathnasgala2/theme-tooling@0.7.0|minipass-collect@2.0.1",
         "@rathnasgala2/theme-tooling@0.7.0|minipass-flush@1.0.7",
@@ -17153,30 +15848,12 @@
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|glob@14.0.3",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|foreground-child@3.3.1",
-        "@rathnasgala2/theme-tooling@0.7.0|jackspeak@3.4.3",
-        "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|minimatch@9.0.9",
+        "@rathnasgala2/theme-tooling@0.7.0|minimatch@11.0.3",
         "@rathnasgala2/theme-tooling@0.7.0|minipass@7.1.3",
-        "@rathnasgala2/theme-tooling@0.7.0|package-json-from-dist@1.0.1",
-        "@rathnasgala2/theme-tooling@0.7.0|path-scurry@1.11.1"
+        "@rathnasgala2/theme-tooling@0.7.0|path-scurry@3.0.0"
       ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|minimatch@9.0.9",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|brace-expansion@2.1.7"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|brace-expansion@2.1.7",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|balanced-match@1.0.2"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|glob@10.5.0|balanced-match@1.0.2"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|minipass-collect@2.0.1",
@@ -17267,9 +15944,6 @@
       "ref": "@rathnasgala2/theme-tooling@0.7.0|mime-db@1.54.0"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|concat-map@0.0.1"
-    },
-    {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|to-regex-range@5.0.1",
       "dependsOn": [
         "@rathnasgala2/theme-tooling@0.7.0|is-number@7.0.0"
@@ -17326,28 +16000,14 @@
       ]
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|foreground-child@3.3.1",
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|path-scurry@3.0.0",
       "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|cross-spawn@7.0.6",
-        "@rathnasgala2/theme-tooling@0.7.0|signal-exit@4.1.0"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|jackspeak@3.4.3",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|@isaacs/cliui@8.0.2",
-        "@rathnasgala2/theme-tooling@0.7.0|@pkgjs/parseargs@0.11.0"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|package-json-from-dist@1.0.1"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|path-scurry@1.11.1",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|lru-cache@10.4.3",
+        "@rathnasgala2/theme-tooling@0.7.0|path-scurry@3.0.0|lru-cache@11.5.3",
         "@rathnasgala2/theme-tooling@0.7.0|minipass@7.1.3"
       ]
+    },
+    {
+      "ref": "@rathnasgala2/theme-tooling@0.7.0|path-scurry@3.0.0|lru-cache@11.5.3"
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|unique-slug@5.0.0",
@@ -17395,23 +16055,6 @@
       "ref": "@rathnasgala2/theme-tooling@0.7.0|smart-buffer@4.2.0"
     },
     {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|signal-exit@4.1.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|@isaacs/cliui@8.0.2",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3",
-        "@rathnasgala2/theme-tooling@0.7.0|string-width@5.1.2",
-        "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@6.0.1",
-        "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@7.2.0",
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@8.1.0"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|@pkgjs/parseargs@0.11.0"
-    },
-    {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|safer-buffer@2.1.2"
     },
     {
@@ -17419,115 +16062,6 @@
     },
     {
       "ref": "@rathnasgala2/theme-tooling@0.7.0|ieee754@1.2.1"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|emoji-regex@8.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|is-fullwidth-code-point@3.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|strip-ansi@6.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|emoji-regex@8.0.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|strip-ansi@6.0.1",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|ansi-regex@5.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@4.2.3|ansi-regex@5.0.1"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|string-width@5.1.2",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|eastasianwidth@0.2.0",
-        "@rathnasgala2/theme-tooling@0.7.0|emoji-regex@9.2.2",
-        "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@7.2.0"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@6.0.1",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@6.0.1|ansi-regex@5.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@6.0.1|ansi-regex@5.0.1"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@7.2.0",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|ansi-regex@6.3.0"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|ansi-styles@4.3.0",
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|string-width@4.2.3",
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|strip-ansi@6.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|ansi-styles@4.3.0",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|color-convert@2.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|string-width@4.2.3",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|emoji-regex@8.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|is-fullwidth-code-point@3.0.0",
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|strip-ansi@6.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|strip-ansi@6.0.1",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|ansi-regex@5.0.1"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|emoji-regex@8.0.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@7.0.0|ansi-regex@5.0.1"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|wrap-ansi@8.1.0",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|ansi-styles@6.2.3",
-        "@rathnasgala2/theme-tooling@0.7.0|string-width@5.1.2",
-        "@rathnasgala2/theme-tooling@0.7.0|strip-ansi@7.2.0"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|is-fullwidth-code-point@3.0.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|eastasianwidth@0.2.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|emoji-regex@9.2.2"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|ansi-regex@6.3.0"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|ansi-styles@6.2.3"
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|color-convert@2.0.1",
-      "dependsOn": [
-        "@rathnasgala2/theme-tooling@0.7.0|color-name@1.1.4"
-      ]
-    },
-    {
-      "ref": "@rathnasgala2/theme-tooling@0.7.0|color-name@1.1.4"
     }
   ]
 }
